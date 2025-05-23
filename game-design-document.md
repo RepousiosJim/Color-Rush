@@ -91,11 +91,7 @@
 
 ## 5. Enhanced Game Mechanics
 
-### Simple Match-3 Rules
-- **Basic Matching:** Only horizontal and vertical matches of 3+ identical pieces
-- **No Complex Patterns:** No L-shapes, T-shapes, or diagonal matches
-- **Clear & Consistent:** Easy to understand and predict
-- **Classic Appeal:** Familiar to all match-3 players
+### Simple Match-3 Rules- **Basic Matching:** Only horizontal and vertical matches of 3+ identical pieces- **Consecutive Neighbors:** Pieces must be adjacent with no gaps between them- **No Complex Patterns:** No L-shapes, T-shapes, or diagonal matches- **No Empty Cells:** Empty spaces break the consecutive sequence- **Clear & Consistent:** Easy to understand and predict- **Classic Appeal:** Familiar to all match-3 players
 
 ### Match Detection Algorithm
 ```javascript

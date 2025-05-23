@@ -73,7 +73,8 @@ const gameState = {
   
   // Timers
   timer: null,
-  processingTimeout: null
+  processingTimeout: null,
+  scanInterval: null
 };
 
 // Enhanced shape system
@@ -190,6 +191,11 @@ function resetGameState(mode) {
     gameState.processingTimeout = null;
   }
   
+  if (gameState.scanInterval) {
+    clearInterval(gameState.scanInterval);
+    gameState.scanInterval = null;
+  }
+  
   gameState.board = [];
   gameState.selectedShape = null;
   gameState.score = 0;
@@ -265,10 +271,10 @@ function initializeBoard() {
     }
   }
   
-  // Check for any auto-matches after board creation
+  // Start continuous immediate match checking after board creation
   setTimeout(() => {
-    checkAndProcessAutoMatches();
-  }, 100);
+    startContinuousMatchScanning();
+  }, 50);
 }
 
 // Helper function to check if placing a shape would create an initial match
@@ -446,53 +452,77 @@ function isAdjacent(row1, col1, row2, col2) {
 async function attemptSwap(row1, col1, row2, col2) {
   if (gameState.isProcessing) return;
   
-  gameState.isProcessing = true;
-  
-  [gameState.board[row1][col1], gameState.board[row2][col2]] = 
-  [gameState.board[row2][col2], gameState.board[row1][col1]];
-  
-  const matches = findMatches();
-  
-  if (matches.length > 0) {
-    await animateSwap(row1, col1, row2, col2);
-    await processMatches(matches);
-    updateMoveCount();
-  } else {
+  try {
+    gameState.isProcessing = true;
+    
     [gameState.board[row1][col1], gameState.board[row2][col2]] = 
     [gameState.board[row2][col2], gameState.board[row1][col1]];
-    await animateInvalidSwap(row1, col1, row2, col2);
+    
+    const matches = findMatches();
+    
+    if (matches.length > 0) {
+      await animateSwap(row1, col1, row2, col2);
+      
+      // Process matches immediately after swap
+      setTimeout(() => {
+        processMatches(matches);
+      }, 50);
+      
+      updateMoveCount();
+    } else {
+      [gameState.board[row1][col1], gameState.board[row2][col2]] = 
+      [gameState.board[row2][col2], gameState.board[row1][col1]];
+      await animateInvalidSwap(row1, col1, row2, col2);
+    }
+    
+    checkGameState();
+  } catch (error) {
+    console.error('Error in attemptSwap:', error);
+    showMessage('Game error occurred. Please try again.', 'error');
+    
+    // Try to revert the swap if it happened
+    try {
+      [gameState.board[row1][col1], gameState.board[row2][col2]] = 
+      [gameState.board[row2][col2], gameState.board[row1][col1]];
+    } catch (revertError) {
+      console.error('Failed to revert swap:', revertError);
+    }
+  } finally {
+    gameState.isProcessing = false;
   }
-  
-  gameState.isProcessing = false;
-  checkGameState();
 }
 
 async function animateSwap(row1, col1, row2, col2) {
-  const shape1 = document.querySelector(`[data-row="${row1}"][data-col="${col1}"]`);
-  const shape2 = document.querySelector(`[data-row="${row2}"][data-col="${col2}"]`);
-  
-  if (!shape1 || !shape2) return;
-  
-  const rect1 = shape1.getBoundingClientRect();
-  const rect2 = shape2.getBoundingClientRect();
-  
-  shape1.style.transition = 'transform 0.3s ease-out';
-  shape2.style.transition = 'transform 0.3s ease-out';
-  
-  shape1.style.transform = `translate(${rect2.left - rect1.left}px, ${rect2.top - rect1.top}px)`;
-  shape2.style.transform = `translate(${rect1.left - rect2.left}px, ${rect1.top - rect2.top}px)`;
-  
-  await new Promise(resolve => setTimeout(resolve, 300));
-  
-  shape1.dataset.row = row2;
-  shape1.dataset.col = col2;
-  shape2.dataset.row = row1;
-  shape2.dataset.col = col1;
-  
-  shape1.style.transition = '';
-  shape2.style.transition = '';
-  shape1.style.transform = '';
-  shape2.style.transform = '';
+  try {
+    const shape1 = document.querySelector(`[data-row="${row1}"][data-col="${col1}"]`);
+    const shape2 = document.querySelector(`[data-row="${row2}"][data-col="${col2}"]`);
+    
+    if (!shape1 || !shape2) return;
+    
+    const rect1 = shape1.getBoundingClientRect();
+    const rect2 = shape2.getBoundingClientRect();
+    
+    shape1.style.transition = 'transform 0.3s ease-out';
+    shape2.style.transition = 'transform 0.3s ease-out';
+    
+    shape1.style.transform = `translate(${rect2.left - rect1.left}px, ${rect2.top - rect1.top}px)`;
+    shape2.style.transform = `translate(${rect1.left - rect2.left}px, ${rect1.top - rect2.top}px)`;
+    
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    shape1.dataset.row = row2;
+    shape1.dataset.col = col2;
+    shape2.dataset.row = row1;
+    shape2.dataset.col = col1;
+    
+    shape1.style.transition = '';
+    shape2.style.transition = '';
+    shape1.style.transform = '';
+    shape2.style.transform = '';
+  } catch (error) {
+    console.error('Error in animateSwap:', error);
+    // Don't show user message for animation errors as they're not critical
+  }
 }
 
 async function animateInvalidSwap(row1, col1, row2, col2) {
@@ -513,77 +543,71 @@ async function animateInvalidSwap(row1, col1, row2, col2) {
 function findMatches() {
   const matches = [];
   
-  // Check horizontal matches (row by row)
+  // Check horizontal matches (row by row) - only consecutive neighbors
   for (let row = 0; row < 8; row++) {
-    let count = 1;
-    let currentType = gameState.board[row][0] ? gameState.board[row][0].type : null;
+    let consecutiveGroup = [];
     
-    for (let col = 1; col < 8; col++) {
+    for (let col = 0; col < 8; col++) {
       const shape = gameState.board[row][col];
-      const shapeType = shape ? shape.type : null;
       
-      if (shapeType && shapeType === currentType) {
-        count++;
-      } else {
-        // Check if we have a match of 3 or more
-        if (count >= 3 && currentType) {
-          const match = [];
-          for (let i = col - count; i < col; i++) {
-            match.push({ row, col: i });
-          }
-          matches.push(match);
+      if (shape && consecutiveGroup.length > 0 && 
+          shape.type === gameState.board[row][consecutiveGroup[0].col].type) {
+        // Same type as current group - add to consecutive group
+        consecutiveGroup.push({ row, col });
+      } else if (shape) {
+        // Different type or starting new group
+        // First check if previous group was a match
+        if (consecutiveGroup.length >= 3) {
+          matches.push([...consecutiveGroup]);
         }
-        
-        // Start new sequence
-        currentType = shapeType;
-        count = 1;
+        // Start new group
+        consecutiveGroup = [{ row, col }];
+      } else {
+        // Empty cell - breaks consecutive sequence
+        if (consecutiveGroup.length >= 3) {
+          matches.push([...consecutiveGroup]);
+        }
+        consecutiveGroup = [];
       }
     }
     
-    // Check the last group in the row
-    if (count >= 3 && currentType) {
-      const match = [];
-      for (let i = 8 - count; i < 8; i++) {
-        match.push({ row, col: i });
-      }
-      matches.push(match);
+    // Check final group in row
+    if (consecutiveGroup.length >= 3) {
+      matches.push([...consecutiveGroup]);
     }
   }
   
-  // Check vertical matches (column by column)
+  // Check vertical matches (column by column) - only consecutive neighbors
   for (let col = 0; col < 8; col++) {
-    let count = 1;
-    let currentType = gameState.board[0][col] ? gameState.board[0][col].type : null;
+    let consecutiveGroup = [];
     
-    for (let row = 1; row < 8; row++) {
+    for (let row = 0; row < 8; row++) {
       const shape = gameState.board[row][col];
-      const shapeType = shape ? shape.type : null;
       
-      if (shapeType && shapeType === currentType) {
-        count++;
-      } else {
-        // Check if we have a match of 3 or more
-        if (count >= 3 && currentType) {
-          const match = [];
-          for (let i = row - count; i < row; i++) {
-            match.push({ row: i, col });
-          }
-          matches.push(match);
+      if (shape && consecutiveGroup.length > 0 && 
+          shape.type === gameState.board[consecutiveGroup[0].row][col].type) {
+        // Same type as current group - add to consecutive group
+        consecutiveGroup.push({ row, col });
+      } else if (shape) {
+        // Different type or starting new group
+        // First check if previous group was a match
+        if (consecutiveGroup.length >= 3) {
+          matches.push([...consecutiveGroup]);
         }
-        
-        // Start new sequence
-        currentType = shapeType;
-        count = 1;
+        // Start new group
+        consecutiveGroup = [{ row, col }];
+      } else {
+        // Empty cell - breaks consecutive sequence
+        if (consecutiveGroup.length >= 3) {
+          matches.push([...consecutiveGroup]);
+        }
+        consecutiveGroup = [];
       }
     }
     
-    // Check the last group in the column
-    if (count >= 3 && currentType) {
-      const match = [];
-      for (let i = 8 - count; i < 8; i++) {
-        match.push({ row: i, col });
-      }
-      matches.push(match);
+    // Check final group in column
+    if (consecutiveGroup.length >= 3) {
+      matches.push([...consecutiveGroup]);
     }
   }
   
@@ -591,35 +615,45 @@ function findMatches() {
 }
 
 async function processMatches(matches) {
-  let totalScore = 0;
-  gameState.combo++;
-  
-  for (const match of matches) {
-    const matchScore = calculateMatchScore(match);
-    totalScore += matchScore;
-  }
-  
-  const comboBonus = Math.min(gameState.combo, 10) * 0.1;
-  totalScore = Math.floor(totalScore * (1 + comboBonus));
-  gameState.score += totalScore;
-  
-  showScorePopup(totalScore, matches[0][0]);
-  
-  await animateMatches(matches);
-  removeMatchedPieces(matches);
-  await cascadeBoard();
-  
-  const newMatches = findMatches();
-  if (newMatches.length > 0) {
-    await processMatches(newMatches);
-  } else {
+  try {
+    let totalScore = 0;
+    gameState.combo++;
+    
+    for (const match of matches) {
+      const matchScore = calculateMatchScore(match);
+      totalScore += matchScore;
+    }
+    
+    const comboBonus = Math.min(gameState.combo, 10) * 0.1;
+    totalScore = Math.floor(totalScore * (1 + comboBonus));
+    gameState.score += totalScore;
+    
+    showScorePopup(totalScore, matches[0][0]);
+    
+    await animateMatches(matches);
+    removeMatchedPieces(matches);
+    await cascadeBoard();
+    
+    const newMatches = findMatches();
+    if (newMatches.length > 0) {
+      await processMatches(newMatches);
+    } else {
+      gameState.combo = 0;
+      gameState.cascadeMultiplier = 1;
+      highlightPossibleMoves();
+    }
+    
+    updateAllUI();
+    checkObjectiveProgress();
+  } catch (error) {
+    console.error('Error in processMatches:', error);
+    showMessage('Error processing matches. Game state may be inconsistent.', 'error');
+    
+    // Try to reset combo and multiplier
     gameState.combo = 0;
     gameState.cascadeMultiplier = 1;
-    highlightPossibleMoves();
+    updateAllUI();
   }
-  
-  updateAllUI();
-  checkObjectiveProgress();
 }
 
 function calculateMatchScore(match) {
@@ -665,7 +699,8 @@ async function animateMatches(matches) {
     }
   }
   
-  await new Promise(resolve => setTimeout(resolve, 400));
+  // Faster animation for immediate breaking
+  await new Promise(resolve => setTimeout(resolve, 200));
   elements.forEach(el => el.remove());
 }
 
@@ -678,45 +713,59 @@ function removeMatchedPieces(matches) {
 }
 
 async function cascadeBoard() {
-  let hasMovement = true;
-  
-  while (hasMovement) {
-    hasMovement = false;
+  try {
+    let hasMovement = true;
     
-    for (let col = 0; col < 8; col++) {
-      for (let row = 7; row >= 0; row--) {
-        if (!gameState.board[row][col]) {
-          for (let sourceRow = row - 1; sourceRow >= 0; sourceRow--) {
-            if (gameState.board[sourceRow][col]) {
-              gameState.board[row][col] = gameState.board[sourceRow][col];
-              gameState.board[sourceRow][col] = null;
-              
-              const element = document.querySelector(`[data-row="${sourceRow}"][data-col="${col}"]`);
-              if (element) {
-                element.dataset.row = row;
-                element.style.transition = 'transform 0.3s ease-in';
-                element.style.transform = `translateY(${(row - sourceRow) * 60}px)`;
-                setTimeout(() => {
-                  element.style.transition = '';
-                  element.style.transform = '';
-                }, 300);
+    while (hasMovement) {
+      hasMovement = false;
+      
+      for (let col = 0; col < 8; col++) {
+        for (let row = 7; row >= 0; row--) {
+          if (!gameState.board[row][col]) {
+            for (let sourceRow = row - 1; sourceRow >= 0; sourceRow--) {
+              if (gameState.board[sourceRow][col]) {
+                gameState.board[row][col] = gameState.board[sourceRow][col];
+                gameState.board[sourceRow][col] = null;
+                
+                const element = document.querySelector(`[data-row="${sourceRow}"][data-col="${col}"]`);
+                if (element) {
+                  element.dataset.row = row;
+                  element.style.transition = 'transform 0.2s ease-in';
+                  element.style.transform = `translateY(${(row - sourceRow) * 60}px)`;
+                  setTimeout(() => {
+                    element.style.transition = '';
+                    element.style.transform = '';
+                    // Check for matches immediately after each piece lands
+                    checkForImmediateMatches();
+                  }, 200);
+                }
+                
+                hasMovement = true;
+                break;
               }
-              
-              hasMovement = true;
-              break;
             }
           }
         }
       }
+      
+      if (hasMovement) {
+        await new Promise(resolve => setTimeout(resolve, 200));
+      }
     }
     
-    if (hasMovement) {
-      await new Promise(resolve => setTimeout(resolve, 300));
+    await fillEmptySpaces();
+    gameState.cascadeMultiplier++;
+  } catch (error) {
+    console.error('Error in cascadeBoard:', error);
+    showMessage('Error during cascade. Board may need refresh.', 'error');
+    
+    // Try to at least update the visual board
+    try {
+      updateBoardVisual();
+    } catch (visualError) {
+      console.error('Failed to update board visual:', visualError);
     }
   }
-  
-  await fillEmptySpaces();
-  gameState.cascadeMultiplier++;
 }
 
 // Cascade without triggering auto-match checking (for use during auto-match processing)
@@ -777,17 +826,22 @@ async function fillEmptySpaces() {
         board.appendChild(element);
         
         setTimeout(() => {
-          element.style.transition = 'all 0.3s ease-out';
+          element.style.transition = 'all 0.2s ease-out';
           element.style.opacity = '1';
           element.style.transform = 'translateY(0)';
+        }, 25);
+        
+        // Check for immediate matches as each piece is placed
+        setTimeout(() => {
+          checkForImmediateMatches();
         }, 50);
       }
     }
   }
   
-  await new Promise(resolve => setTimeout(resolve, 300));
+  await new Promise(resolve => setTimeout(resolve, 150));
   
-  // After filling spaces, check for auto-matches
+  // Final check for any remaining auto-matches
   await checkAndProcessAutoMatches();
 }
 
@@ -818,26 +872,59 @@ async function fillEmptySpacesOnly() {
   await new Promise(resolve => setTimeout(resolve, 300));
 }
 
+// Immediate match detection - checks and breaks matches instantly
+function checkForImmediateMatches() {
+  if (gameState.isProcessing) return;
+  
+  const matches = findMatches();
+  if (matches.length > 0) {
+    // Process matches immediately without delay
+    setTimeout(() => processAutoMatches(matches), 10);
+  }
+}
+
+// Continuous match scanning - constantly looks for matches to break
+function startContinuousMatchScanning() {
+  // Initial scan
+  checkForImmediateMatches();
+  
+  // Set up continuous scanning every 100ms
+  const scanInterval = setInterval(() => {
+    if (!gameState.isProcessing) {
+      checkForImmediateMatches();
+    }
+  }, 100);
+  
+  // Store interval ID for cleanup if needed
+  gameState.scanInterval = scanInterval;
+}
+
 // Auto-completion logic: continuously check and process matches
 async function checkAndProcessAutoMatches() {
   if (gameState.isProcessing) return;
   
-  let foundMatches = true;
-  
-  while (foundMatches) {
-    const matches = findMatches();
+  try {
+    let foundMatches = true;
     
-    if (matches.length > 0) {
-      gameState.isProcessing = true;
-      await processAutoMatches(matches);
-      gameState.isProcessing = false;
-    } else {
-      foundMatches = false;
+    while (foundMatches) {
+      const matches = findMatches();
+      
+      if (matches.length > 0) {
+        gameState.isProcessing = true;
+        await processAutoMatches(matches);
+        gameState.isProcessing = false;
+      } else {
+        foundMatches = false;
+      }
     }
+    
+    // After all auto-matches are processed, highlight possible moves
+    highlightPossibleMoves();
+  } catch (error) {
+    console.error('Error in checkAndProcessAutoMatches:', error);
+    showMessage('Error during auto-match processing.', 'error');
+    gameState.isProcessing = false;
   }
-  
-  // After all auto-matches are processed, highlight possible moves
-  highlightPossibleMoves();
 }
 
 // Process matches that occur automatically (not from user moves)
