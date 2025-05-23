@@ -3,14 +3,172 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Color Rush: Spectrum Challenge</title>
+    <title>Color Rush: Cascade Challenge - Modern 2025 Edition</title>
     <link rel="stylesheet" href="styles.css" />
-    <script src="https://cdn.tailwindcss.com"></script>
   </head>
-  <body class="bg-gray-900 text-white min-h-screen flex items-center justify-center">
-    <div id="game-root" class="w-full max-w-xl mx-auto p-4 rounded-lg shadow-lg bg-gray-800">
-      <!-- Game content will be rendered here by game.js -->
+  <body class="game-body">
+    <!-- Main Game Container -->
+    <div class="game-container">
+      
+      <!-- Game Header -->
+      <header class="game-header">
+        <h1 class="game-title">
+          Color Rush: Cascade Challenge
+        </h1>
+        <p class="game-subtitle">Modern 2025 Edition</p>
+      </header>
+
+      <!-- Game Mode Selector -->
+      <div class="game-modes">
+        <button onclick="initGame('adventure')" class="mode-btn adventure-btn">
+          🏔️ Adventure
+        </button>
+        <button onclick="initGame('challenge')" class="mode-btn challenge-btn">
+          🎯 Challenge
+        </button>
+        <button onclick="initGame('speed')" class="mode-btn speed-btn">
+          ⚡ Speed
+        </button>
+        <button onclick="initGame('endless')" class="mode-btn endless-btn">
+          ♾️ Endless
+        </button>
+      </div>
+
+      <!-- Top UI Bar -->
+      <div class="top-ui-bar">
+        <div class="ui-section">
+          <!-- Lives & Currency -->
+          <div class="lives-currency">
+            <div class="lives-display">
+              <span class="lives-count">❤️ 5/5</span>
+            </div>
+            <div class="currency-display">
+              <div class="coins-count">🪙 100</div>
+              <div class="gems-count">💎 10</div>
+            </div>
+          </div>
+
+          <!-- Score & Level -->
+          <div class="score-level">
+            <div class="score">Score: 0</div>
+            <div class="level">Level: 1</div>
+          </div>
+
+          <!-- Objective & Timer/Moves -->
+          <div class="objective-timer">
+            <div class="objective-text"></div>
+            <div class="timer" style="display: none;">⏰ 60s</div>
+            <div class="moves" style="display: none;">👆 30 moves</div>
+            <div class="combo" style="display: none;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Game Content -->
+      <div class="game-content">
+        
+        <!-- Boosters Panel -->
+        <div class="boosters-panel">
+          <h3 class="panel-title">🎁 Boosters</h3>
+          <div class="boosters-list">
+            <button onclick="useBooster('hammer')" class="booster-btn booster-hammer">
+              🔨 3
+            </button>
+            <button onclick="useBooster('colorBomb')" class="booster-btn booster-colorBomb">
+              💣 2
+            </button>
+            <button onclick="useBooster('striped')" class="booster-btn booster-striped">
+              ⚡2
+            </button>
+            <button onclick="useBooster('shuffle')" class="booster-btn booster-shuffle">
+              🔀 1
+            </button>
+            <button onclick="useBooster('extraMoves')" class="booster-btn booster-extraMoves">
+              ➕ 2
+            </button>
+            <button onclick="useBooster('extraTime')" class="booster-btn booster-extraTime">
+              ⏰ 1
+            </button>
+          </div>
+        </div>
+
+        <!-- Game Board -->
+        <div class="game-board-container">
+          <div class="game-board">
+            <!-- Shapes will be dynamically created here -->
+          </div>
+        </div>
+
+        <!-- Progress Panel -->
+        <div class="progress-panel">
+          <h3 class="panel-title">📊 Progress</h3>
+          
+          <!-- Star Progress -->
+          <div class="star-progress">
+            <div class="progress-header">
+              <span>Stars</span>
+              <span class="stars-earned">0/3</span>
+            </div>
+            <div class="progress-bar">
+              <div class="star-progress-fill" style="width: 0%"></div>
+            </div>
+            <div class="star-indicators">
+              <span class="star-icon" data-star="1">⭐</span>
+              <span class="star-icon inactive" data-star="2">⭐</span>
+              <span class="star-icon inactive" data-star="3">⭐</span>
+            </div>
+          </div>
+
+          <!-- Level Objectives -->
+          <div class="objectives-section">
+            <h4 class="section-title">🎯 Objectives</h4>
+            <div class="objectives">
+              <div>Level: 1</div>
+              <div>Target: 5000</div>
+            </div>
+          </div>
+
+          <!-- Special Meter -->
+          <div class="special-meter-section">
+            <div class="meter-label">Special Meter</div>
+            <div class="meter-bar">
+              <div class="special-meter-fill" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Game Instructions -->
+      <div class="instructions-panel">
+        <details class="instructions">
+          <summary class="instructions-title">📖 How to Play</summary>
+          <div class="instructions-content">
+            <p><strong>Basic Gameplay:</strong> Swap adjacent shapes to create matches of 3 or more identical pieces.</p>
+            <p><strong>Matching Rules:</strong> Only horizontal and vertical matches count - no diagonals!</p>
+            <p><strong>Boosters:</strong> Use power-ups to help clear difficult situations or achieve objectives.</p>
+            <p><strong>Lives System:</strong> Lives regenerate over time (30 minutes each) - like Candy Crush!</p>
+            <p><strong>Adventure Mode:</strong> Progress through levels with different objectives and challenges.</p>
+            <p><strong>Daily Rewards:</strong> Log in daily to receive coins, gems, and boosters.</p>
+          </div>
+        </details>
+      </div>
+
+      <!-- Settings & Shop -->
+      <div class="bottom-buttons">
+        <button class="settings-btn">
+          ⚙️ Settings
+        </button>
+        <button class="shop-btn">
+          🛒 Shop
+        </button>
+        <button onclick="checkDailyReward()" class="daily-btn">
+          🎁 Daily Reward
+        </button>
+      </div>
+
     </div>
-    <script src="game.js"></script>
+
+    <!-- Game Scripts -->
+    <script src="script.js"></script>
   </body>
 </html> 
