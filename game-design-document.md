@@ -2,58 +2,59 @@
 
 ## 1. Game Overview
 **Title:** Color Rush: Spectrum Challenge
-**Genre:** Puzzle, Color Matching
+**Genre:** Puzzle, Pattern Matching
 **Target Platform:** Web (HTML5)
-**Target Audience:** Casual gamers, color enthusiasts, puzzle lovers
+**Target Audience:** Casual gamers, puzzle enthusiasts, pattern recognition lovers
 **Age Rating:** E (Everyone)
 
 ## 2. Core Gameplay
 ### Main Objective
-Players must match target colors by mixing RGB values within a time limit. The game combines color theory with quick thinking and precision.
+Players must match patterns of colored shapes by swapping positions in a grid. The game combines color recognition with spatial reasoning and pattern matching.
 
 ### Game Modes
 1. **Classic Mode**
-   - Match exact colors
-   - Increasing difficulty
+   - Match patterns by swapping shapes
+   - Increasing difficulty with more complex patterns
    - No time limit
    - Perfect for beginners
 
 2. **Speed Mode**
-   - Match colors against the clock
-   - 30-second rounds
+   - Match patterns against the clock
+   - 60-second rounds
    - Bonus points for quick matches
    - High-stakes gameplay
 
-3. **Harmony Mode**
-   - Create color schemes
-   - Match complementary colors
-   - Create triadic color combinations
-   - Educational aspect
-
-4. **Challenge Mode**
-   - Special color theory challenges
-   - Color blind awareness levels
-   - Gradient creation tasks
+3. **Challenge Mode**
+   - Special pattern challenges
+   - Limited moves
+   - Complex shape combinations
    - Weekly challenges
 
+4. **Zen Mode**
+   - Relaxed gameplay
+   - No time pressure
+   - Focus on perfect patterns
+   - Educational aspect
+
 ## 3. Game Mechanics
-### Color Mixing System
-- RGB sliders (0-255)
-- Real-time color preview
-- Color picker option
-- Match percentage indicator
+### Pattern Matching System
+- 4x4 grid of shapes
+- Three shape types: circles, triangles, squares
+- Six color variations
+- Real-time pattern preview
+- Move counter
 
 ### Scoring System
-- Base points for matching (0-100)
-- Speed bonus (up to 50 points)
-- Combo multiplier (x1.0 to x2.0)
-- Perfect match bonus (100 points)
+- Base points for completing level (100)
+- Move efficiency bonus (up to 50 points)
+- Combo multiplier for consecutive perfect matches
+- Perfect pattern bonus (100 points)
 
 ### Difficulty Progression
-1. **Level 1-5:** Basic colors
-2. **Level 6-10:** Shades and tints
-3. **Level 11-15:** Complex color combinations
-4. **Level 16-20:** Color theory challenges
+1. **Level 1-5:** Basic patterns (2-3 colors)
+2. **Level 6-10:** Medium patterns (3-4 colors)
+3. **Level 11-15:** Complex patterns (4-5 colors)
+4. **Level 16-20:** Expert patterns (5-6 colors)
 
 ## 4. User Interface
 ### Main Screen
@@ -64,17 +65,16 @@ Players must match target colors by mixing RGB values within a time limit. The g
 - Leaderboard
 
 ### Game Screen
-- Target color display
-- Color mixing interface
-- Timer (in Speed Mode)
-- Score display
-- Progress bar
+- Target pattern display (top grid)
+- Playable grid (bottom grid)
+- Move counter
+- Level indicator
 - Pause button
 
 ### Results Screen
 - Final score
-- Match accuracy
-- Time taken
+- Moves taken
+- Time taken (in Speed Mode)
 - High score comparison
 - Retry button
 - Share button
@@ -82,23 +82,23 @@ Players must match target colors by mixing RGB values within a time limit. The g
 ## 5. Visual Design
 ### Color Scheme
 - Dark mode interface
-- Neon accents
+- Vibrant shape colors
 - High contrast elements
-- Smooth color transitions
+- Smooth transitions
 
 ### Animations
-- Color mixing effects
-- Success/failure animations
+- Shape swap animations
+- Selection highlight
+- Success/failure effects
 - Level transition effects
-- Particle effects for perfect matches
 
 ## 6. Sound Design
 ### Sound Effects
-- Color mixing sounds
+- Shape selection sound
+- Swap sound
 - Success jingle
-- Failure sound
-- Button clicks
 - Level completion fanfare
+- Button clicks
 
 ### Background Music
 - Upbeat electronic theme
@@ -108,6 +108,11 @@ Players must match target colors by mixing RGB values within a time limit. The g
 ## 7. Technical Implementation
 ### Core Features
 ```javascript
+// Game configuration
+const GRID_SIZE = 4;
+const SHAPES = ['circle', 'triangle', 'square'];
+const COLORS = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEEAD', '#D4A5A5'];
+
 // Game states
 const GAME_STATES = {
     MENU: 'menu',
@@ -115,48 +120,35 @@ const GAME_STATES = {
     PAUSED: 'paused',
     GAME_OVER: 'gameOver'
 };
-
-// Color matching system
-class ColorMatcher {
-    constructor() {
-        this.targetColor = null;
-        this.currentColor = null;
-        this.matchThreshold = 0.95;
-    }
-    
-    // Color matching logic
-    // Scoring system
-    // Difficulty progression
-}
 ```
 
 ### Performance Considerations
-- Optimized canvas rendering
-- Efficient color calculations
+- Optimized grid rendering
+- Efficient pattern matching
 - Mobile-friendly touch controls
 - Responsive design
 
 ## 8. Monetization (Optional)
 ### Free Features
 - All game modes
-- Basic color challenges
+- Basic patterns
 - Local leaderboards
 
 ### Premium Features (if implemented)
-- Additional color palettes
+- Additional shape types
 - Special effects
 - Custom themes
 - Global leaderboards
 
 ## 9. Development Phases
-### Phase 1: Core Mechanics
-- Basic color matching
+### Phase 1: Core Mechanics ✓
+- Basic pattern matching
 - Simple UI
 - Core game loop
 
 ### Phase 2: Game Modes
-- Classic mode
 - Speed mode
+- Challenge mode
 - Basic scoring
 
 ### Phase 3: Polish
@@ -165,13 +157,13 @@ class ColorMatcher {
 - UI improvements
 
 ### Phase 4: Additional Features
-- Harmony mode
-- Challenge mode
+- Zen mode
+- Weekly challenges
 - Leaderboards
 
 ## 10. Testing Strategy
 ### Testing Areas
-- Color matching accuracy
+- Pattern matching accuracy
 - Performance optimization
 - Cross-browser compatibility
 - Mobile responsiveness
