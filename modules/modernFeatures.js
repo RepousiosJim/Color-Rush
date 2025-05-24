@@ -264,7 +264,8 @@ export class SocialSystem {
       textArea.select();
       document.execCommand('copy');
       document.body.removeChild(textArea);
-      this.showShareConfirmation('Link copied to clipboard!');
+      // Modified to indicate fallback usage
+      this.showShareConfirmation('Link copied using fallback method - please paste manually if needed!');
     }
   }
   
@@ -310,11 +311,19 @@ export class ModernProgression {
     let playerLevel = 1;
     let requiredExp = 1000;
     let currentExp = totalScore;
+    let safetyCounter = 0;
+    const maxIterations = 1000;
     
-    while (currentExp >= requiredExp) {
+    while (currentExp >= requiredExp && safetyCounter < maxIterations) {
       currentExp -= requiredExp;
       playerLevel++;
       requiredExp = Math.floor(requiredExp * 1.2); // Exponential scaling
+      safetyCounter++;
+    }
+    
+    // Log warning if safety limit reached
+    if (safetyCounter >= maxIterations) {
+      console.warn('Player level calculation reached maximum iterations limit');
     }
     
     return {
@@ -415,6 +424,11 @@ export class PerformanceTracker {
     const oldAvg = recentScores.slice(0, 5).reduce((a, b) => a + b, 0) / 5;
     const newAvg = recentScores.slice(-5).reduce((a, b) => a + b, 0) / 5;
     
+    // Check for division by zero
+    if (oldAvg === 0) {
+      return newAvg > 0 ? 100 : 0; // Return 100% improvement if starting from 0 and now have scores
+    }
+    
     return ((newAvg - oldAvg) / oldAvg) * 100; // percentage improvement
   }
   
@@ -504,7 +518,4 @@ export class AccessibilityFeatures {
       this.enableLargeText();
     }
   }
-}
-
-// Export all modern features
-export { AIHintSystem, SocialSystem, ModernProgression, PerformanceTracker, AccessibilityFeatures }; 
+} 

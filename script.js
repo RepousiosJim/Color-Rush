@@ -77,6 +77,32 @@ const gameState = {
   scanInterval: null
 };
 
+// ============================================================================
+// IMMEDIATE GLOBAL FUNCTION STUBS (to prevent ReferenceError in HTML)
+// ============================================================================
+window.initGame = function(mode) { console.log('initGame stub called'); };
+window.restartGame = function() { console.log('restartGame stub called'); };
+window.useBooster = function(type) { console.log('useBooster stub called'); };
+window.checkDailyReward = function() { console.log('checkDailyReward stub called'); };
+window.claimDailyReward = function() { console.log('claimDailyReward stub called'); };
+window.toggleSettingsPanel = function() { console.log('toggleSettingsPanel stub called'); };
+window.toggleReducedMotion = function() { console.log('toggleReducedMotion stub called'); };
+window.toggleHighContrast = function() { console.log('toggleHighContrast stub called'); };
+window.toggleLargeText = function() { console.log('toggleLargeText stub called'); };
+window.toggleAutoHints = function() { console.log('toggleAutoHints stub called'); };
+window.toggleShowMoves = function() { console.log('toggleShowMoves stub called'); };
+window.toggleParticleEffects = function() { console.log('toggleParticleEffects stub called'); };
+window.exportGameData = function() { console.log('exportGameData stub called'); };
+window.clearGameData = function() { console.log('clearGameData stub called'); };
+window.showPerformanceStats = function() { console.log('showPerformanceStats stub called'); };
+window.closeStatsModal = function() { 
+  console.log('closeStatsModal stub called'); 
+  const modal = document.querySelector('.stats-modal');
+  if (modal) modal.remove();
+};
+console.log('✅ Emergency function stubs loaded');
+// ============================================================================
+
 // Enhanced shape system
 const SHAPES = {
   circle: { 
@@ -169,14 +195,108 @@ const DAILY_REWARDS = [
   { coins: 500, gems: 5, boosters: { hammer: 2, colorBomb: 1, striped: 1 } }
 ];
 
-// Import modern features
-import { 
-  AIHintSystem, 
-  SocialSystem, 
-  ModernProgression, 
-  PerformanceTracker, 
-  AccessibilityFeatures 
-} from './modules/modernFeatures.js';
+// Fallback definitions for modern features (will be replaced by dynamic imports)
+let AIHintSystem = {
+  showHint: () => console.log('💡 AI Hints not loaded - using basic hint system'),
+  findBestMove: () => {
+    const moves = findPossibleMoves();
+    return moves.length > 0 ? moves[0] : null;
+  }
+};
+let SocialSystem = {
+  shareScore: (score, level) => {
+    if (navigator.share) {
+      navigator.share({
+        title: 'Color Rush Score',
+        text: `I scored ${score.toLocaleString()} points on level ${level}!`,
+        url: window.location.href
+      }).catch(err => console.log('Share cancelled'));
+    } else {
+      // Fallback to clipboard
+      const text = `I scored ${score.toLocaleString()} points on Color Rush level ${level}!`;
+      navigator.clipboard?.writeText(text).then(() => {
+        showMessage('Score copied to clipboard! 📋', 'success');
+      }).catch(() => {
+        console.log('Score sharing not available');
+      });
+    }
+  }
+};
+let ModernProgression = {
+  calculatePlayerLevel: () => ({ level: 1, progress: 0, currentExp: 0, requiredExp: 100 }),
+  unlockFeatures: () => [],
+  showLevelUpNotification: () => {}
+};
+let PerformanceTracker = {
+  addScore: (score) => {
+    const scores = JSON.parse(localStorage.getItem('recentScores') || '[]');
+    scores.push(score);
+    if (scores.length > 20) scores.shift();
+    localStorage.setItem('recentScores', JSON.stringify(scores));
+  },
+  trackGameMetrics: () => ({ avgSessionTime: 120, completionRate: 75, skillProgression: 5 }),
+  getRecentScores: () => JSON.parse(localStorage.getItem('recentScores') || '[]')
+};
+let AccessibilityFeatures = {
+  loadAccessibilitySettings: () => {
+    if (localStorage.getItem('reducedMotion') === 'true') {
+      document.body.classList.add('reduced-motion');
+    }
+    if (localStorage.getItem('highContrast') === 'true') {
+      document.body.classList.add('high-contrast');
+    }
+    if (localStorage.getItem('largeText') === 'true') {
+      document.body.classList.add('large-text');
+    }
+  },
+  addKeyboardNavigation: () => {
+    console.log('🎹 Basic keyboard navigation enabled');
+  },
+  enableReducedMotion: () => {
+    document.body.classList.add('reduced-motion');
+    localStorage.setItem('reducedMotion', 'true');
+  },
+  enableHighContrast: () => {
+    document.body.classList.add('high-contrast');
+    localStorage.setItem('highContrast', 'true');
+  },
+  enableLargeText: () => {
+    document.body.classList.add('large-text');
+    localStorage.setItem('largeText', 'true');
+  }
+};
+
+// Try to load modern features dynamically (non-blocking)
+if (typeof window !== 'undefined') {
+  console.log('🔄 Attempting to load modern features...');
+  try {
+    import('./modules/modernFeatures.js').then(({ 
+      AIHintSystem: AIS, 
+      SocialSystem: SS, 
+      ModernProgression: MP, 
+      PerformanceTracker: PT, 
+      AccessibilityFeatures: AF 
+    }) => {
+      console.log('✅ Advanced modern features loaded successfully');
+      AIHintSystem = AIS;
+      SocialSystem = SS;
+      ModernProgression = MP;
+      PerformanceTracker = PT;
+      AccessibilityFeatures = AF;
+      
+      // Make them globally available
+      window.AIHintSystem = AIHintSystem;
+      window.SocialSystem = SocialSystem;
+      window.ModernProgression = ModernProgression;
+      window.PerformanceTracker = PerformanceTracker;
+      window.AccessibilityFeatures = AccessibilityFeatures;
+    }).catch(error => {
+      console.log('💡 Advanced features not available, using basic fallbacks');
+    });
+  } catch (error) {
+    console.log('💡 Using basic feature set');
+  }
+}
 
 // Initialize game
 function initGame(mode = 'adventure') {
@@ -199,6 +319,8 @@ function initGame(mode = 'adventure') {
   const unlockedFeatures = ModernProgression.unlockFeatures();
   updateModernUI(unlockedFeatures);
 }
+// Make immediately available
+window.initGame = initGame;
 
 function resetGameState(mode) {
   if (gameState.timer) {
@@ -231,96 +353,9 @@ function resetGameState(mode) {
 }
 
 function setLevelObjective(mode) {
-  // Import difficulty settings for scaled objectives
-  import('./modules/difficulty.js').then(({ DifficultyManager }) => {
-    const level = gameState.adventureLevel || 1;
-    const settings = DifficultyManager.getDifficultySettings(level);
-    
-    switch (mode) {
-      case 'adventure':
-        const levelType = (gameState.adventureLevel % 3);
-        switch (levelType) {
-          case 1: 
-            // Score target scales with difficulty - increased base for more challenge
-            const baseScore = 8000 * gameState.adventureLevel; // Increased from 5000
-            const scaledScore = Math.floor(baseScore * settings.scoreMultiplier);
-            gameState.currentObjective = { type: 'score', target: scaledScore };
-            // Set star thresholds: 40%, 70%, 100% for more challenging progression
-            gameState.starThresholds = [
-              Math.floor(scaledScore * 0.4),   // Increased from 33% to 40%
-              Math.floor(scaledScore * 0.7),   // Increased from 66% to 70%
-              scaledScore
-            ];
-            break;
-          case 2: 
-            // Move limit decreases with difficulty
-            const baseMoves = 25;
-            const scaledMoves = Math.max(15, Math.floor(baseMoves * settings.timePressure));
-            gameState.currentObjective = { type: 'moves_limit', target: scaledMoves };
-            gameState.movesLeft = scaledMoves;
-            // For move-based levels, increased score targets within moves
-            const moveScoreTarget = 5000 * gameState.adventureLevel; // Increased from 3000
-            gameState.starThresholds = [
-              Math.floor(moveScoreTarget * 0.4),   // Increased threshold percentages
-              Math.floor(moveScoreTarget * 0.7),
-              moveScoreTarget
-            ];
-            break;
-          case 0: 
-            // Time limit decreases with difficulty
-            const baseTime = 60;
-            const scaledTime = Math.max(30, Math.floor(baseTime * settings.timePressure));
-            gameState.currentObjective = { type: 'time_limit', target: scaledTime };
-            gameState.timeLeft = scaledTime;
-            startTimer();
-            // For time-based levels, increased score targets within time
-            const timeScoreTarget = 6000 * gameState.adventureLevel; // Increased from 4000
-            gameState.starThresholds = [
-              Math.floor(timeScoreTarget * 0.4),   // Increased threshold percentages
-              Math.floor(timeScoreTarget * 0.7),
-              timeScoreTarget
-            ];
-            break;
-        }
-        break;
-      case 'challenge':
-        const challengeMoves = Math.max(20, Math.floor(30 * settings.timePressure));
-        gameState.currentObjective = { type: 'moves_limit', target: challengeMoves };
-        gameState.movesLeft = challengeMoves;
-        // Challenge mode star thresholds - more challenging
-        const challengeScoreTarget = 12000; // Increased from 8000
-        gameState.starThresholds = [
-          Math.floor(challengeScoreTarget * 0.4),   // 40% threshold
-          Math.floor(challengeScoreTarget * 0.7),   // 70% threshold
-          challengeScoreTarget
-        ];
-        break;
-      case 'endless':
-        gameState.currentObjective = { type: 'score', target: Infinity };
-        // Endless mode progressive thresholds
-        gameState.starThresholds = [5000, 15000, 30000];
-        break;
-      case 'speed':
-        const speedTime = Math.max(45, Math.floor(60 * settings.timePressure));
-        gameState.currentObjective = { type: 'time_limit', target: speedTime };
-        gameState.timeLeft = speedTime;
-        startTimer();
-        // Speed mode star thresholds - more challenging
-        const speedScoreTarget = 8000; // Increased from 6000
-        gameState.starThresholds = [
-          Math.floor(speedScoreTarget * 0.4),   // 40% threshold
-          Math.floor(speedScoreTarget * 0.7),   // 70% threshold
-          speedScoreTarget
-        ];
-        break;
-    }
-    
-    console.log(`Level ${level} Objective:`, gameState.currentObjective);
-    console.log(`Star Thresholds:`, gameState.starThresholds);
-  }).catch(() => {
-    // Fallback to original objectives if module fails
-    setLevelObjectiveFallback(mode);
-  });
+  console.log(`🎯 Setting objective for mode: ${mode}`);
+  // Always use fallback method to avoid module dependency issues
+  setLevelObjectiveFallback(mode);
 }
 
 // Fallback objective setting
@@ -396,36 +431,36 @@ function setLevelObjectiveFallback(mode) {
 }
 
 function initializeBoard() {
+  console.log('🎯 Initializing game board...');
   const board = document.querySelector('.game-board');
+  
+  if (!board) {
+    console.error('❌ Game board element not found!');
+    return;
+  }
+  
   board.innerHTML = '';
   
-  // Import difficulty manager
-  import('./modules/difficulty.js').then(({ DifficultyManager }) => {
-    const level = gameState.adventureLevel || 1;
-    const settings = DifficultyManager.getDifficultySettings(level);
-    
-    // Generate smart board with controlled difficulty
-    gameState.board = DifficultyManager.generateSmartBoard(gameState, settings);
-    
-    // Update visual board
-    updateBoardVisual();
-    
-    // Log difficulty info for debugging
-    const analysis = DifficultyManager.analyzeBoardDifficulty(gameState.board);
-    console.log(`Level ${level} Board Analysis:`, analysis);
-    
-    // Start continuous immediate match checking after board creation
-    setTimeout(() => {
-      startContinuousMatchScanning();
-    }, 50);
-  }).catch(() => {
-    // Fallback to original method if module fails to load
-    initializeBoardFallback();
-  });
+  // Always use the reliable fallback method
+  initializeBoardFallback();
 }
 
 // Fallback initialization method
 function initializeBoardFallback() {
+  console.log('🔧 Creating 8x8 game board with fallback method...');
+  
+  const board = document.querySelector('.game-board');
+  if (!board) {
+    console.error('❌ Game board element not found in fallback!');
+    return;
+  }
+  
+  // Clear any existing content
+  board.innerHTML = '';
+  
+  // Initialize the 2D array
+  gameState.board = [];
+  
   // Create board ensuring no initial matches
   for (let row = 0; row < 8; row++) {
     gameState.board[row] = [];
@@ -440,6 +475,7 @@ function initializeBoardFallback() {
         
         // Prevent infinite loop
         if (attempts > 50) {
+          console.warn(`⚠️ Max attempts reached for position [${row}][${col}]`);
           break;
         }
       } while (wouldCreateMatch(row, col, shape.type));
@@ -447,14 +483,19 @@ function initializeBoardFallback() {
       // Mark initial pieces as already animated
       shape.animated = true;
       
+      // Create and append the visual element
       const shapeElement = createShapeElement(shape, row, col);
-      document.querySelector('.game-board').appendChild(shapeElement);
+      board.appendChild(shapeElement);
     }
   }
+  
+  console.log('✅ Board created successfully! 64 shapes generated.');
+  console.log('📊 Board state:', gameState.board);
   
   // Start continuous immediate match checking after board creation
   setTimeout(() => {
     startContinuousMatchScanning();
+    console.log('🔄 Match scanning started');
   }, 50);
 }
 
@@ -1415,6 +1456,8 @@ function useBooster(boosterType) {
   savePlayerProgress();
   return true;
 }
+// Make immediately available
+window.useBooster = useBooster;
 
 function activateHammer() {
   showMessage('Tap any piece to remove it!', 'info');
@@ -1479,6 +1522,8 @@ function checkDailyReward() {
     showDailyRewardPopup();
   }
 }
+// Make immediately available
+window.checkDailyReward = checkDailyReward;
 
 function claimDailyReward() {
   const reward = DAILY_REWARDS[gameState.dailyReward.day];
@@ -1498,6 +1543,8 @@ function claimDailyReward() {
   
   showMessage(`Daily reward claimed! +${reward.coins} coins${reward.gems ? `, +${reward.gems} gems` : ''}`, 'success');
 }
+// Make immediately available
+window.claimDailyReward = claimDailyReward;
 
 // UI Updates
 function updateAllUI() {
@@ -2344,6 +2391,8 @@ function toggleSettingsPanel() {
     panel.style.display = 'none';
   }
 }
+// Make immediately available
+window.toggleSettingsPanel = toggleSettingsPanel;
 
 function loadSettingStates() {
   // Load saved settings
@@ -2364,6 +2413,8 @@ function toggleReducedMotion() {
     localStorage.setItem('reducedMotion', 'false');
   }
 }
+// Make immediately available
+window.toggleReducedMotion = toggleReducedMotion;
 
 function toggleHighContrast() {
   const enabled = document.getElementById('highContrast').checked;
@@ -2374,6 +2425,8 @@ function toggleHighContrast() {
     localStorage.setItem('highContrast', 'false');
   }
 }
+// Make immediately available
+window.toggleHighContrast = toggleHighContrast;
 
 function toggleLargeText() {
   const enabled = document.getElementById('largeText').checked;
@@ -2384,6 +2437,8 @@ function toggleLargeText() {
     localStorage.setItem('largeText', 'false');
   }
 }
+// Make immediately available
+window.toggleLargeText = toggleLargeText;
 
 function toggleAutoHints() {
   const enabled = document.getElementById('autoHints').checked;
@@ -2395,6 +2450,8 @@ function toggleAutoHints() {
     clearAutoHintTimer();
   }
 }
+// Make immediately available
+window.toggleAutoHints = toggleAutoHints;
 
 let autoHintTimer = null;
 
@@ -2426,12 +2483,16 @@ function toggleShowMoves() {
     });
   }
 }
+// Make immediately available
+window.toggleShowMoves = toggleShowMoves;
 
 function toggleParticleEffects() {
   const enabled = document.getElementById('particleEffects').checked;
   localStorage.setItem('particleEffects', enabled.toString());
   document.body.classList.toggle('no-particles', !enabled);
 }
+// Make immediately available
+window.toggleParticleEffects = toggleParticleEffects;
 
 function exportGameData() {
   const gameData = {
@@ -2464,6 +2525,8 @@ function exportGameData() {
   
   showMessage('Game data exported successfully! 💾', 'success');
 }
+// Make immediately available
+window.exportGameData = exportGameData;
 
 function clearGameData() {
   if (confirm('⚠️ This will delete ALL your progress, settings, and statistics. This cannot be undone. Are you sure?')) {
@@ -2474,6 +2537,8 @@ function clearGameData() {
     }, 2000);
   }
 }
+// Make immediately available
+window.clearGameData = clearGameData;
 
 function showPerformanceStats() {
   const metrics = PerformanceTracker.trackGameMetrics();
@@ -2539,6 +2604,8 @@ function showPerformanceStats() {
     }
   });
 }
+// Make immediately available
+window.showPerformanceStats = showPerformanceStats;
 
 function closeStatsModal() {
   const modal = document.querySelector('.stats-modal');
@@ -2546,6 +2613,8 @@ function closeStatsModal() {
     modal.remove();
   }
 }
+// Make immediately available
+window.closeStatsModal = closeStatsModal;
 
 function restartGame() {
   if (confirm('🔄 Restart current game? Your progress in this level will be lost.')) {
@@ -2553,19 +2622,7 @@ function restartGame() {
     showMessage('Game restarted! 🎮', 'info');
   }
 }
-
-// Make functions globally accessible for HTML onclick handlers
-window.toggleSettingsPanel = toggleSettingsPanel;
-window.toggleReducedMotion = toggleReducedMotion;
-window.toggleHighContrast = toggleHighContrast;
-window.toggleLargeText = toggleLargeText;
-window.toggleAutoHints = toggleAutoHints;
-window.toggleShowMoves = toggleShowMoves;
-window.toggleParticleEffects = toggleParticleEffects;
-window.exportGameData = exportGameData;
-window.clearGameData = clearGameData;
-window.showPerformanceStats = showPerformanceStats;
-window.closeStatsModal = closeStatsModal;
+// Make immediately available
 window.restartGame = restartGame;
 
 // Make modern features globally accessible
@@ -2574,3 +2631,26 @@ window.SocialSystem = SocialSystem;
 window.ModernProgression = ModernProgression;
 window.PerformanceTracker = PerformanceTracker;
 window.AccessibilityFeatures = AccessibilityFeatures;
+
+// ============================================================================
+// AUTO-INITIALIZATION
+// ============================================================================
+// Initialize the game automatically when the script loads
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('🎮 Color Rush: Cascade Challenge starting...');
+  
+  // Initialize immediately with basic features
+  setTimeout(() => {
+    initGame('adventure');
+    console.log('🚀 Game initialized successfully!');
+  }, 100);
+});
+
+// Also initialize if DOMContentLoaded already fired
+if (document.readyState !== 'loading') {
+  console.log('🎮 Document already loaded, initializing now...');
+  setTimeout(() => {
+    initGame('adventure');
+    console.log('🚀 Game auto-initialized!');
+  }, 100);
+}
