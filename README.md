@@ -34,7 +34,12 @@ A beautiful elemental-themed match-3 puzzle game built with pure HTML5, CSS3, an
 
 ## 🚀 Quick Start
 
-### Play Instantly
+### 🌐 Play Online
+**[🎮 Play Elemental Bejeweled Now!](https://repousiosjim.github.io/Color-Rush/)**
+
+Experience the game instantly in your browser - no downloads required!
+
+### Play Locally
 1. Download or clone this repository
 2. Open `index.html` in your web browser
 3. Start matching elemental gems immediately!
