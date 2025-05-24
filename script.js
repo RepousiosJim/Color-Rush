@@ -695,7 +695,7 @@ var gameSettings = {
     }
 };
 
-// Settings Functions
+// Settings Functions - Moved to global scope
 function openSettings() {
     var modal = document.getElementById('settingsModal');
     if (modal) {
@@ -709,120 +709,6 @@ function closeSettings() {
     var modal = document.getElementById('settingsModal');
     if (modal) {
         modal.style.display = 'none';
-    }
-}
-
-function loadSettingsToUI() {
-    // Load settings from localStorage
-    var savedSettings = localStorage.getItem('elementalBejeweledSettings');
-    if (savedSettings) {
-        try {
-            gameSettings = Object.assign(gameSettings, JSON.parse(savedSettings));
-        } catch (e) {
-            console.warn('Failed to parse saved settings, using defaults');
-        }
-    }
-    
-    // Audio Settings
-    var masterVolume = document.getElementById('masterVolume');
-    var soundEffects = document.getElementById('soundEffects');
-    var backgroundMusic = document.getElementById('backgroundMusic');
-    
-    if (masterVolume) {
-        masterVolume.value = gameSettings.audio.masterVolume;
-        updateVolumeDisplay(gameSettings.audio.masterVolume);
-    }
-    if (soundEffects) soundEffects.checked = gameSettings.audio.soundEffects;
-    if (backgroundMusic) backgroundMusic.checked = gameSettings.audio.backgroundMusic;
-    
-    // Visual Settings
-    var animations = document.getElementById('animations');
-    var particleEffects = document.getElementById('particleEffects');
-    var highContrast = document.getElementById('highContrast');
-    var reducedMotion = document.getElementById('reducedMotion');
-    var boardTheme = document.getElementById('boardTheme');
-    
-    if (animations) animations.checked = gameSettings.visual.animations;
-    if (particleEffects) particleEffects.checked = gameSettings.visual.particleEffects;
-    if (highContrast) highContrast.checked = gameSettings.visual.highContrast;
-    if (reducedMotion) reducedMotion.checked = gameSettings.visual.reducedMotion;
-    if (boardTheme) boardTheme.value = gameSettings.visual.boardTheme;
-    
-    // Gameplay Settings
-    var difficulty = document.getElementById('difficulty');
-    var showHints = document.getElementById('showHints');
-    var autoSave = document.getElementById('autoSave');
-    var showComboText = document.getElementById('showComboText');
-    
-    if (difficulty) difficulty.value = gameSettings.gameplay.difficulty;
-    if (showHints) showHints.checked = gameSettings.gameplay.showHints;
-    if (autoSave) autoSave.checked = gameSettings.gameplay.autoSave;
-    if (showComboText) showComboText.checked = gameSettings.gameplay.showComboText;
-    
-    // Display Settings
-    var boardSize = document.getElementById('boardSize');
-    var fullscreen = document.getElementById('fullscreen');
-    var showStats = document.getElementById('showStats');
-    
-    if (boardSize) boardSize.value = gameSettings.display.boardSize;
-    if (fullscreen) fullscreen.checked = gameSettings.display.fullscreen;
-    if (showStats) showStats.checked = gameSettings.display.showStats;
-    
-    // Controls Settings
-    var keyboardShortcuts = document.getElementById('keyboardShortcuts');
-    var clickFeedback = document.getElementById('clickFeedback');
-    var doubleClickSpeed = document.getElementById('doubleClickSpeed');
-    
-    if (keyboardShortcuts) keyboardShortcuts.checked = gameSettings.controls.keyboardShortcuts;
-    if (clickFeedback) clickFeedback.checked = gameSettings.controls.clickFeedback;
-    if (doubleClickSpeed) {
-        doubleClickSpeed.value = gameSettings.controls.doubleClickSpeed;
-        updateSpeedDisplay(gameSettings.controls.doubleClickSpeed);
-    }
-}
-
-function setupSettingsEventListeners() {
-    // Volume slider
-    var masterVolume = document.getElementById('masterVolume');
-    if (masterVolume) {
-        masterVolume.addEventListener('input', function() {
-            updateVolumeDisplay(this.value);
-        });
-    }
-    
-    // Speed slider
-    var doubleClickSpeed = document.getElementById('doubleClickSpeed');
-    if (doubleClickSpeed) {
-        doubleClickSpeed.addEventListener('input', function() {
-            updateSpeedDisplay(this.value);
-        });
-    }
-    
-    // Close modal when clicking outside
-    var modal = document.getElementById('settingsModal');
-    if (modal) {
-        modal.addEventListener('click', function(event) {
-            if (event.target === modal) {
-                closeSettings();
-            }
-        });
-    }
-}
-
-function updateVolumeDisplay(value) {
-    var volumeValue = document.querySelector('.volume-value');
-    if (volumeValue) {
-        volumeValue.textContent = value + '%';
-    }
-}
-
-function updateSpeedDisplay(value) {
-    var speedValue = document.querySelector('.speed-value');
-    if (speedValue) {
-        var speed = value <= 300 ? 'Fast' : 
-                   value <= 500 ? 'Normal' : 
-                   value <= 700 ? 'Slow' : 'Very Slow';
-        speedValue.textContent = speed;
     }
 }
 
@@ -939,6 +825,120 @@ function resetSettings() {
     applySettings();
     
     showSettingsMessage('Settings reset to defaults! 🔄', 'success');
+}
+
+function loadSettingsToUI() {
+    // Load settings from localStorage
+    var savedSettings = localStorage.getItem('elementalBejeweledSettings');
+    if (savedSettings) {
+        try {
+            gameSettings = Object.assign(gameSettings, JSON.parse(savedSettings));
+        } catch (e) {
+            console.warn('Failed to parse saved settings, using defaults');
+        }
+    }
+    
+    // Audio Settings
+    var masterVolume = document.getElementById('masterVolume');
+    var soundEffects = document.getElementById('soundEffects');
+    var backgroundMusic = document.getElementById('backgroundMusic');
+    
+    if (masterVolume) {
+        masterVolume.value = gameSettings.audio.masterVolume;
+        updateVolumeDisplay(gameSettings.audio.masterVolume);
+    }
+    if (soundEffects) soundEffects.checked = gameSettings.audio.soundEffects;
+    if (backgroundMusic) backgroundMusic.checked = gameSettings.audio.backgroundMusic;
+    
+    // Visual Settings
+    var animations = document.getElementById('animations');
+    var particleEffects = document.getElementById('particleEffects');
+    var highContrast = document.getElementById('highContrast');
+    var reducedMotion = document.getElementById('reducedMotion');
+    var boardTheme = document.getElementById('boardTheme');
+    
+    if (animations) animations.checked = gameSettings.visual.animations;
+    if (particleEffects) particleEffects.checked = gameSettings.visual.particleEffects;
+    if (highContrast) highContrast.checked = gameSettings.visual.highContrast;
+    if (reducedMotion) reducedMotion.checked = gameSettings.visual.reducedMotion;
+    if (boardTheme) boardTheme.value = gameSettings.visual.boardTheme;
+    
+    // Gameplay Settings
+    var difficulty = document.getElementById('difficulty');
+    var showHints = document.getElementById('showHints');
+    var autoSave = document.getElementById('autoSave');
+    var showComboText = document.getElementById('showComboText');
+    
+    if (difficulty) difficulty.value = gameSettings.gameplay.difficulty;
+    if (showHints) showHints.checked = gameSettings.gameplay.showHints;
+    if (autoSave) autoSave.checked = gameSettings.gameplay.autoSave;
+    if (showComboText) showComboText.checked = gameSettings.gameplay.showComboText;
+    
+    // Display Settings
+    var boardSize = document.getElementById('boardSize');
+    var fullscreen = document.getElementById('fullscreen');
+    var showStats = document.getElementById('showStats');
+    
+    if (boardSize) boardSize.value = gameSettings.display.boardSize;
+    if (fullscreen) fullscreen.checked = gameSettings.display.fullscreen;
+    if (showStats) showStats.checked = gameSettings.display.showStats;
+    
+    // Controls Settings
+    var keyboardShortcuts = document.getElementById('keyboardShortcuts');
+    var clickFeedback = document.getElementById('clickFeedback');
+    var doubleClickSpeed = document.getElementById('doubleClickSpeed');
+    
+    if (keyboardShortcuts) keyboardShortcuts.checked = gameSettings.controls.keyboardShortcuts;
+    if (clickFeedback) clickFeedback.checked = gameSettings.controls.clickFeedback;
+    if (doubleClickSpeed) {
+        doubleClickSpeed.value = gameSettings.controls.doubleClickSpeed;
+        updateSpeedDisplay(gameSettings.controls.doubleClickSpeed);
+    }
+}
+
+function setupSettingsEventListeners() {
+    // Volume slider
+    var masterVolume = document.getElementById('masterVolume');
+    if (masterVolume) {
+        masterVolume.addEventListener('input', function() {
+            updateVolumeDisplay(this.value);
+        });
+    }
+    
+    // Speed slider
+    var doubleClickSpeed = document.getElementById('doubleClickSpeed');
+    if (doubleClickSpeed) {
+        doubleClickSpeed.addEventListener('input', function() {
+            updateSpeedDisplay(this.value);
+        });
+    }
+    
+    // Close modal when clicking outside
+    var modal = document.getElementById('settingsModal');
+    if (modal) {
+        modal.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                closeSettings();
+            }
+        });
+    }
+}
+
+function updateVolumeDisplay(value) {
+    var volumeValue = document.querySelector('.volume-value');
+    if (volumeValue) {
+        volumeValue.textContent = value + '%';
+    }
+}
+
+function updateSpeedDisplay(value) {
+    var speedValue = document.querySelector('.speed-value');
+    if (speedValue) {
+        var speed = value <= 300 ? 'Fast' : 
+                   value <= 500 ? 'Normal' : 
+                   value <= 700 ? 'Slow' : 'Very Slow';
+        speedValue.textContent = speed;
+    }
 }
 
 function applySettings() {
@@ -1115,5 +1115,22 @@ if (document.readyState === 'loading') {
 } else {
     setTimeout(initializeSettings, 500);
 }
+
+console.log('⚡ Elemental Bejeweled Core loaded successfully!');
+
+// Initialize game on page load
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('⚡ Initializing Elemental Bejeweled...');
+    initializeGame();
+    initializeSettings(); // Initialize settings system
+});
+
+// Expose functions to global scope for compatibility
+window.restartGame = restartGame;
+window.showInstructions = showInstructions;
+window.openSettings = openSettings;
+window.closeSettings = closeSettings;
+window.saveSettings = saveSettings;
+window.resetSettings = resetSettings;
 
 console.log('⚡ Elemental Bejeweled Core loaded successfully!'); 
