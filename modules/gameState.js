@@ -1,21 +1,7 @@
 // Game State Management Module
 // Color Rush: Cascade Challenge - Modern 2025 Edition
 
-export const gameState = {
-  // Core game state
-  board: [],
-  selectedShape: null,
-  score: 0,
-  combo: 0,
-  isProcessing: false,
-  isDragging: false,
-  dragStartElement: null,
-  
-  // Modern progression system
-  level: 1,
-  totalLevels: 100,
-  starsEarned: 0,
-  starThresholds: [1000, 5000, 10000],
+export const gameState = {  // Core game state  board: [],  selectedShape: null,  score: 0,  combo: 0,  isProcessing: false,  isDragging: false,  dragStartElement: null,    // Modern progression system  level: 1,  totalLevels: 100,  starsEarned: 0,  starThresholds: [1000, 5000, 10000], // Default values, will be updated based on level objectives
   
   // Lives system (like Candy Crush)
   lives: 5,

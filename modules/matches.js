@@ -1,11 +1,4 @@
-// Match Detection and Processing Module
-// Color Rush: Cascade Challenge - Modern 2025 Edition
-
-import { gameState } from './gameState.js';
-import { BOARD_CONFIG, SCORING } from './constants.js';
-import { animateMatches, showScorePopup } from './animations.js';
-import { cascadeBoard, cascadeBoardOnly } from './board.js';
-import { updateAllUI } from './ui.js';
+// Match Detection and Processing Module// Color Rush: Cascade Challenge - Modern 2025 Editionimport { gameState } from './gameState.js';import { BOARD_CONFIG, SCORING } from './constants.js';import { animateMatches, showScorePopup } from './animations.js';import { cascadeBoard, cascadeBoardOnly } from './board.js';import { updateAllUI, animateScoreGain } from './ui.js';
 
 export const findMatches = () => {
   const matches = [];

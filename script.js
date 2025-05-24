@@ -211,35 +211,166 @@ function resetGameState(mode) {
 }
 
 function setLevelObjective(mode) {
+  // Import difficulty settings for scaled objectives
+  import('./modules/difficulty.js').then(({ DifficultyManager }) => {
+    const level = gameState.adventureLevel || 1;
+    const settings = DifficultyManager.getDifficultySettings(level);
+    
+    switch (mode) {
+      case 'adventure':
+        const levelType = (gameState.adventureLevel % 3);
+        switch (levelType) {
+          case 1: 
+            // Score target scales with difficulty - increased base for more challenge
+            const baseScore = 8000 * gameState.adventureLevel; // Increased from 5000
+            const scaledScore = Math.floor(baseScore * settings.scoreMultiplier);
+            gameState.currentObjective = { type: 'score', target: scaledScore };
+            // Set star thresholds: 40%, 70%, 100% for more challenging progression
+            gameState.starThresholds = [
+              Math.floor(scaledScore * 0.4),   // Increased from 33% to 40%
+              Math.floor(scaledScore * 0.7),   // Increased from 66% to 70%
+              scaledScore
+            ];
+            break;
+          case 2: 
+            // Move limit decreases with difficulty
+            const baseMoves = 25;
+            const scaledMoves = Math.max(15, Math.floor(baseMoves * settings.timePressure));
+            gameState.currentObjective = { type: 'moves_limit', target: scaledMoves };
+            gameState.movesLeft = scaledMoves;
+            // For move-based levels, increased score targets within moves
+            const moveScoreTarget = 5000 * gameState.adventureLevel; // Increased from 3000
+            gameState.starThresholds = [
+              Math.floor(moveScoreTarget * 0.4),   // Increased threshold percentages
+              Math.floor(moveScoreTarget * 0.7),
+              moveScoreTarget
+            ];
+            break;
+          case 0: 
+            // Time limit decreases with difficulty
+            const baseTime = 60;
+            const scaledTime = Math.max(30, Math.floor(baseTime * settings.timePressure));
+            gameState.currentObjective = { type: 'time_limit', target: scaledTime };
+            gameState.timeLeft = scaledTime;
+            startTimer();
+            // For time-based levels, increased score targets within time
+            const timeScoreTarget = 6000 * gameState.adventureLevel; // Increased from 4000
+            gameState.starThresholds = [
+              Math.floor(timeScoreTarget * 0.4),   // Increased threshold percentages
+              Math.floor(timeScoreTarget * 0.7),
+              timeScoreTarget
+            ];
+            break;
+        }
+        break;
+      case 'challenge':
+        const challengeMoves = Math.max(20, Math.floor(30 * settings.timePressure));
+        gameState.currentObjective = { type: 'moves_limit', target: challengeMoves };
+        gameState.movesLeft = challengeMoves;
+        // Challenge mode star thresholds - more challenging
+        const challengeScoreTarget = 12000; // Increased from 8000
+        gameState.starThresholds = [
+          Math.floor(challengeScoreTarget * 0.4),   // 40% threshold
+          Math.floor(challengeScoreTarget * 0.7),   // 70% threshold
+          challengeScoreTarget
+        ];
+        break;
+      case 'endless':
+        gameState.currentObjective = { type: 'score', target: Infinity };
+        // Endless mode progressive thresholds
+        gameState.starThresholds = [5000, 15000, 30000];
+        break;
+      case 'speed':
+        const speedTime = Math.max(45, Math.floor(60 * settings.timePressure));
+        gameState.currentObjective = { type: 'time_limit', target: speedTime };
+        gameState.timeLeft = speedTime;
+        startTimer();
+        // Speed mode star thresholds - more challenging
+        const speedScoreTarget = 8000; // Increased from 6000
+        gameState.starThresholds = [
+          Math.floor(speedScoreTarget * 0.4),   // 40% threshold
+          Math.floor(speedScoreTarget * 0.7),   // 70% threshold
+          speedScoreTarget
+        ];
+        break;
+    }
+    
+    console.log(`Level ${level} Objective:`, gameState.currentObjective);
+    console.log(`Star Thresholds:`, gameState.starThresholds);
+  }).catch(() => {
+    // Fallback to original objectives if module fails
+    setLevelObjectiveFallback(mode);
+  });
+}
+
+// Fallback objective setting
+function setLevelObjectiveFallback(mode) {
   switch (mode) {
     case 'adventure':
       const levelType = (gameState.adventureLevel % 3);
       switch (levelType) {
         case 1: 
-          gameState.currentObjective = { type: 'score', target: 5000 * gameState.adventureLevel };
+          const scoreTarget = 8000 * gameState.adventureLevel; // Increased from 5000
+          gameState.currentObjective = { type: 'score', target: scoreTarget };
+          // Set star thresholds: 40%, 70%, 100% for more challenging progression
+          gameState.starThresholds = [
+            Math.floor(scoreTarget * 0.4),   // Increased from 33% to 40%
+            Math.floor(scoreTarget * 0.7),   // Increased from 66% to 70%
+            scoreTarget
+          ];
           break;
         case 2: 
           gameState.currentObjective = { type: 'moves_limit', target: 25 };
           gameState.movesLeft = 25;
+          // For move-based levels, increased score targets within moves
+          const moveScoreTarget = 5000 * gameState.adventureLevel; // Increased from 3000
+          gameState.starThresholds = [
+            Math.floor(moveScoreTarget * 0.4),   // Increased threshold percentages
+            Math.floor(moveScoreTarget * 0.7),
+            moveScoreTarget
+          ];
           break;
         case 0: 
           gameState.currentObjective = { type: 'time_limit', target: 60 };
           gameState.timeLeft = 60;
           startTimer();
+          // For time-based levels, increased score targets within time
+          const timeScoreTarget = 6000 * gameState.adventureLevel; // Increased from 4000
+          gameState.starThresholds = [
+            Math.floor(timeScoreTarget * 0.4),   // Increased threshold percentages
+            Math.floor(timeScoreTarget * 0.7),
+            timeScoreTarget
+          ];
           break;
       }
       break;
     case 'challenge':
       gameState.currentObjective = { type: 'moves_limit', target: 30 };
       gameState.movesLeft = 30;
+      // Challenge mode star thresholds - more challenging
+      const challengeScoreTarget = 12000; // Increased from 8000
+      gameState.starThresholds = [
+        Math.floor(challengeScoreTarget * 0.4),   // 40% threshold
+        Math.floor(challengeScoreTarget * 0.7),   // 70% threshold
+        challengeScoreTarget
+      ];
       break;
     case 'endless':
       gameState.currentObjective = { type: 'score', target: Infinity };
+      // Endless mode progressive thresholds
+      gameState.starThresholds = [5000, 15000, 30000];
       break;
     case 'speed':
       gameState.currentObjective = { type: 'time_limit', target: 60 };
       gameState.timeLeft = 60;
       startTimer();
+      // Speed mode star thresholds - more challenging
+      const speedScoreTarget = 8000; // Increased from 6000
+      gameState.starThresholds = [
+        Math.floor(speedScoreTarget * 0.4),   // 40% threshold
+        Math.floor(speedScoreTarget * 0.7),   // 70% threshold
+        speedScoreTarget
+      ];
       break;
   }
 }
@@ -248,6 +379,33 @@ function initializeBoard() {
   const board = document.querySelector('.game-board');
   board.innerHTML = '';
   
+  // Import difficulty manager
+  import('./modules/difficulty.js').then(({ DifficultyManager }) => {
+    const level = gameState.adventureLevel || 1;
+    const settings = DifficultyManager.getDifficultySettings(level);
+    
+    // Generate smart board with controlled difficulty
+    gameState.board = DifficultyManager.generateSmartBoard(gameState, settings);
+    
+    // Update visual board
+    updateBoardVisual();
+    
+    // Log difficulty info for debugging
+    const analysis = DifficultyManager.analyzeBoardDifficulty(gameState.board);
+    console.log(`Level ${level} Board Analysis:`, analysis);
+    
+    // Start continuous immediate match checking after board creation
+    setTimeout(() => {
+      startContinuousMatchScanning();
+    }, 50);
+  }).catch(() => {
+    // Fallback to original method if module fails to load
+    initializeBoardFallback();
+  });
+}
+
+// Fallback initialization method
+function initializeBoardFallback() {
   // Create board ensuring no initial matches
   for (let row = 0; row < 8; row++) {
     gameState.board[row] = [];
@@ -270,7 +428,7 @@ function initializeBoard() {
       shape.animated = true;
       
       const shapeElement = createShapeElement(shape, row, col);
-      board.appendChild(shapeElement);
+      document.querySelector('.game-board').appendChild(shapeElement);
     }
   }
   
@@ -386,12 +544,44 @@ function handleDragStart(e) {
   gameState.isDragging = true;
   gameState.dragStartElement = { row, col };
   e.target.classList.add('dragging');
+  
+  // Add modern drag feedback - highlight potential drop targets
+  highlightDropTargets(row, col);
+  
+  // Create a subtle drag preview effect
+  const rect = e.target.getBoundingClientRect();
+  e.dataTransfer.setDragImage(e.target, rect.width / 2, rect.height / 2);
+  e.dataTransfer.effectAllowed = 'move';
+}
+
+function highlightDropTargets(row, col) {
+  // Highlight adjacent cells as potential drop targets
+  const adjacent = [
+    { row: row - 1, col },
+    { row: row + 1, col },
+    { row, col: col - 1 },
+    { row, col: col + 1 }
+  ];
+  
+  adjacent.forEach(pos => {
+    if (pos.row >= 0 && pos.row < 8 && pos.col >= 0 && pos.col < 8) {
+      const element = document.querySelector(`[data-row="${pos.row}"][data-col="${pos.col}"]`);
+      if (element) {
+        element.classList.add('drop-target');
+      }
+    }
+  });
 }
 
 function handleDragEnd(e) {
   gameState.isDragging = false;
   gameState.dragStartElement = null;
   e.target.classList.remove('dragging');
+  
+  // Remove all drop target highlights
+  document.querySelectorAll('.drop-target').forEach(el => {
+    el.classList.remove('drop-target');
+  });
 }
 
 function handleDrop(e) {
@@ -627,18 +817,33 @@ async function processMatches(matches) {
       totalScore += matchScore;
     }
     
-    const comboBonus = Math.min(gameState.combo, 10) * 0.1;
+    // Reduced combo bonus: max 50% instead of 100%
+    const comboBonus = Math.min(gameState.combo, 10) * 0.05; // Reduced from 0.1
     totalScore = Math.floor(totalScore * (1 + comboBonus));
+    
+    // Store previous stars before updating score
+    const previousStars = calculateCurrentStars();
     gameState.score += totalScore;
     
     showScorePopup(totalScore, matches[0][0]);
     
+    // Check for star progress and show celebration if new star earned
+    const currentStars = calculateCurrentStars();
+    if (currentStars > previousStars) {
+      showStarEarnedAnimation(currentStars);
+    }
+    
     await animateMatches(matches);
     removeMatchedPieces(matches);
+    
+    // Add small delay before cascade to make the break more visible
+    await new Promise(resolve => setTimeout(resolve, 200));
     await cascadeBoard();
     
     const newMatches = findMatches();
     if (newMatches.length > 0) {
+      // Add delay between consecutive match processing
+      await new Promise(resolve => setTimeout(resolve, 300));
       await processMatches(newMatches);
     } else {
       gameState.combo = 0;
@@ -660,17 +865,18 @@ async function processMatches(matches) {
 }
 
 function calculateMatchScore(match) {
-  // Classic match-3 scoring: bigger matches = exponentially more points
+  // Rebalanced scoring: more challenging progression
   let baseScore;
   switch(match.length) {
-    case 3: baseScore = 100; break;
-    case 4: baseScore = 400; break;
-    case 5: baseScore = 1000; break;
-    case 6: baseScore = 2000; break;
-    default: baseScore = match.length * 500; break;
+    case 3: baseScore = 50; break;   // Reduced from 100
+    case 4: baseScore = 150; break;  // Reduced from 400  
+    case 5: baseScore = 400; break;  // Reduced from 1000
+    case 6: baseScore = 800; break;  // Reduced from 2000
+    default: baseScore = match.length * 200; break; // Reduced multiplier
   }
   
-  const cascadeBonus = gameState.cascadeMultiplier * 50;
+  // Reduced cascade bonus to prevent easy score inflation
+  const cascadeBonus = gameState.cascadeMultiplier * 25; // Reduced from 50
   return baseScore + cascadeBonus;
 }
 
@@ -702,8 +908,8 @@ async function animateMatches(matches) {
     }
   }
   
-  // Faster animation for immediate breaking
-  await new Promise(resolve => setTimeout(resolve, 200));
+  // Longer animation to make breaks more visible
+  await new Promise(resolve => setTimeout(resolve, 500));
   elements.forEach(el => el.remove());
 }
 
@@ -815,12 +1021,47 @@ async function cascadeBoardOnly() {
 }
 
 async function fillEmptySpaces() {
-  // Fill empty spaces in game state
-  for (let col = 0; col < 8; col++) {
+  try {
+    // Import difficulty manager for controlled piece generation
+    const { DifficultyManager } = await import('./modules/difficulty.js');
+    
+    // Find empty positions
+    const emptyPositions = [];
     for (let row = 0; row < 8; row++) {
-      if (!gameState.board[row][col]) {
-        const newShape = createRandomShape();
-        gameState.board[row][col] = newShape;
+      for (let col = 0; col < 8; col++) {
+        if (!gameState.board[row][col]) {
+          emptyPositions.push({ row, col });
+        }
+      }
+    }
+    
+    // Generate controlled pieces based on current difficulty
+    const level = gameState.adventureLevel || 1;
+    const settings = DifficultyManager.getDifficultySettings(level);
+    
+    // Fill empty spaces with difficulty-controlled pieces
+    for (let col = 0; col < 8; col++) {
+      for (let row = 0; row < 8; row++) {
+        if (!gameState.board[row][col]) {
+          const newShape = DifficultyManager.generateControlledPiece(gameState.board, row, col, settings);
+          gameState.board[row][col] = newShape;
+        }
+      }
+    }
+    
+    // Log board analysis after filling
+    const analysis = DifficultyManager.analyzeBoardDifficulty(gameState.board);
+    console.log(`After refill - Possible moves: ${analysis.possibleMoves}, Difficulty: ${analysis.difficultyScore.toFixed(1)}`);
+    
+  } catch (error) {
+    console.warn('Difficulty manager not available, using random generation:', error);
+    // Fallback to random generation
+    for (let col = 0; col < 8; col++) {
+      for (let row = 0; row < 8; row++) {
+        if (!gameState.board[row][col]) {
+          const newShape = createRandomShape();
+          gameState.board[row][col] = newShape;
+        }
       }
     }
   }
@@ -894,14 +1135,14 @@ async function fillEmptySpacesOnly() {
   await new Promise(resolve => setTimeout(resolve, 300));
 }
 
-// Immediate match detection - checks and breaks matches instantly
+// Immediate match detection - checks and breaks matches with visible delay
 function checkForImmediateMatches() {
   if (gameState.isProcessing) return;
   
   const matches = findMatches();
   if (matches.length > 0) {
-    // Process matches immediately without delay
-    setTimeout(() => processAutoMatches(matches), 10);
+    // Add small delay to make matches more visible
+    setTimeout(() => processAutoMatches(matches), 150);
   }
 }
 
@@ -910,12 +1151,12 @@ function startContinuousMatchScanning() {
   // Initial scan
   checkForImmediateMatches();
   
-  // Set up continuous scanning every 100ms
+  // Set up continuous scanning every 200ms (slower for more visible breaks)
   const scanInterval = setInterval(() => {
     if (!gameState.isProcessing) {
       checkForImmediateMatches();
     }
-  }, 100);
+  }, 200);
   
   // Store interval ID for cleanup if needed
   gameState.scanInterval = scanInterval;
@@ -961,13 +1202,25 @@ async function processAutoMatches(matches) {
   
   const comboBonus = Math.min(gameState.combo, 10) * 0.1;
   totalScore = Math.floor(totalScore * (1 + comboBonus));
+  
+  // Store previous stars before updating score
+  const previousStars = calculateCurrentStars();
   gameState.score += totalScore;
   
   // Show score popup for auto-matches
   showScorePopup(totalScore, matches[0][0]);
   
+  // Check for star progress and show celebration if new star earned
+  const currentStars = calculateCurrentStars();
+  if (currentStars > previousStars) {
+    showStarEarnedAnimation(currentStars);
+  }
+  
   await animateMatches(matches);
   removeMatchedPieces(matches);
+  
+  // Add small delay before cascade to make auto-matches more visible
+  await new Promise(resolve => setTimeout(resolve, 200));
   await cascadeBoardOnly(); // Use a version that doesn't trigger auto-match checking
   
   updateAllUI();
@@ -1221,6 +1474,8 @@ function updateAllUI() {
   updateObjectiveDisplay();
   updateTimeDisplay();
   updateMovesDisplay();
+  updateStarProgress();
+  updateDifficultyDisplay();
 }
 
 function updateScoreDisplay() {
@@ -1269,8 +1524,53 @@ function updateObjectiveDisplay() {
   if (objectiveElement && gameState.currentObjective) {
     const obj = gameState.currentObjective;
     const objType = LEVEL_OBJECTIVES[obj.type];
-    objectiveElement.textContent = `${objType.icon} ${objType.description}`;
+    
+    // Add difficulty level indicator
+    const level = gameState.adventureLevel || 1;
+    const difficultyLevel = Math.floor((level - 1) / 10) + 1;
+    const difficultyStars = '⭐'.repeat(Math.min(difficultyLevel, 5));
+    
+    objectiveElement.textContent = `${objType.icon} ${objType.description} ${difficultyStars}`;
   }
+}
+
+// Add difficulty analysis display
+function updateDifficultyDisplay() {
+  import('./modules/difficulty.js').then(({ DifficultyManager }) => {
+    const analysis = DifficultyManager.analyzeBoardDifficulty(gameState.board);
+    
+    // Create or update difficulty display element
+    let difficultyElement = document.querySelector('.difficulty-info');
+    if (!difficultyElement) {
+      difficultyElement = document.createElement('div');
+      difficultyElement.className = 'difficulty-info';
+      difficultyElement.style.cssText = `
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+        padding: 10px;
+        border-radius: 8px;
+        font-size: 12px;
+        color: white;
+        z-index: 100;
+        display: none; /* Hidden by default, can be toggled for debugging */
+      `;
+      document.body.appendChild(difficultyElement);
+    }
+    
+    difficultyElement.innerHTML = `
+      <div>🎯 Moves: ${analysis.possibleMoves}</div>
+      <div>⚡ Cascade: ${analysis.cascadePotential}</div>
+      <div>📊 Difficulty: ${analysis.difficultyScore.toFixed(1)}</div>
+    `;
+    
+    // Show difficulty info in console for debugging
+    console.log('Board Difficulty Analysis:', analysis);
+  }).catch(() => {
+    // Ignore if module not available
+  });
 }
 
 function updateTimeDisplay() {
@@ -1295,6 +1595,193 @@ function updateMovesDisplay() {
       movesElement.style.display = 'none';
     }
   }
+}
+
+function updateStarProgress() {
+  const currentScore = gameState.score;
+  const thresholds = gameState.starThresholds;
+  
+  // Calculate current stars earned
+  let starsEarned = 0;
+  if (currentScore >= thresholds[2]) starsEarned = 3;
+  else if (currentScore >= thresholds[1]) starsEarned = 2;
+  else if (currentScore >= thresholds[0]) starsEarned = 1;
+  
+  // Update stars earned display
+  const starsEarnedElement = document.querySelector('.stars-earned');
+  if (starsEarnedElement) {
+    starsEarnedElement.textContent = `${starsEarned}/3`;
+  }
+  
+  // Calculate progress percentage for the progress bar
+  let progressPercentage = 0;
+  let nextThreshold = thresholds[0];
+  
+  if (currentScore >= thresholds[2]) {
+    progressPercentage = 100;
+  } else if (currentScore >= thresholds[1]) {
+    // Between star 2 and star 3
+    const progressBetweenStars = (currentScore - thresholds[1]) / (thresholds[2] - thresholds[1]);
+    progressPercentage = 66.6 + (progressBetweenStars * 33.4);
+    nextThreshold = thresholds[2];
+  } else if (currentScore >= thresholds[0]) {
+    // Between star 1 and star 2
+    const progressBetweenStars = (currentScore - thresholds[0]) / (thresholds[1] - thresholds[0]);
+    progressPercentage = 33.3 + (progressBetweenStars * 33.3);
+    nextThreshold = thresholds[1];
+  } else {
+    // Before first star
+    progressPercentage = (currentScore / thresholds[0]) * 33.3;
+    nextThreshold = thresholds[0];
+  }
+  
+  // Update progress bar
+  const progressFill = document.querySelector('.star-progress-fill');
+  if (progressFill) {
+    progressFill.style.width = `${Math.min(progressPercentage, 100)}%`;
+    
+    // Add smooth animation
+    progressFill.style.transition = 'width 0.5s ease-out';
+  }
+  
+  // Update individual star indicators
+  const starIcons = document.querySelectorAll('.star-icon');
+  starIcons.forEach((starIcon, index) => {
+    const starNumber = index + 1;
+    if (starNumber <= starsEarned) {
+      starIcon.classList.remove('inactive');
+      starIcon.classList.add('active');
+      // Add sparkle animation for newly earned stars
+      if (starNumber === starsEarned && !starIcon.dataset.animated) {
+        starIcon.style.animation = 'starEarned 0.8s ease-out';
+        starIcon.dataset.animated = 'true';
+        setTimeout(() => {
+          starIcon.style.animation = '';
+        }, 800);
+      }
+    } else {
+      starIcon.classList.add('inactive');
+      starIcon.classList.remove('active');
+    }
+  });
+  
+  // Update gameState
+  gameState.starsEarned = starsEarned;
+  
+  // Show progress tooltip on hover
+  updateProgressTooltip(currentScore, nextThreshold, starsEarned);
+}
+
+function updateProgressTooltip(currentScore, nextThreshold, starsEarned) {
+  const starProgress = document.querySelector('.star-progress');
+  if (!starProgress) return;
+  
+  // Remove existing tooltip
+  const existingTooltip = starProgress.querySelector('.progress-tooltip');
+  if (existingTooltip) {
+    existingTooltip.remove();
+  }
+  
+  // Create new tooltip
+  const tooltip = document.createElement('div');
+  tooltip.className = 'progress-tooltip';
+  tooltip.style.cssText = `
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 1000;
+  `;
+  
+  if (starsEarned === 3) {
+    tooltip.textContent = `Perfect! Level 100% completed! 🌟`;
+  } else {
+    const pointsNeeded = nextThreshold - currentScore;
+    const starNumber = starsEarned + 1;
+    const percentage = starNumber === 3 ? '100%' : starNumber === 2 ? '70%' : '40%';
+    tooltip.textContent = `${pointsNeeded.toLocaleString()} more points for ${percentage} completion (⭐${starNumber})`;
+  }
+  
+  starProgress.appendChild(tooltip);
+  
+  // Show tooltip on hover
+  starProgress.addEventListener('mouseenter', () => {
+    tooltip.style.opacity = '1';
+  });
+  
+  starProgress.addEventListener('mouseleave', () => {
+    tooltip.style.opacity = '0';
+  });
+}
+
+function animateScoreGain(scoreGained, position) {
+  // This function can be called when score is gained to show visual feedback
+  // It can trigger the star progress update with animation
+  updateStarProgress();
+  
+  // Check if a new star was just earned
+  const previousStars = gameState.starsEarned || 0;
+  const currentStars = calculateCurrentStars();
+  
+  if (currentStars > previousStars) {
+    showStarEarnedAnimation(currentStars);
+  }
+}
+
+function calculateCurrentStars() {
+  const currentScore = gameState.score;
+  const thresholds = gameState.starThresholds;
+  
+  if (currentScore >= thresholds[2]) return 3;
+  if (currentScore >= thresholds[1]) return 2;
+  if (currentScore >= thresholds[0]) return 1;
+  return 0;
+}
+
+function showStarEarnedAnimation(starNumber) {
+  // Create a celebration popup for earning a new star
+  const popup = document.createElement('div');
+  popup.style.cssText = `
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: white;
+    padding: 20px 30px;
+    border-radius: 15px;
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    z-index: 2000;
+    animation: starCelebration 2s ease-out forwards;
+    box-shadow: 0 10px 30px rgba(255, 215, 0, 0.5);
+  `;
+  
+  const percentage = starNumber === 3 ? '100%' : starNumber === 2 ? '70%' : '40%';
+  popup.innerHTML = `
+    <div>⭐ STAR EARNED! ⭐</div>
+    <div style="font-size: 16px; margin-top: 10px;">${'★'.repeat(starNumber)} ${starNumber}/3 Stars</div>
+    <div style="font-size: 14px; margin-top: 5px;">${percentage} Level Completion!</div>
+  `;
+  
+  document.body.appendChild(popup);
+  
+  // Remove popup after animation
+  setTimeout(() => {
+    if (popup.parentNode) {
+      popup.parentNode.removeChild(popup);
+    }
+  }, 2000);
 }
 
 function getBoosterIcon(type) {
@@ -1581,6 +2068,23 @@ function startGameSession() {
     savePlayerProgress();
   }, 30000);
 }
+
+// Debug toggle for difficulty display
+function toggleDifficultyDisplay() {
+  const difficultyElement = document.querySelector('.difficulty-info');
+  if (difficultyElement) {
+    difficultyElement.style.display = difficultyElement.style.display === 'none' ? 'block' : 'none';
+  }
+}
+
+// Add keyboard shortcut for debugging (press 'D' key)
+document.addEventListener('keydown', function(e) {
+  if (e.key.toLowerCase() === 'd' && e.ctrlKey) {
+    e.preventDefault();
+    toggleDifficultyDisplay();
+    console.log('Difficulty display toggled');
+  }
+});
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
