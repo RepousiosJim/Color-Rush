@@ -1,99 +1,85 @@
-# Color Rush: Cascade Challenge - Modern 2025 Edition
+# Elemental Bejeweled - Match-3 Puzzle Game
 ## Game Design Document
 
 ## 1. Game Overview
-**Title:** Color Rush: Cascade Challenge - Modern 2025 Edition  
-**Genre:** Match-3 Puzzle, Social Gaming  
+**Title:** Elemental Bejeweled  
+**Genre:** Match-3 Puzzle  
 **Target Platform:** Web (HTML5), Mobile-Ready  
-**Target Audience:** Casual gamers, match-3 enthusiasts, social gamers  
+**Target Audience:** Casual gamers, match-3 enthusiasts  
 **Age Rating:** E (Everyone)  
-**Inspiration:** Candy Crush Saga, Bejeweled, Homescapes
+**Inspiration:** Bejeweled, Candy Crush Saga, classic match-3 games
 
 ## 2. Core Gameplay Philosophy
 ### Classic Match-3 Mechanics
-- **Simple & Clear Rules:** Match 3+ identical shapes horizontally or vertically only
+- **Simple & Clear Rules:** Match 3+ identical gems horizontally or vertically only
 - **Accessible Entry:** Easy to learn, difficult to master
-- **Progressive Difficulty:** Gradual learning curve with increasing complexity
-- **Social Integration:** Competitive and cooperative elements
-- **Monetization-Ready:** Free-to-play model with optional purchases
-- **Retention-Focused:** Daily engagement through rewards and events
+- **Progressive Difficulty:** Gradual learning curve with increasing target scores
+- **Visual Appeal:** Beautiful elemental theme with unique gem designs
+- **Smooth Performance:** 60fps gameplay with responsive controls
 
-### Key Innovations for 2025
-- **Enhanced Visual Effects:** Modern CSS animations and particle systems
-- **Smart Difficulty Scaling:** AI-driven level adjustment
-- **Cross-Platform Progression:** Cloud save synchronization
-- **Accessibility First:** Full keyboard, screen reader, and colorblind support
-- **Performance Optimized:** 60fps on all devices
+### Key Features
+- **7 Elemental Gems:** Each with unique visual design and animations
+- **Cascade System:** Automatic chain reactions when gems fall
+- **Progressive Scoring:** Larger matches yield exponentially higher scores
+- **Level Advancement:** Score-based progression through increasing targets
+- **Responsive Design:** Optimized for all screen sizes and devices
 
-## 3. Game Modes
+## 3. Game Mode
 
-### 🏔️ Adventure Mode (Primary)
-- **Progressive Level System:** 100+ unique levels across multiple worlds
-- **Objective Variety:** 
-  - Score targets (reach X points)
-  - Move limits (complete in Y moves)  
-  - Time challenges (beat the clock)
-  - Collection goals (gather specific items)
-- **Difficulty Scaling:** Gradual introduction of mechanics
-- **Boss Levels:** Special challenging levels every 10 stages
-- **World Themes:** Different visual environments every 20 levels
+### 🎯 Adventure Mode (Primary)
+- **Progressive Level System:** Unlimited levels with increasing difficulty
+- **Score Targets:** Reach specific point goals to advance
+- **Move Tracking:** Monitor efficiency with move counter
+- **Combo System:** Consecutive matches multiply scores
+- **No Time Pressure:** Relaxed, strategic gameplay
 
-### 🎯 Challenge Mode
-- **Fixed Objectives:** Standardized challenges for fair competition
-- **Limited Moves:** Strategic gameplay with resource management
-- **Leaderboards:** Weekly competitive seasons
-- **Rewards:** Coins, gems, and exclusive boosters
+## 4. Elemental Gem System
 
-### ⚡ Speed Mode  
-- **Time Pressure:** 60-second intense sessions
-- **Rapid Scoring:** Focus on quick combinations and reflexes
-- **Combo Multipliers:** Reward fast consecutive matches
-- **Power-up Spawning:** Increased special piece generation
+### 🔥 Fire Gem
+- **Symbol:** 🔥
+- **Colors:** Red-orange gradient (#FF4500 to #DC143C)
+- **Visual Effects:** Warm glow, fiery border
+- **Theme:** Represents passion, energy, and destruction
 
-### ♾️ Endless Mode
-- **Infinite Gameplay:** No end conditions for casual play
-- **Relaxation Focus:** Stress-free environment
-- **Personal Bests:** Track longest sessions and highest scores
-- **Meditation Mode:** Optional calming background sounds
+### 💧 Water Gem
+- **Symbol:** 💧
+- **Colors:** Blue gradient (#1E90FF to #4169E1)
+- **Visual Effects:** Cool shimmer, flowing appearance
+- **Theme:** Represents flow, adaptability, and life
 
-## 4. Modern Progression Systems
+### 🌍 Earth Gem
+- **Symbol:** 🌍
+- **Colors:** Brown gradient (#8B4513 to #A0522D)
+- **Visual Effects:** Solid appearance, stable glow
+- **Theme:** Represents stability, strength, and endurance
 
-### Lives System (Candy Crush Inspired)
-- **5 Lives Maximum:** Standard mobile game convention
-- **30-Minute Regeneration:** One life every 30 minutes
-- **Life Gifting:** Send/receive lives from friends (future feature)
-- **Infinite Lives:** Premium purchase option
+### 💨 Air Gem
+- **Symbol:** 💨
+- **Colors:** Light blue gradient (#87CEEB to #B0E0E6)
+- **Visual Effects:** Ethereal glow, wispy effects
+- **Theme:** Represents freedom, movement, and change
 
-### Dual Currency Economy
-- **🪙 Coins (Soft Currency):**
-  - Earned through gameplay
-  - Daily reward component
-  - Used for minor purchases and continues
-- **💎 Gems (Hard Currency):**
-  - Premium currency for major purchases
-  - Rare gameplay rewards
-  - Used for boosters and lives
+### ⚡ Lightning Gem
+- **Symbol:** ⚡
+- **Colors:** Golden gradient (#FFD700 to #FFA500)
+- **Visual Effects:** Pulsing animation, electrical energy
+- **Theme:** Represents power, speed, and transformation
 
-### Booster Arsenal (Power-Up System)
-1. **🔨 Hammer (3 uses):** Remove any single piece
-2. **💣 Color Bomb (2 uses):** Eliminate all pieces of one color
-3. **⚡ Striped Candy (2 uses):** Clear entire row or column
-4. **💫 Wrapped Candy (1 use):** Clear 3x3 area around target
-5. **🔀 Shuffle (1 use):** Rearrange board when stuck
-6. **➕ Extra Moves (2 uses):** Add 5 additional moves
-7. **⏰ Extra Time (1 use):** Add 30 seconds to timer
+### 🌿 Nature Gem
+- **Symbol:** 🌿
+- **Colors:** Green gradient (#32CD32 to #228B22)
+- **Visual Effects:** Organic glow, life energy
+- **Theme:** Represents growth, harmony, and renewal
 
-### Daily Engagement Features
-- **🎁 Daily Rewards:** 7-day cycle with increasing value
-- **📅 Daily Challenges:** Special objectives for bonus rewards
-- **🏆 Weekly Tournaments:** Competitive events with exclusive prizes
-- **🎪 Limited-Time Events:** Seasonal content updates
+### 🔮 Magic Gem
+- **Symbol:** 🔮
+- **Colors:** Purple gradient (#9932CC to #8A2BE2)
+- **Visual Effects:** Mystical shimmer, magical sparkles
+- **Theme:** Represents mystery, potential, and transformation
 
-## 5. Enhanced Game Mechanics
+## 5. Core Game Mechanics
 
-### Simple Match-3 Rules- **Basic Matching:** Only horizontal and vertical matches of 3+ identical pieces- **Consecutive Neighbors:** Pieces must be adjacent with no gaps between them- **No Complex Patterns:** No L-shapes, T-shapes, or diagonal matches- **No Empty Cells:** Empty spaces break the consecutive sequence- **Clear & Consistent:** Easy to understand and predict- **Classic Appeal:** Familiar to all match-3 players
-
-### Match Detection Algorithm
+### Match Detection System
 ```javascript
 // Simple horizontal and vertical match detection
 function findMatches() {
@@ -105,15 +91,15 @@ function findMatches() {
     let currentType = null;
     
     for (let col = 0; col < 8; col++) {
-      const shape = gameState.board[row][col];
-      if (shape && shape.type === currentType) {
+      const gem = gameState.board[row][col];
+      if (gem && gem.type === currentType) {
         matchGroup.push({ row, col });
       } else {
         if (matchGroup.length >= 3) {
           matches.push([...matchGroup]);
         }
-        matchGroup = shape ? [{ row, col }] : [];
-        currentType = shape ? shape.type : null;
+        matchGroup = gem ? [{ row, col }] : [];
+        currentType = gem ? gem.type : null;
       }
     }
     
@@ -128,15 +114,15 @@ function findMatches() {
     let currentType = null;
     
     for (let row = 0; row < 8; row++) {
-      const shape = gameState.board[row][col];
-      if (shape && shape.type === currentType) {
+      const gem = gameState.board[row][col];
+      if (gem && gem.type === currentType) {
         matchGroup.push({ row, col });
       } else {
         if (matchGroup.length >= 3) {
           matches.push([...matchGroup]);
         }
-        matchGroup = shape ? [{ row, col }] : [];
-        currentType = shape ? shape.type : null;
+        matchGroup = gem ? [{ row, col }] : [];
+        currentType = gem ? gem.type : null;
       }
     }
     
@@ -149,186 +135,191 @@ function findMatches() {
 }
 ```
 
-### Special Piece System
-```
-Match 4 pieces → Striped Candy (clears row/column)
-Match 5 pieces → Color Bomb (clears all of one color)
-Match 6+ pieces → Wrapped Candy (clears 3x3 area)
-```
+### Cascade Physics System
+- **Gravity Effect:** Gems fall naturally when space opens below
+- **Chain Reactions:** Automatic matching from falling gems
+- **Combo Multipliers:** Each successive cascade increases score multiplier
+- **Visual Polish:** Smooth drop animations with CSS transitions
 
-### Cascade Physics
-- **Gravity System:** Pieces fall naturally when space opens
-- **Chain Reactions:** Automatic matching from falling pieces
-- **Combo Multipliers:** Each cascade increases score multiplier
-- **Visual Polish:** Smooth animations and particle effects
-
-## 6. Enhanced Scoring & Progression
-
-### Intelligent Scoring System
+### Scoring System
 ```javascript
-Base Score = Match Size × 100 points
-Combo Bonus = Cascade Level × 50 points  
-Special Bonus = Special Piece × 2x multiplier
-Star Rating = Performance vs. Target (1-3 stars)
+Base Score = Match Size × Point Value
+- 3-match: 50 points
+- 4-match: 150 points  
+- 5-match: 300 points
+- 6+ match: 500+ points
+
+Combo Bonus = Cascade Level × Base Score
+Final Score = Base Score × Combo Multiplier
 ```
 
-### Achievement Framework
-- **Progress Tracking:** Comprehensive statistics
-- **Milestone Rewards:** Unlock bonuses at key achievements
-- **Badge Collection:** Visual progress indicators
-- **Leaderboard Integration:** Social comparison features
+### Level Progression
+- **Starting Target:** 1000 points
+- **Progression Formula:** `targetScore = level × 1000 + (level - 1) × 500`
+- **Level 1:** 1000 points
+- **Level 2:** 2500 points
+- **Level 3:** 4500 points
+- **And so on...**
 
-## 7. Modern UI/UX Design
+## 6. User Interface Design
 
 ### Visual Hierarchy
-- **Primary Actions:** Large, prominent game mode buttons
-- **Secondary Info:** Lives, currency, and boosters in header
-- **Tertiary Details:** Settings and additional options at bottom
+- **Game Board:** Central 8×8 grid with prominent gem display
+- **Statistics Bar:** Score, Level, Target, Moves clearly displayed
+- **Controls:** Simple restart and help buttons
+- **Instructions:** Accessible overlay with complete game guide
 
-### Accessibility Features
-- **Color Blind Support:** Pattern overlays and high contrast mode
-- **Keyboard Navigation:** Full game playable without mouse
-- **Screen Reader Support:** Comprehensive ARIA labels
-- **Reduced Motion:** Respect user motion preferences
-- **Font Scaling:** Support for user font size preferences
+### Color Scheme
+- **Background:** Deep space gradient with animated starfield
+- **Gems:** Vibrant elemental colors with gradients and effects
+- **UI Elements:** Semi-transparent glass morphism design
+- **Text:** High contrast white text with subtle shadows
 
-### Responsive Design
-- **Mobile First:** Optimized for touch interfaces
-- **Desktop Enhanced:** Additional features for larger screens
-- **Cross-Platform:** Consistent experience across devices
+### Responsive Breakpoints
+- **Desktop:** 480×480px board (60px per gem)
+- **Tablet:** 400×400px board (50px per gem)
+- **Mobile:** 320×320px board (40px per gem)
 
-## 8. Technical Architecture
+## 7. Technical Implementation
 
-### Performance Optimizations
-- **60fps Target:** Smooth animations on all devices
-- **Memory Management:** Efficient object pooling and cleanup
-- **Asset Loading:** Progressive loading of game content
-- **Offline Capability:** Core game functions work offline
+### Architecture
+- **HTML5:** Semantic structure with accessibility features
+- **CSS3:** Grid layout, animations, and responsive design
+- **Vanilla JavaScript:** Pure ES6+ without external dependencies
+- **Performance:** 60fps target with hardware acceleration
 
-### Modern Web Technologies
+### Game State Management
 ```javascript
-// Core Technologies
-HTML5 Canvas/DOM: Game rendering
-CSS3 Animations: Visual effects  
-JavaScript ES6+: Game logic
-Web APIs: Local storage, notifications
-
-// Performance Features
-RequestAnimationFrame: Smooth animations
-Web Workers: Background processing (future)
-Service Workers: Offline functionality (future)
-IndexedDB: Advanced save system (future)
+const gameState = {
+  board: Array(8).fill().map(() => Array(8)),
+  score: 0,
+  level: 1,
+  targetScore: 1000,
+  moves: 0,
+  selectedGem: null,
+  isAnimating: false,
+  comboMultiplier: 1
+};
 ```
 
-### Data Management
-- **Local Storage:** Player progress and preferences
-- **Cloud Sync:** Cross-device progression (future feature)
-- **Analytics:** Anonymous usage tracking for improvements
-- **A/B Testing:** Feature experimentation framework
+### Key Functions
+- `initializeGame()` - Set up new game state
+- `createBoard()` - Generate initial gem layout
+- `handleGemClick()` - Process user interactions
+- `findMatches()` - Detect valid combinations
+- `processMatches()` - Handle scoring and cascades
+- `applyGravity()` - Make gems fall naturally
+- `fillEmptySpaces()` - Add new gems from top
 
-## 9. Monetization Strategy (Future)
+## 8. Accessibility Features
 
-### Free-to-Play Model
-- **Core Game:** Completely free with no restrictions
-- **Optional Purchases:** 
-  - Booster bundles
-  - Infinite lives (time-limited)
-  - Exclusive cosmetic themes
-  - Premium level packs
+### Keyboard Support
+- **Tab Navigation:** Focus moves through interactive elements
+- **Enter/Space:** Activate focused gems
+- **Escape:** Clear selection
+- **R Key:** Restart game
+- **H Key:** Toggle help overlay
 
-### Ethical Considerations
-- **No Pay-to-Win:** All levels completable without purchases
-- **Fair Progression:** Reasonable difficulty curve
-- **Transparent Pricing:** Clear value propositions
-- **Spending Limits:** Built-in purchase controls
+### Screen Reader Support
+- **ARIA Labels:** All interactive elements properly labeled
+- **Live Regions:** Score and status updates announced
+- **Semantic HTML:** Proper heading structure and landmarks
+- **Alt Text:** Descriptive text for all visual elements
 
-## 10. Social Features (Roadmap)
+### Visual Accessibility
+- **High Contrast:** Support for high contrast mode
+- **Focus Indicators:** Clear visual focus states
+- **Reduced Motion:** Respects `prefers-reduced-motion` setting
+- **Large Text:** UI scales with user font preferences
 
-### Community Integration
-- **Friend System:** Connect with other players
-- **Leaderboards:** Weekly and all-time rankings
-- **Life Sharing:** Send/receive lives from friends
-- **Team Competitions:** Guild-based events
+## 9. Performance Optimization
 
-### User-Generated Content
-- **Level Editor:** Create and share custom levels (advanced feature)
-- **Screenshot Sharing:** Celebrate achievements on social media
-- **Replay System:** Share epic gameplay moments
+### Rendering Efficiency
+- **CSS Grid:** Hardware-accelerated layout
+- **Transform Animations:** GPU-accelerated movements
+- **Minimal Reflows:** Careful DOM manipulation
+- **Efficient Selectors:** Optimized CSS and JavaScript queries
 
-## 11. Platform Distribution
+### Memory Management
+- **Object Pooling:** Reuse gem objects when possible
+- **Event Delegation:** Efficient event handling
+- **Cleanup:** Proper removal of event listeners and timers
+- **Garbage Collection:** Avoid memory leaks
 
-### Web Portals
-- **Primary Targets:**
-  - Armor Games
-  - Newgrounds
-  - itch.io
-  - Personal portfolio site
+## 10. Browser Compatibility
 
-### Optimization for Portals
-- **Fast Loading:** Minimal initial download size
-- **Standalone:** No external dependencies
-- **Branding Friendly:** Easy integration with portal themes
-- **Analytics Ready:** Portal-specific tracking integration
+### Minimum Requirements
+- **Chrome:** Version 80+
+- **Firefox:** Version 75+
+- **Safari:** Version 13+
+- **Edge:** Version 80+
+- **Mobile:** iOS Safari 13+, Chrome Mobile 80+
 
-## 12. Quality Assurance
+### Fallbacks
+- **CSS Grid:** Flexbox fallback for older browsers
+- **ES6 Features:** Transpilation if needed for legacy support
+- **Animations:** Reduced animations for lower-end devices
 
-### Testing Framework
-- **Cross-Browser:** Chrome, Firefox, Safari, Edge
+## 11. Quality Assurance
+
+### Testing Strategy
+- **Cross-Browser:** Manual testing on all supported browsers
 - **Device Testing:** Mobile phones, tablets, desktops
-- **Performance Testing:** Various hardware configurations
-- **Accessibility Testing:** Screen readers and keyboard navigation
+- **Accessibility:** Screen reader and keyboard navigation testing
+- **Performance:** FPS monitoring and memory usage analysis
 
-### User Experience Validation
-- **Playtesting:** Regular feedback sessions with target audience
+### Bug Prevention
+- **Input Validation:** Prevent invalid game states
+- **Error Handling:** Graceful failure for edge cases
+- **State Management:** Consistent game state throughout play
+- **Animation Safety:** Prevent conflicts during transitions
+
+## 12. Future Enhancement Opportunities
+
+### Gameplay Features
+- **Special Gems:** Power-ups for 4+ matches
+- **Time Challenge:** Speed-based game modes
+- **Achievements:** Milestone tracking and rewards
+- **Sound Design:** Audio feedback and background music
+
+### Technical Improvements
+- **PWA Conversion:** Offline play capability
+- **WebGL Effects:** Advanced particle systems
+- **Touch Gestures:** Swipe-to-match controls
+- **Cloud Saves:** Cross-device progress synchronization
+
+### Analytics & Insights
+- **Play Patterns:** Understanding user behavior
 - **Difficulty Balancing:** Data-driven level adjustments
-- **UI/UX Iteration:** Continuous interface improvements
+- **Performance Metrics:** Real-world performance monitoring
+- **User Feedback:** Integrated feedback collection
 
-## 13. Launch & Post-Launch
+## 13. Success Metrics
 
-### Launch Strategy
-- **Soft Launch:** Limited release for feedback collection
-- **Community Building:** Engage with gaming communities
-- **Content Marketing:** Developer blog posts and tutorials
-- **Influencer Outreach:** Gaming content creator partnerships
+### Player Engagement
+- **Session Length:** Average time spent playing
+- **Return Rate:** Percentage of players who return
+- **Level Progression:** How far players advance
+- **Move Efficiency:** Average moves per level completion
 
-### Post-Launch Support
-- **Regular Updates:** Monthly content additions
-- **Bug Fixes:** Responsive issue resolution
-- **Feature Expansion:** Community-requested enhancements
-- **Platform Expansion:** Consider mobile app versions
+### Technical Performance
+- **Load Time:** Initial game startup speed
+- **Frame Rate:** Consistent 60fps maintenance
+- **Memory Usage:** Efficient resource utilization
+- **Crash Rate:** Stability across different devices
 
-## 14. Success Metrics
-
-### Key Performance Indicators
-- **Retention Rates:** Day 1, Day 7, Day 30 player return
-- **Session Length:** Average gameplay time per visit
-- **Level Completion:** Success rates across difficulty levels
-- **Social Engagement:** Sharing and community interaction
-
-### Analytics Implementation
-- **Anonymous Tracking:** Player behavior insights
-- **Performance Monitoring:** Technical issue detection
-- **A/B Testing:** Feature optimization data
-- **User Feedback:** Integrated rating and suggestion system
-
-## 15. Future Enhancements
-
-### Advanced Features (Phase 2)
-- **Multi-Language Support:** International market expansion
-- **Advanced Graphics:** WebGL-powered particle systems
-- **AI Opponents:** Computer-controlled competitive play
-- **VR Mode:** Immersive match-3 experience
-
-### Technology Upgrades
-- **PWA Conversion:** Progressive Web App capabilities
-- **WebAssembly:** Performance-critical components
-- **WebRTC:** Real-time multiplayer features
-- **Blockchain Integration:** NFT cosmetics and achievements
+### Accessibility Success
+- **Keyboard Usage:** Percentage of keyboard-only players
+- **Screen Reader:** Successful screen reader navigation
+- **High Contrast:** Usage of accessibility features
+- **Reduced Motion:** Respect for motion preferences
 
 ---
 
 ## Conclusion
 
-Color Rush: Cascade Challenge - Modern 2025 Edition represents the evolution of match-3 gaming, combining proven mechanics from industry leaders with innovative features designed for the modern web gaming landscape. The focus on simple, clear match-3 rules ensures accessibility while maintaining the addictive core loop that makes these games successful.
+Elemental Bejeweled represents a modern take on classic match-3 gameplay, combining beautiful elemental themes with smooth, accessible web-based gaming. The focus on simple, clear mechanics ensures broad appeal while the progressive difficulty system provides long-term engagement.
 
-The game balances the classic appeal of traditional match-3 games with contemporary features like progression systems, social elements, and ethical free-to-play mechanics, positioning it as a competitive entry in the casual gaming market. 
+The technical implementation prioritizes performance and accessibility, creating an inclusive gaming experience that works across all devices and user needs. The elemental theme provides visual distinction while maintaining the familiar match-3 mechanics that players love.
+
+This design balances simplicity with depth, creating a game that's easy to learn but rewarding to master, suitable for both casual play sessions and extended gaming periods. 

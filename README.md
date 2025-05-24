@@ -1,8 +1,8 @@
-# 🎮 Color Rush: Cascade Challenge - Modern 2025 Edition
+# ⚡ Elemental Bejeweled - Match-3 Puzzle Game
 
-A modern, feature-rich match-3 puzzle game built with pure HTML5, CSS3, and JavaScript. Experience the addictive gameplay of classic match-3 games enhanced with cutting-edge 2025 features including AI-powered hints, social sharing, accessibility support, and performance analytics.
+A beautiful elemental-themed match-3 puzzle game built with pure HTML5, CSS3, and JavaScript. Experience smooth gameplay with 7 unique elemental gems, cascading chain reactions, and progressive level challenges.
 
-![Game Preview](https://img.shields.io/badge/Status-Active%20Development-brightgreen)
+![Game Status](https://img.shields.io/badge/Status-Stable-brightgreen)
 ![HTML5](https://img.shields.io/badge/HTML5-%23E34F26.svg?style=flat&logo=html5&logoColor=white)
 ![CSS3](https://img.shields.io/badge/CSS3-%231572B6.svg?style=flat&logo=css3&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-%23F7DF1E.svg?style=flat&logo=javascript&logoColor=black)
@@ -10,200 +10,180 @@ A modern, feature-rich match-3 puzzle game built with pure HTML5, CSS3, and Java
 ## ✨ Features
 
 ### 🎯 Core Gameplay
-- **Classic Match-3 Mechanics**: Simple horizontal and vertical matching rules
-- **Multiple Game Modes**: Adventure, Challenge, Speed, and Endless modes
-- **Progressive Difficulty**: 100+ unique levels with increasing complexity
-- **Special Pieces**: Striped candy, color bombs, wrapped candy, and more
-- **Cascade Physics**: Natural gravity system with chain reactions
-
-### 🤖 Modern 2025 Features
-- **AI-Powered Hint System**: Intelligent move suggestions with quality ratings
-- **Social Integration**: Native Web Share API with fallback support
-- **Performance Analytics**: Session tracking and skill progression metrics
-- **Full Accessibility**: WCAG 2.1 compliant with keyboard navigation and screen reader support
-- **Reduced Motion Support**: Respects user motion preferences
-- **Dark Mode**: Automatic system theme detection
+- **Classic Match-3 Mechanics**: Simple horizontal and vertical matching (3+ gems)
+- **7 Elemental Gems**: Fire 🔥, Water 💧, Earth 🌍, Air 💨, Lightning ⚡, Nature 🌿, Magic 🔮
+- **Cascade Physics**: Natural gravity system with automatic chain reactions
+- **Progressive Scoring**: Bigger matches = higher scores (50/150/300+ points)
+- **Combo Multipliers**: Each cascade increases your score multiplier
+- **Level Progression**: Reach target scores to advance through levels
 
 ### 🎨 Visual Excellence
-- **Modern Glassmorphism UI**: Beautiful transparent and blur effects
-- **Smooth Animations**: 60fps target with hardware acceleration
-- **Particle Effects**: Enhanced visual feedback for matches
-- **Responsive Design**: Optimized for all screen sizes
-- **High-DPI Support**: Crisp graphics on retina displays
+- **Beautiful Elemental Themes**: Each gem type has unique colors and animations
+- **Smooth Animations**: 60fps gameplay with CSS transitions
+- **Starfield Background**: Animated cosmic backdrop
+- **Glassmorphism UI**: Modern transparent design with blur effects
+- **Responsive Design**: Optimized for desktop, tablet, and mobile
+- **Visual Feedback**: Gems glow, pulse, and sparkle with special effects
 
-### 💎 Progression System
-- **Dual Currency**: Coins and gems economy
-- **Lives System**: Energy-based gameplay (5 lives, 30-minute regeneration)
-- **Daily Rewards**: 7-day reward cycle with increasing value
-- **Booster Arsenal**: 6 different power-ups to enhance gameplay
-- **Star Rating**: 3-star completion system
+### 🌟 Enhanced Experience
+- **Progressive Difficulty**: Target scores increase with each level
+- **Move Counter**: Track your efficiency with move counting
+- **Accessibility**: Full keyboard support and high contrast mode
+- **Reduced Motion**: Respects user motion preferences
+- **Clean Interface**: Distraction-free gameplay focus
 
 ## 🚀 Quick Start
 
-### Play Online
+### Play Instantly
 1. Download or clone this repository
 2. Open `index.html` in your web browser
-3. Start playing immediately - no installation required!
+3. Start matching elemental gems immediately!
 
 ### Local Development
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/color-rush-cascade-challenge.git
+git clone https://github.com/yourusername/elemental-bejeweled.git
 
 # Navigate to project directory
-cd color-rush-cascade-challenge
-
-# Start a local server (Python example)
-python -m http.server 8080
+cd elemental-bejeweled
 
 # Open in browser
-open http://localhost:8080
+open index.html
 ```
 
 ## 🎮 How to Play
 
-1. **Match 3 or more** identical shapes horizontally or vertically
-2. **Swap adjacent pieces** by clicking and dragging
-3. **Create special pieces** by matching 4+ shapes in specific patterns
-4. **Complete objectives** to earn stars and progress through levels
-5. **Use boosters** strategically to overcome challenging levels
+1. **Click to Select**: Click any gem to select it (golden border appears)
+2. **Click Adjacent Gem**: Click a neighboring gem to swap positions
+3. **Create Matches**: Match 3+ identical gems horizontally or vertically
+4. **Chain Reactions**: Watch gems fall and create automatic cascades
+5. **Reach Target**: Score enough points to advance to the next level
 
-### Special Combinations
-- **4 in a row** → Striped Candy (clears entire row/column)
-- **5 in a row** → Color Bomb (removes all pieces of one color)
-- **6+ pieces** → Wrapped Candy (explodes in 3x3 area)
+### Scoring System
+- **3-match**: 50 points base score
+- **4-match**: 150 points for longer matches
+- **5+ match**: 300+ points for massive combinations
+- **Combo Bonus**: Each cascade multiplies your score
+- **Level Targets**: Progressive scoring goals
+
+### Controls
+- **Mouse**: Click gems to select and swap
+- **Keyboard**: 
+  - `R` - Restart game
+  - `H` - Show/hide instructions
 
 ## 🛠️ Technical Architecture
 
 ### Core Technologies
-- **HTML5**: Semantic markup and modern web standards
-- **CSS3**: Advanced animations, gradients, and responsive design
-- **ES6+ JavaScript**: Modular code with modern features
-- **Web APIs**: Local Storage, Web Share API, Clipboard API
+- **HTML5**: Semantic markup with modern standards
+- **CSS3**: Advanced animations, gradients, and grid layouts
+- **Vanilla JavaScript**: Pure ES6+ without external dependencies
+- **Web APIs**: Local Storage for preferences
 
 ### Code Structure
 ```
-├── index.html              # Main game interface
-├── script.js               # Core game logic and UI
-├── styles.css              # Modern CSS with animations
-├── modules/
-│   └── modernFeatures.js   # AI hints, social, analytics
-├── game-design-document.md # Comprehensive game design
-└── README.md              # This file
+├── index.html                 # Game interface and instructions
+├── script.js                  # Core game logic and mechanics
+├── styles.css                 # Elemental gem styling and animations
+├── game-design-document.md    # Detailed game design documentation
+└── README.md                  # This file
 ```
 
 ### Performance Features
-- **60fps animations** with requestAnimationFrame
-- **Memory management** with object pooling
-- **Efficient rendering** using CSS transforms
-- **Progressive loading** for optimal startup time
+- **Efficient Rendering**: CSS Grid for board layout
+- **Smooth Animations**: Hardware-accelerated transforms
+- **Memory Management**: Clean object creation and disposal
+- **Responsive Framework**: Mobile-first design approach
 
-## 🎯 Game Modes
+## 🌍 Elemental Gems
 
-### 🏔️ Adventure Mode
-Progressive level system with unique objectives and increasing difficulty.
+### Fire 🔥
+Blazing red-orange gems with fiery gradients and warm glow effects.
 
-### 🎯 Challenge Mode
-Fixed objectives with limited moves for competitive gameplay.
+### Water 💧
+Cool blue gems with flowing liquid-inspired styling and gentle animations.
 
-### ⚡ Speed Mode
-Fast-paced 60-second sessions focusing on quick reflexes.
+### Earth 🌍
+Solid brown gems representing stability with earthy tones.
 
-### ♾️ Endless Mode
-Relaxing infinite gameplay for stress-free entertainment.
+### Air 💨
+Light blue ethereal gems with soft, airy visual effects.
 
-## 🔧 Modern Features Deep Dive
+### Lightning ⚡
+Golden gems with electrical energy and pulsing animations.
 
-### AI-Powered Hints
-- Analyzes all possible moves on the board
-- Scores moves based on potential points and chain reactions
-- Provides quality ratings: EXCELLENT, GREAT, GOOD, OKAY
-- Visual highlighting with smooth animations
-- Auto-hint system after 15 seconds of inactivity
+### Nature 🌿
+Vibrant green gems full of life and organic growth patterns.
 
-### Accessibility Features
-- **Keyboard Navigation**: Full game control with arrow keys
-- **Screen Reader Support**: Comprehensive ARIA labels
-- **High Contrast Mode**: Enhanced visibility for impaired vision
-- **Reduced Motion**: Respects user motion preferences
-- **Large Text Support**: Scalable UI elements
-
-### Performance Analytics
-- Session time tracking
-- Completion rate analysis
-- Skill progression measurement
-- Score history (last 20 games)
-- Exportable JSON data
+### Magic 🔮
+Mystical purple gems with shimmering magical effects.
 
 ## 📱 Responsive Design
 
-- **Mobile-First**: Touch-optimized interface
-- **Tablet-Enhanced**: Larger touch targets
-- **Desktop-Optimized**: Additional features and shortcuts
-- **Cross-Platform**: Consistent experience across devices
+- **Desktop**: Full-sized 8x8 grid (480x480px)
+- **Tablet**: Medium-sized grid (400x400px) 
+- **Mobile**: Compact grid (320x320px)
+- **Touch Optimized**: Large touch targets for mobile gameplay
+- **Consistent Experience**: Same mechanics across all devices
 
 ## 🌟 Browser Support
 
-- ✅ Chrome 90+
-- ✅ Firefox 88+
-- ✅ Safari 14+
-- ✅ Edge 90+
+- ✅ Chrome 80+
+- ✅ Firefox 75+
+- ✅ Safari 13+
+- ✅ Edge 80+
 - ✅ Mobile browsers (iOS Safari, Chrome Mobile)
 
-## 🔮 Roadmap
+## ♿ Accessibility Features
 
-### Phase 1 (Current)
-- [x] Core match-3 gameplay
-- [x] AI hint system
-- [x] Social sharing
-- [x] Accessibility features
-- [x] Performance analytics
+- **Keyboard Navigation**: Full game control without mouse
+- **Screen Reader Support**: ARIA labels for all interactive elements
+- **High Contrast Mode**: Enhanced visibility for impaired vision
+- **Reduced Motion**: Respects `prefers-reduced-motion` setting
+- **Focus Indicators**: Clear visual focus states
+- **Semantic HTML**: Proper heading structure and landmarks
 
-### Phase 2 (Planned)
-- [ ] Multiplayer support
-- [ ] Level editor
-- [ ] Cloud save synchronization
-- [ ] Advanced particle systems
-- [ ] PWA conversion
+## 🔮 Future Enhancements
 
-### Phase 3 (Future)
-- [ ] WebGL rendering
-- [ ] VR mode support
-- [ ] Blockchain integration
-- [ ] Machine learning difficulty adjustment
+### Planned Features
+- [ ] Sound effects and background music
+- [ ] Special gem effects for 4+ matches
+- [ ] Timed challenge modes
+- [ ] Achievement system
+- [ ] Local high score storage
+
+### Technical Improvements
+- [ ] WebGL rendering for effects
+- [ ] PWA conversion for offline play
+- [ ] Touch gesture improvements
+- [ ] Performance optimizations
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
+Contributions are welcome! Please feel free to submit issues and pull requests.
 
-### Development Setup
+### Development Guidelines
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
+2. Create a feature branch (`git checkout -b feature/gem-effects`)
+3. Commit your changes (`git commit -m 'Add gem particle effects'`)
+4. Push to the branch (`git push origin feature/gem-effects`)
 5. Open a Pull Request
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 🏆 Achievements
+## 🏆 Project Highlights
 
-- 🎮 **Classic Appeal**: Faithful to match-3 traditions
-- 🚀 **Modern Tech**: Built with 2025 web standards
-- ♿ **Accessible**: WCAG 2.1 AA compliant
-- 📱 **Responsive**: Works on all devices
-- ⚡ **Fast**: 60fps smooth gameplay
-- 🎨 **Beautiful**: Modern glassmorphism design
+- 🎮 **Classic Gameplay**: Faithful match-3 mechanics
+- ⚡ **Elemental Theme**: Unique gem system with visual effects
+- 🚀 **Pure Web Tech**: No frameworks or dependencies
+- 📱 **Mobile Ready**: Responsive design for all devices
+- ♿ **Accessible**: Inclusive design principles
+- 🎨 **Beautiful**: Modern visual design with animations
 
 ## 🙏 Acknowledgments
 
-- Inspired by classic match-3 games like Candy Crush Saga and Bejeweled
-- Built with modern web technologies and best practices
-- Designed for the 2025 gaming landscape
-
----
-
-**🎮 Ready to play? Open `index.html` and start matching!**
-
-*Made with ❤️ and modern web technologies* 
+- Inspired by classic games like Bejeweled and Candy Crush
+- Built with modern web standards and best practices
+- Designed for accessibility and inclusive gaming 
