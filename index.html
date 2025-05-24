@@ -35,6 +35,9 @@
         <button class="btn btn-secondary" onclick="showInstructions()">
           📜 How to Play
         </button>
+        <button class="btn btn-settings" onclick="openSettings()">
+          ⚙️ Settings
+        </button>
       </div>
       
       <!-- Simplified Instructions -->
@@ -76,6 +79,141 @@
           <li>❌ <strong>Deselect:</strong> Click the same gem again to deselect</li>
           <li>🔄 <strong>New Game:</strong> Restart with a fresh board anytime</li>
         </ul>
+      </div>
+      
+      <!-- Settings Modal -->
+      <div id="settingsModal" class="settings-modal" style="display: none;">
+        <div class="settings-content">
+          <div class="settings-header">
+            <h2>⚙️ Game Settings</h2>
+            <button class="close-btn" onclick="closeSettings()">✕</button>
+          </div>
+          
+          <div class="settings-body">
+            <!-- Audio Settings -->
+            <div class="settings-section">
+              <h3>🔊 Audio Settings</h3>
+              <div class="setting-item">
+                <label for="masterVolume">Master Volume</label>
+                <input type="range" id="masterVolume" min="0" max="100" value="75" class="volume-slider">
+                <span class="volume-value">75%</span>
+              </div>
+              <div class="setting-item">
+                <label for="soundEffects">Sound Effects</label>
+                <input type="checkbox" id="soundEffects" checked class="toggle-switch">
+              </div>
+              <div class="setting-item">
+                <label for="backgroundMusic">Background Music</label>
+                <input type="checkbox" id="backgroundMusic" checked class="toggle-switch">
+              </div>
+            </div>
+
+            <!-- Visual Settings -->
+            <div class="settings-section">
+              <h3>👁️ Visual Settings</h3>
+              <div class="setting-item">
+                <label for="animations">Animations</label>
+                <input type="checkbox" id="animations" checked class="toggle-switch">
+              </div>
+              <div class="setting-item">
+                <label for="particleEffects">Particle Effects</label>
+                <input type="checkbox" id="particleEffects" checked class="toggle-switch">
+              </div>
+              <div class="setting-item">
+                <label for="highContrast">High Contrast Mode</label>
+                <input type="checkbox" id="highContrast" class="toggle-switch">
+              </div>
+              <div class="setting-item">
+                <label for="reducedMotion">Reduced Motion</label>
+                <input type="checkbox" id="reducedMotion" class="toggle-switch">
+              </div>
+              <div class="setting-item">
+                <label for="boardTheme">Board Theme</label>
+                <select id="boardTheme" class="theme-select">
+                  <option value="space">🌌 Space (Default)</option>
+                  <option value="forest">🌲 Forest</option>
+                  <option value="ocean">🌊 Ocean</option>
+                  <option value="fire">🔥 Fire</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Gameplay Settings -->
+            <div class="settings-section">
+              <h3>🎮 Gameplay Settings</h3>
+              <div class="setting-item">
+                <label for="difficulty">Difficulty Level</label>
+                <select id="difficulty" class="difficulty-select">
+                  <option value="easy">😊 Easy</option>
+                  <option value="normal" selected>😐 Normal</option>
+                  <option value="hard">😤 Hard</option>
+                  <option value="expert">🔥 Expert</option>
+                </select>
+              </div>
+              <div class="setting-item">
+                <label for="showHints">Show Hints</label>
+                <input type="checkbox" id="showHints" checked class="toggle-switch">
+              </div>
+              <div class="setting-item">
+                <label for="autoSave">Auto Save Progress</label>
+                <input type="checkbox" id="autoSave" checked class="toggle-switch">
+              </div>
+              <div class="setting-item">
+                <label for="showComboText">Show Combo Text</label>
+                <input type="checkbox" id="showComboText" checked class="toggle-switch">
+              </div>
+            </div>
+
+            <!-- Display Settings -->
+            <div class="settings-section">
+              <h3>📱 Display Settings</h3>
+              <div class="setting-item">
+                <label for="boardSize">Board Size</label>
+                <select id="boardSize" class="size-select">
+                  <option value="small">📱 Small (320px)</option>
+                  <option value="medium">📺 Medium (400px)</option>
+                  <option value="large" selected>🖥️ Large (480px)</option>
+                  <option value="xlarge">🖥️ Extra Large (560px)</option>
+                </select>
+              </div>
+              <div class="setting-item">
+                <label for="fullscreen">Fullscreen Mode</label>
+                <input type="checkbox" id="fullscreen" class="toggle-switch">
+              </div>
+              <div class="setting-item">
+                <label for="showStats">Show Statistics</label>
+                <input type="checkbox" id="showStats" checked class="toggle-switch">
+              </div>
+            </div>
+
+            <!-- Controls Settings -->
+            <div class="settings-section">
+              <h3>🕹️ Controls Settings</h3>
+              <div class="setting-item">
+                <label for="keyboardShortcuts">Keyboard Shortcuts</label>
+                <input type="checkbox" id="keyboardShortcuts" checked class="toggle-switch">
+              </div>
+              <div class="setting-item">
+                <label for="clickFeedback">Click Feedback</label>
+                <input type="checkbox" id="clickFeedback" checked class="toggle-switch">
+              </div>
+              <div class="setting-item">
+                <label for="doubleClickSpeed">Double Click Speed</label>
+                <input type="range" id="doubleClickSpeed" min="200" max="800" value="400" class="speed-slider">
+                <span class="speed-value">Normal</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="settings-footer">
+            <button class="btn btn-secondary" onclick="resetSettings()">
+              🔄 Reset to Defaults
+            </button>
+            <button class="btn btn-primary" onclick="saveSettings()">
+              💾 Save Settings
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
