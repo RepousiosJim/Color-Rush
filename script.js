@@ -266,6 +266,9 @@ function initializeBoard() {
         }
       } while (wouldCreateMatch(row, col, shape.type));
       
+      // Mark initial pieces as already animated
+      shape.animated = true;
+      
       const shapeElement = createShapeElement(shape, row, col);
       board.appendChild(shapeElement);
     }
@@ -812,32 +815,39 @@ async function cascadeBoardOnly() {
 }
 
 async function fillEmptySpaces() {
-  const board = document.querySelector('.game-board');
-  
+  // Fill empty spaces in game state
   for (let col = 0; col < 8; col++) {
     for (let row = 0; row < 8; row++) {
       if (!gameState.board[row][col]) {
         const newShape = createRandomShape();
         gameState.board[row][col] = newShape;
-        
-        const element = createShapeElement(newShape, row, col);
-        element.style.opacity = '0';
-        element.style.transform = 'translateY(-60px)';
-        board.appendChild(element);
-        
-        setTimeout(() => {
-          element.style.transition = 'all 0.2s ease-out';
-          element.style.opacity = '1';
-          element.style.transform = 'translateY(0)';
-        }, 25);
-        
-        // Check for immediate matches as each piece is placed
-        setTimeout(() => {
-          checkForImmediateMatches();
-        }, 50);
       }
     }
   }
+  
+  // Update the entire board visual to prevent size issues
+  updateBoardVisual();
+  
+  // Animate new pieces falling in
+  const newElements = document.querySelectorAll('.shape');
+  newElements.forEach((element, index) => {
+    const row = parseInt(element.dataset.row);
+    const col = parseInt(element.dataset.col);
+    
+    // Only animate pieces that were just added
+    if (element.classList.contains('new-piece') || !gameState.board[row][col].animated) {
+      element.style.opacity = '0';
+      element.style.transform = 'translateY(-60px)';
+      
+      setTimeout(() => {
+        element.style.transition = 'all 0.2s ease-out';
+        element.style.opacity = '1';
+        element.style.transform = 'translateY(0)';
+      }, index * 10);
+      
+      gameState.board[row][col].animated = true;
+    }
+  });
   
   await new Promise(resolve => setTimeout(resolve, 150));
   
@@ -847,27 +857,39 @@ async function fillEmptySpaces() {
 
 // Cascade without triggering auto-match (for use in auto-match processing)
 async function fillEmptySpacesOnly() {
-  const board = document.querySelector('.game-board');
-  
+  // Fill empty spaces in game state
   for (let col = 0; col < 8; col++) {
     for (let row = 0; row < 8; row++) {
       if (!gameState.board[row][col]) {
         const newShape = createRandomShape();
         gameState.board[row][col] = newShape;
-        
-        const element = createShapeElement(newShape, row, col);
-        element.style.opacity = '0';
-        element.style.transform = 'translateY(-60px)';
-        board.appendChild(element);
-        
-        setTimeout(() => {
-          element.style.transition = 'all 0.3s ease-out';
-          element.style.opacity = '1';
-          element.style.transform = 'translateY(0)';
-        }, 50);
       }
     }
   }
+  
+  // Update the entire board visual to prevent size issues
+  updateBoardVisual();
+  
+  // Animate new pieces falling in
+  const newElements = document.querySelectorAll('.shape');
+  newElements.forEach((element, index) => {
+    const row = parseInt(element.dataset.row);
+    const col = parseInt(element.dataset.col);
+    
+    // Only animate pieces that were just added
+    if (!gameState.board[row][col].animated) {
+      element.style.opacity = '0';
+      element.style.transform = 'translateY(-60px)';
+      
+      setTimeout(() => {
+        element.style.transition = 'all 0.3s ease-out';
+        element.style.opacity = '1';
+        element.style.transform = 'translateY(0)';
+      }, index * 15);
+      
+      gameState.board[row][col].animated = true;
+    }
+  });
   
   await new Promise(resolve => setTimeout(resolve, 300));
 }
