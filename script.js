@@ -169,6 +169,15 @@ const DAILY_REWARDS = [
   { coins: 500, gems: 5, boosters: { hammer: 2, colorBomb: 1, striped: 1 } }
 ];
 
+// Import modern features
+import { 
+  AIHintSystem, 
+  SocialSystem, 
+  ModernProgression, 
+  PerformanceTracker, 
+  AccessibilityFeatures 
+} from './modules/modernFeatures.js';
+
 // Initialize game
 function initGame(mode = 'adventure') {
   resetGameState(mode);
@@ -178,6 +187,17 @@ function initGame(mode = 'adventure') {
   updateAllUI();
   checkDailyReward();
   startGameSession();
+  
+  // Initialize modern 2025 features
+  AccessibilityFeatures.loadAccessibilitySettings();
+  AccessibilityFeatures.addKeyboardNavigation();
+  
+  // Track game start
+  PerformanceTracker.addScore(0); // Initialize score tracking
+  
+  // Check for feature unlocks
+  const unlockedFeatures = ModernProgression.unlockFeatures();
+  updateModernUI(unlockedFeatures);
 }
 
 function resetGameState(mode) {
@@ -812,6 +832,9 @@ async function processMatches(matches) {
     let totalScore = 0;
     gameState.combo++;
     
+    // Track previous level for modern progression
+    const previousLevel = ModernProgression.calculatePlayerLevel().level;
+    
     for (const match of matches) {
       const matchScore = calculateMatchScore(match);
       totalScore += matchScore;
@@ -825,6 +848,9 @@ async function processMatches(matches) {
     const previousStars = calculateCurrentStars();
     gameState.score += totalScore;
     
+    // Modern progression tracking
+    PerformanceTracker.addScore(gameState.score);
+    
     showScorePopup(totalScore, matches[0][0]);
     
     // Check for star progress and show celebration if new star earned
@@ -833,17 +859,25 @@ async function processMatches(matches) {
       showStarEarnedAnimation(currentStars);
     }
     
+    // Check for level up and feature unlocks
+    const currentLevel = ModernProgression.calculatePlayerLevel().level;
+    if (currentLevel > previousLevel) {
+      ModernProgression.showLevelUpNotification(currentLevel);
+      const newFeatures = ModernProgression.unlockFeatures();
+      updateModernUI(newFeatures);
+    }
+    
     await animateMatches(matches);
     removeMatchedPieces(matches);
     
-    // Add small delay before cascade to make the break more visible
-    await new Promise(resolve => setTimeout(resolve, 200));
+    // Increased delay before cascade to make the break more visible
+    await new Promise(resolve => setTimeout(resolve, 400)); // Increased from 200ms
     await cascadeBoard();
     
     const newMatches = findMatches();
     if (newMatches.length > 0) {
-      // Add delay between consecutive match processing
-      await new Promise(resolve => setTimeout(resolve, 300));
+      // Increased delay between consecutive match processing
+      await new Promise(resolve => setTimeout(resolve, 600)); // Increased from 300ms
       await processMatches(newMatches);
     } else {
       gameState.combo = 0;
@@ -909,7 +943,7 @@ async function animateMatches(matches) {
   }
   
   // Longer animation to make breaks more visible
-  await new Promise(resolve => setTimeout(resolve, 500));
+  await new Promise(resolve => setTimeout(resolve, 700)); // Increased from 500ms
   elements.forEach(el => el.remove());
 }
 
@@ -939,14 +973,14 @@ async function cascadeBoard() {
                 const element = document.querySelector(`[data-row="${sourceRow}"][data-col="${col}"]`);
                 if (element) {
                   element.dataset.row = row;
-                  element.style.transition = 'transform 0.2s ease-in';
+                  element.style.transition = 'transform 0.3s ease-in'; // Increased from 0.2s
                   element.style.transform = `translateY(${(row - sourceRow) * 60}px)`;
                   setTimeout(() => {
                     element.style.transition = '';
                     element.style.transform = '';
                     // Check for matches immediately after each piece lands
                     checkForImmediateMatches();
-                  }, 200);
+                  }, 300); // Increased from 200ms
                 }
                 
                 hasMovement = true;
@@ -958,7 +992,7 @@ async function cascadeBoard() {
       }
       
       if (hasMovement) {
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise(resolve => setTimeout(resolve, 300)); // Increased from 200ms
       }
     }
     
@@ -1141,8 +1175,8 @@ function checkForImmediateMatches() {
   
   const matches = findMatches();
   if (matches.length > 0) {
-    // Add small delay to make matches more visible
-    setTimeout(() => processAutoMatches(matches), 150);
+    // Increased delay to make matches more visible
+    setTimeout(() => processAutoMatches(matches), 300); // Increased from 150ms
   }
 }
 
@@ -1151,12 +1185,12 @@ function startContinuousMatchScanning() {
   // Initial scan
   checkForImmediateMatches();
   
-  // Set up continuous scanning every 200ms (slower for more visible breaks)
+  // Set up continuous scanning every 300ms (slower for more visible breaks)
   const scanInterval = setInterval(() => {
     if (!gameState.isProcessing) {
       checkForImmediateMatches();
     }
-  }, 200);
+  }, 300); // Increased from 200ms
   
   // Store interval ID for cleanup if needed
   gameState.scanInterval = scanInterval;
@@ -1219,8 +1253,8 @@ async function processAutoMatches(matches) {
   await animateMatches(matches);
   removeMatchedPieces(matches);
   
-  // Add small delay before cascade to make auto-matches more visible
-  await new Promise(resolve => setTimeout(resolve, 200));
+  // Increased delay before cascade to make the break more visible
+  await new Promise(resolve => setTimeout(resolve, 400)); // Increased from 200ms
   await cascadeBoardOnly(); // Use a version that doesn't trigger auto-match checking
   
   updateAllUI();
@@ -2089,4 +2123,454 @@ document.addEventListener('keydown', function(e) {
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
   initGame('adventure');
-}); 
+});
+
+// Add modern UI update function
+function updateModernUI(unlockedFeatures) {
+  // Update hint button availability
+  updateHintButton();
+  
+  // Update player level display
+  updatePlayerLevelDisplay();
+  
+  // Update social sharing options
+  updateSocialFeatures();
+  
+  // Show newly unlocked features
+  if (unlockedFeatures.length > 0) {
+    showUnlockedFeaturesNotification(unlockedFeatures);
+  }
+}
+
+function updateHintButton() {
+  const hintButton = document.getElementById('hintButton');
+  const unlockedFeatures = ModernProgression.unlockFeatures();
+  
+  if (unlockedFeatures.includes('ai_hints')) {
+    if (!hintButton) {
+      createHintButton();
+    }
+    document.getElementById('hintButton').style.display = 'block';
+  } else {
+    if (hintButton) {
+      hintButton.style.display = 'none';
+    }
+  }
+}
+
+function createHintButton() {
+  const gameContainer = document.querySelector('.game-container');
+  const hintButton = document.createElement('button');
+  hintButton.id = 'hintButton';
+  hintButton.className = 'modern-button';
+  hintButton.innerHTML = '🤖 AI Hint';
+  hintButton.onclick = () => AIHintSystem.showHint();
+  hintButton.title = 'Get AI-powered move suggestion (Press H)';
+  
+  hintButton.style.cssText = `
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+    display: none;
+  `;
+  
+  gameContainer.appendChild(hintButton);
+}
+
+function updatePlayerLevelDisplay() {
+  const levelInfo = ModernProgression.calculatePlayerLevel();
+  const levelDisplay = document.getElementById('playerLevelDisplay');
+  
+  if (!levelDisplay) {
+    createPlayerLevelDisplay();
+  }
+  
+  document.getElementById('playerLevelDisplay').innerHTML = `
+    <div class="player-level">
+      <span class="level-number">Lv.${levelInfo.level}</span>
+      <div class="exp-bar">
+        <div class="exp-progress" style="width: ${levelInfo.progress}%"></div>
+      </div>
+      <span class="exp-text">${levelInfo.currentExp}/${levelInfo.requiredExp}</span>
+    </div>
+  `;
+}
+
+function createPlayerLevelDisplay() {
+  const header = document.querySelector('.header');
+  const levelDisplay = document.createElement('div');
+  levelDisplay.id = 'playerLevelDisplay';
+  levelDisplay.style.cssText = `
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(0,0,0,0.3);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+  `;
+  header.appendChild(levelDisplay);
+}
+
+function updateSocialFeatures() {
+  const shareButton = document.getElementById('shareButton');
+  
+  if (!shareButton) {
+    createShareButton();
+  }
+}
+
+function createShareButton() {
+  const gameContainer = document.querySelector('.game-container');
+  const shareButton = document.createElement('button');
+  shareButton.id = 'shareButton';
+  shareButton.className = 'modern-button';
+  shareButton.innerHTML = '📱 Share Score';
+  shareButton.onclick = () => SocialSystem.shareScore(gameState.score, gameState.adventureLevel);
+  shareButton.title = 'Share your amazing score!';
+  
+  shareButton.style.cssText = `
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    z-index: 1000;
+  `;
+  
+  gameContainer.appendChild(shareButton);
+}
+
+function showUnlockedFeaturesNotification(features) {
+  const notification = document.createElement('div');
+  notification.innerHTML = `
+    <div class="unlock-notification">
+      <h3>🎉 New Features Unlocked!</h3>
+      <ul>
+        ${features.map(feature => `<li>${formatFeatureName(feature)}</li>`).join('')}
+      </ul>
+    </div>
+  `;
+  
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 12px;
+    z-index: 3000;
+    animation: slideInDown 0.5s ease-out;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  `;
+  
+  document.body.appendChild(notification);
+  
+  setTimeout(() => {
+    if (notification.parentNode) {
+      notification.parentNode.removeChild(notification);
+    }
+  }, 5000);
+}
+
+function formatFeatureName(feature) {
+  const featureNames = {
+    'speed_mode': '⚡ Speed Mode',
+    'daily_challenges': '📅 Daily Challenges', 
+    'tournament_mode': '🏆 Tournament Mode',
+    'custom_themes': '🎨 Custom Themes',
+    'ai_hints': '🤖 AI Hints'
+  };
+  return featureNames[feature] || feature;
+}
+
+// Add CSS for slide in animation
+const styleSheet = document.createElement('style');
+styleSheet.textContent = `
+  @keyframes slideInDown {
+    0% {
+      transform: translateX(-50%) translateY(-100%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  .exp-bar {
+    width: 100px;
+    height: 6px;
+    background: rgba(255,255,255,0.3);
+    border-radius: 3px;
+    margin: 2px 0;
+    overflow: hidden;
+  }
+  
+  .exp-progress {
+    height: 100%;
+    background: linear-gradient(90deg, #4CAF50, #8BC34A);
+    transition: width 0.5s ease;
+  }
+  
+  .player-level {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  
+  .level-number {
+    font-weight: bold;
+    font-size: 14px;
+  }
+  
+  .exp-text {
+    font-size: 10px;
+    opacity: 0.8;
+  }
+`;
+document.head.appendChild(styleSheet);
+
+// Modern Settings Panel Functions
+function toggleSettingsPanel() {
+  const panel = document.getElementById('settingsPanel');
+  if (panel.style.display === 'none') {
+    panel.style.display = 'block';
+    loadSettingStates();
+  } else {
+    panel.style.display = 'none';
+  }
+}
+
+function loadSettingStates() {
+  // Load saved settings
+  document.getElementById('reducedMotion').checked = localStorage.getItem('reducedMotion') === 'true';
+  document.getElementById('highContrast').checked = localStorage.getItem('highContrast') === 'true';
+  document.getElementById('largeText').checked = localStorage.getItem('largeText') === 'true';
+  document.getElementById('autoHints').checked = localStorage.getItem('autoHints') === 'true';
+  document.getElementById('showPossibleMoves').checked = localStorage.getItem('showPossibleMoves') !== 'false';
+  document.getElementById('particleEffects').checked = localStorage.getItem('particleEffects') !== 'false';
+}
+
+function toggleReducedMotion() {
+  const enabled = document.getElementById('reducedMotion').checked;
+  if (enabled) {
+    AccessibilityFeatures.enableReducedMotion();
+  } else {
+    document.body.classList.remove('reduced-motion');
+    localStorage.setItem('reducedMotion', 'false');
+  }
+}
+
+function toggleHighContrast() {
+  const enabled = document.getElementById('highContrast').checked;
+  if (enabled) {
+    AccessibilityFeatures.enableHighContrast();
+  } else {
+    document.body.classList.remove('high-contrast');
+    localStorage.setItem('highContrast', 'false');
+  }
+}
+
+function toggleLargeText() {
+  const enabled = document.getElementById('largeText').checked;
+  if (enabled) {
+    AccessibilityFeatures.enableLargeText();
+  } else {
+    document.body.classList.remove('large-text');
+    localStorage.setItem('largeText', 'false');
+  }
+}
+
+function toggleAutoHints() {
+  const enabled = document.getElementById('autoHints').checked;
+  localStorage.setItem('autoHints', enabled.toString());
+  
+  if (enabled && ModernProgression.unlockFeatures().includes('ai_hints')) {
+    startAutoHintTimer();
+  } else {
+    clearAutoHintTimer();
+  }
+}
+
+let autoHintTimer = null;
+
+function startAutoHintTimer() {
+  clearAutoHintTimer();
+  autoHintTimer = setTimeout(() => {
+    if (findPossibleMoves().length > 0 && localStorage.getItem('autoHints') === 'true') {
+      AIHintSystem.showHint();
+    }
+  }, 15000); // Show hint after 15 seconds of inactivity
+}
+
+function clearAutoHintTimer() {
+  if (autoHintTimer) {
+    clearTimeout(autoHintTimer);
+    autoHintTimer = null;
+  }
+}
+
+function toggleShowMoves() {
+  const enabled = document.getElementById('showPossibleMoves').checked;
+  localStorage.setItem('showPossibleMoves', enabled.toString());
+  
+  if (enabled) {
+    highlightPossibleMoves();
+  } else {
+    document.querySelectorAll('.possible-move').forEach(el => {
+      el.classList.remove('possible-move');
+    });
+  }
+}
+
+function toggleParticleEffects() {
+  const enabled = document.getElementById('particleEffects').checked;
+  localStorage.setItem('particleEffects', enabled.toString());
+  document.body.classList.toggle('no-particles', !enabled);
+}
+
+function exportGameData() {
+  const gameData = {
+    version: '2025.1',
+    timestamp: new Date().toISOString(),
+    gameState: gameState,
+    settings: {
+      reducedMotion: localStorage.getItem('reducedMotion'),
+      highContrast: localStorage.getItem('highContrast'),
+      largeText: localStorage.getItem('largeText'),
+      autoHints: localStorage.getItem('autoHints'),
+      showPossibleMoves: localStorage.getItem('showPossibleMoves'),
+      particleEffects: localStorage.getItem('particleEffects')
+    },
+    metrics: JSON.parse(localStorage.getItem('gameMetrics') || '{}'),
+    recentScores: JSON.parse(localStorage.getItem('recentScores') || '[]')
+  };
+  
+  const dataStr = JSON.stringify(gameData, null, 2);
+  const dataBlob = new Blob([dataStr], { type: 'application/json' });
+  const url = URL.createObjectURL(dataBlob);
+  
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `color-rush-save-${new Date().toISOString().split('T')[0]}.json`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+  
+  showMessage('Game data exported successfully! 💾', 'success');
+}
+
+function clearGameData() {
+  if (confirm('⚠️ This will delete ALL your progress, settings, and statistics. This cannot be undone. Are you sure?')) {
+    localStorage.clear();
+    showMessage('All game data cleared. Refreshing game...', 'info');
+    setTimeout(() => {
+      window.location.reload();
+    }, 2000);
+  }
+}
+
+function showPerformanceStats() {
+  const metrics = PerformanceTracker.trackGameMetrics();
+  const playerLevel = ModernProgression.calculatePlayerLevel();
+  const recentScores = PerformanceTracker.getRecentScores();
+  
+  const statsModal = document.createElement('div');
+  statsModal.className = 'stats-modal';
+  statsModal.innerHTML = `
+    <div class="stats-content">
+      <h3>📊 Performance Statistics</h3>
+      
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value">${playerLevel.level}</div>
+          <div class="stat-label">Player Level</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${gameState.score.toLocaleString()}</div>
+          <div class="stat-label">Total Score</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${gameState.gamesPlayed || 1}</div>
+          <div class="stat-label">Games Played</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${metrics.avgSessionTime}s</div>
+          <div class="stat-label">Avg Session Time</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${metrics.completionRate.toFixed(1)}%</div>
+          <div class="stat-label">Completion Rate</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${metrics.skillProgression > 0 ? '+' : ''}${metrics.skillProgression.toFixed(1)}%</div>
+          <div class="stat-label">Skill Progression</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${gameState.adventureLevel || 1}</div>
+          <div class="stat-label">Adventure Level</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${recentScores.length > 0 ? Math.max(...recentScores).toLocaleString() : '0'}</div>
+          <div class="stat-label">Best Score</div>
+        </div>
+      </div>
+      
+      <div style="text-align: center; margin-top: 20px;">
+        <button class="modern-button" onclick="closeStatsModal()">✅ Close</button>
+        <button class="modern-button" onclick="SocialSystem.shareScore(${gameState.score}, ${gameState.adventureLevel || 1})">
+          📱 Share Stats
+        </button>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(statsModal);
+  
+  // Close modal when clicking outside
+  statsModal.addEventListener('click', (e) => {
+    if (e.target === statsModal) {
+      closeStatsModal();
+    }
+  });
+}
+
+function closeStatsModal() {
+  const modal = document.querySelector('.stats-modal');
+  if (modal) {
+    modal.remove();
+  }
+}
+
+function restartGame() {
+  if (confirm('🔄 Restart current game? Your progress in this level will be lost.')) {
+    initGame(gameState.gameMode);
+    showMessage('Game restarted! 🎮', 'info');
+  }
+}
+
+// Make functions globally accessible for HTML onclick handlers
+window.toggleSettingsPanel = toggleSettingsPanel;
+window.toggleReducedMotion = toggleReducedMotion;
+window.toggleHighContrast = toggleHighContrast;
+window.toggleLargeText = toggleLargeText;
+window.toggleAutoHints = toggleAutoHints;
+window.toggleShowMoves = toggleShowMoves;
+window.toggleParticleEffects = toggleParticleEffects;
+window.exportGameData = exportGameData;
+window.clearGameData = clearGameData;
+window.showPerformanceStats = showPerformanceStats;
+window.closeStatsModal = closeStatsModal;
+window.restartGame = restartGame;
+
+// Make modern features globally accessible
+window.AIHintSystem = AIHintSystem;
+window.SocialSystem = SocialSystem;
+window.ModernProgression = ModernProgression;
+window.PerformanceTracker = PerformanceTracker;
+window.AccessibilityFeatures = AccessibilityFeatures;

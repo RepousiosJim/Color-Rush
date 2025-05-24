@@ -155,9 +155,64 @@
 
       <!-- Settings & Shop -->
       <div class="bottom-buttons">
-        <button class="settings-btn">
+        <button class="restart-btn" onclick="restartGame()">🔄 Restart</button>
+        
+        <!-- Modern 2025 Settings Panel -->
+        <button id="settingsToggle" class="modern-button" onclick="toggleSettingsPanel()" style="position: fixed; bottom: 10px; left: 10px; z-index: 1000;">
           ⚙️ Settings
         </button>
+        
+        <div id="settingsPanel" style="display: none;">
+          <div class="settings-overlay">
+            <div class="settings-content">
+              <h3>⚙️ Game Settings</h3>
+              
+              <div class="settings-section">
+                <h4>🎮 Accessibility</h4>
+                <label class="setting-option">
+                  <input type="checkbox" id="reducedMotion" onchange="toggleReducedMotion()">
+                  <span>Reduce Motion Effects</span>
+                </label>
+                <label class="setting-option">
+                  <input type="checkbox" id="highContrast" onchange="toggleHighContrast()">
+                  <span>High Contrast Mode</span>
+                </label>
+                <label class="setting-option">
+                  <input type="checkbox" id="largeText" onchange="toggleLargeText()">
+                  <span>Large Text Size</span>
+                </label>
+              </div>
+              
+              <div class="settings-section">
+                <h4>🎯 Gameplay</h4>
+                <label class="setting-option">
+                  <input type="checkbox" id="autoHints" onchange="toggleAutoHints()">
+                  <span>Automatic Hints (When Stuck)</span>
+                </label>
+                <label class="setting-option">
+                  <input type="checkbox" id="showPossibleMoves" onchange="toggleShowMoves()" checked>
+                  <span>Highlight Possible Moves</span>
+                </label>
+                <label class="setting-option">
+                  <input type="checkbox" id="particleEffects" onchange="toggleParticleEffects()" checked>
+                  <span>Particle Effects</span>
+                </label>
+              </div>
+              
+              <div class="settings-section">
+                <h4>📊 Performance</h4>
+                <button class="modern-button" onclick="exportGameData()">💾 Export Save Data</button>
+                <button class="modern-button" onclick="clearGameData()">🗑️ Clear All Data</button>
+                <button class="modern-button" onclick="showPerformanceStats()">📈 View Stats</button>
+              </div>
+              
+              <div class="settings-actions">
+                <button class="modern-button" onclick="toggleSettingsPanel()">✅ Done</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <button class="shop-btn">
           🛒 Shop
         </button>
