@@ -3,26 +3,186 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Elemental Bejeweled - Match-3 Puzzle Game</title>
+    <title>Gems Rush: Divine Teams - Epic Match-3 Adventure</title>
     <link rel="stylesheet" href="styles.css" />
-    <meta name="description" content="Play the ultimate elemental match-3 puzzle game with beautiful gems and smooth gameplay">
-    <meta name="keywords" content="elemental, bejeweled, match3, puzzle, gems, elements">
+    <meta name="description" content="Join the divine battle in Gems Rush: Divine Teams - an epic match-3 puzzle game with celestial gems and team-based gameplay">
+    <meta name="keywords" content="gems rush, divine teams, match3, puzzle, celestial gems, team battle">
     
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="icon" type="image/png" sizes="32x32" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPGRlZnM+CiAgICA8IS0tIEdyYWRpZW50IGRlZmluaXRpb25zIGZvciBlYWNoIGVsZW1lbnQgLS0+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImZpcmUiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojRkY0NTAwO3N0b3Atb3BhY2l0eToxIiAvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNEQzE0M0M7c3RvcC1vcGFjaXR5OjEiIC8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgCiAgICA8bGluZWFyR3JhZGllbnQgaWQ9IndhdGVyIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6IzFFOTBGRjtzdG9wLW9wYWNpdHk6MSIgLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojNDE2OUUxO3N0b3Atb3BhY2l0eToxIiAvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIAogICAgPGxpbmVhckdyYWRpZW50IGlkPSJlYXJ0aCIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiM4QjQ1MTM7c3RvcC1vcGFjaXR5OjEiIC8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3R5bGU9InN0b3AtY29sb3I6I0EwNTIyRDtzdG9wLW9wYWNpdHk6MSIgLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICAKICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iYWlyIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6Izg3Q0VFQjtzdG9wLW9wYWNpdHk6MSIgLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojQjBFMEU2O3N0b3Atb3BhY2l0eToxIiAvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIAogICAgPGxpbmVhckdyYWRpZW50IGlkPSJsaWdodG5pbmciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojRkZENzAwO3N0b3Atb3BhY2l0eToxIiAvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNGRkE1MDA7c3RvcC1vcGFjaXR5OjEiIC8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgCiAgICA8bGluZWFyR3JhZGllbnQgaWQ9Im5hdHVyZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiMzMkNEMzI7c3RvcC1vcGFjaXR5OjEiIC8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3R5bGU9InN0b3AtY29sb3I6IzIyOEIyMjtzdG9wLW9wYWNpdHk6MSIgLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICAKICAgIDxsaW5lYXJHcmFkaWVudCBpZD0ibWFnaWMiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojOTkzMkNDO3N0b3Atb3BhY2l0eToxIiAvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiM4QTJCRTI7c3RvcC1vcGFjaXR5OjEiIC8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgCiAgICA8IS0tIE92ZXJhbGwgZ2VtIGdyYWRpZW50IC0tPgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJnZW1HbG93IiBjeD0iNTAlIiBjeT0iMzAlIiByPSI3MCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojZmZmZmZmO3N0b3Atb3BhY2l0eTowLjgiIC8+CiAgICAgIDxzdG9wIG9mZnNldD0iNTAlIiBzdHlsZT0ic3RvcC1jb2xvcjojZmZmZmZmO3N0b3Atb3BhY2l0eTowLjMiIC8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3R5bGU9InN0b3AtY29sb3I6IzAwMDAwMDtzdG9wLW9wYWNpdHk6MC4yIiAvPgogICAgPC9yYWRpYWxHcmFkaWVudD4KICA8L2RlZnM+CiAgCiAgPCEtLSBCYWNrZ3JvdW5kIGNpcmNsZSAtLT4KICA8Y2lyY2xlIGN4PSIxNiIgY3k9IjE2IiByPSIxNSIgZmlsbD0iIzFhMWEzYSIgc3Ryb2tlPSIjNDQ0IiBzdHJva2Utd2lkdGg9IjEiLz4KICA8IS0tIE1haW4gZ2VtIHNoYXBlIC0tPgogIDxwb2x5Z29uIHBvaW50cz0iMTYsMyAyNCwxMCAyNCwyMiAxNiwyOSA4LDIyIDgsMTAiIGZpbGw9InVybCgjbGlnaHRuaW5nKSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjAuNSIgb3BhY2l0eT0iMC45Ii8+CiAgPCEtLSBFbGVtZW50YWwgc2VnbWVudHMgLS0+CiAgPHBvbHlnb24gcG9pbnRzPSIxNiwzIDI0LDEwIDE2LDE2IiBmaWxsPSJ1cmwoI2ZpcmUpIiBvcGFjaXR5PSIwLjgiLz4KICA8cG9seWdvbiBwb2ludHM9IjI0LDEwIDI0LDIyIDE2LDE2IiBmaWxsPSJ1cmwoI3dhdGVyKSIgb3BhY2l0eT0iMC44Ii8+CiAgPHBvbHlnb24gcG9pbnRzPSIyNCwyMiAxNiwyOSAxNiwxNiIgZmlsbD0idXJsKCNlYXJ0aCkiIG9wYWNpdHk9IjAuOCIvPgogIDxwb2x5Z29uIHBvaW50cz0iMTYsMjkgOCwyMiAxNiwxNiIgZmlsbD0idXJsKCNuYXR1cmUpIiBvcGFjaXR5PSIwLjgiLz4KICA8cG9seWdvbiBwb2ludHM9IjgsMjIgOCwxMCAxNiwxNiIgZmlsbD0idXJsKCNhaXIpIiBvcGFjaXR5PSIwLjgiLz4KICA8cG9seWdvbiBwb2ludHM9IjgsMTAgMTYsMyAxNiwxNiIgZmlsbD0idXJsKCNtYWdpYykiIG9wYWNpdHk9IjAuOCIvPgogIDwhLS0gR2VtIGhpZ2hsaWdodCBhbmQgZGVwdGggLS0+CiAgPHBvbHlnb24gcG9pbnRzPSIxNiwzIDI0LDEwIDI0LDIyIDE2LDI5IDgsMjIgOCwxMCIgZmlsbD0idXJsKCNnZW1HbG93KSIgb3BhY2l0eT0iMC42Ii8+CiAgPCEtLSBUb3AgZmFjZXQgaGlnaGxpZ2h0IC0tPgogIDxwb2x5Z29uIHBvaW50cz0iMTYsMyAyMCw3IDE2LDExIDEyLDciIGZpbGw9IiNmZmZmZmYiIG9wYWNpdHk9IjAuOSIvPgogIDwhLS0gU2lkZSBmYWNldHMgLS0+CiAgPHBvbHlnb24gcG9pbnRzPSIyMCw3IDI0LDEwIDIwLDE0IDE2LDExIiBmaWxsPSIjZmZmZmZmIiBvcGFjaXR5PSIwLjMiLz4KICA8cG9seWdvbiBwb2ludHM9IjEyLDcgMTYsMTEgMTIsMTQgOCwxMCIgZmlsbD0iI2ZmZmZmZiIgb3BhY2l0eT0iMC4zIi8+CiAgPCEtLSBMaWdodG5pbmcgYm9sdCBhY2NlbnQgaW4gY2VudGVyIC0tPgogIDxwYXRoIGQ9Ik0gMTQsMTIgTCAxOCwxMiBMIDE2LDggTCAxOCw4IEwgMTQsMTYgTCAxNiwxNiBMIDE0LDIwIEwgMTgsMTQgTCAxNiwxNCBMIDE4LDE4IFoiIAogICAgICAgIGZpbGw9IiNGRkQ3MDAiIHN0cm9rZT0iI0ZGQTUwMCIgc3Ryb2tlLXdpZHRoPSIwLjMiIG9wYWNpdHk9IjAuOSIgdHJhbnNmb3JtPSJzY2FsZSgwLjYpIHRyYW5zbGF0ZSgxMCw2KSIvPgo8L3N2Zz4=">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon.svg">
     <link rel="apple-touch-icon" sizes="180x180" href="favicon.svg">
     <meta name="theme-color" content="#1a1a3a">
     
     <!-- Preload key resources -->
     <link rel="preload" href="script.js" as="script">
+    <script src="script.js" defer></script>
   </head>
   <body>
+    <!-- GLOBAL HOME BUTTON (appears on all screens except main menu) -->
+    <button id="homeButton" class="home-button" 
+            onclick="if(typeof goToMainMenu !== 'undefined') goToMainMenu()" 
+            onkeydown="if((event.key==='Enter'||event.key===' ') && typeof goToMainMenu !== 'undefined') goToMainMenu()"
+            aria-label="Return to Main Menu" 
+            title="Return to Main Menu"
+            tabindex="0">
+      <span class="home-icon">🏠</span>
+    </button>
+
+    <!-- MAIN MENU SCREEN -->
+    <main id="mainMenu" class="main-menu" role="main" aria-label="Main Menu">
+      <div class="main-menu-content">
+        <!-- Animated Background -->
+        <div class="menu-background">
+          <div class="floating-gems">
+            <div class="floating-gem" style="--delay: 0s; --color: #FF4500;">🔥</div>
+            <div class="floating-gem" style="--delay: 0.5s; --color: #1E90FF;">💧</div>
+            <div class="floating-gem" style="--delay: 1s; --color: #8B4513;">🌍</div>
+            <div class="floating-gem" style="--delay: 1.5s; --color: #87CEEB;">💨</div>
+            <div class="floating-gem" style="--delay: 2s; --color: #FFD700;">⚡</div>
+            <div class="floating-gem" style="--delay: 2.5s; --color: #32CD32;">🌿</div>
+            <div class="floating-gem" style="--delay: 3s; --color: #9932CC;">🔮</div>
+          </div>
+          <div class="particle-field"></div>
+        </div>
+        
+        <!-- Main Title -->
+        <div class="menu-header">
+          <h1 class="main-title">
+            <span class="title-line">⚡ GEMS RUSH ⚡</span>
+            <span class="title-subtitle">DIVINE TEAMS</span>
+          </h1>
+          <p class="main-tagline">Epic Match-3 Adventure • Divine Powers • Legendary Battles</p>
+        </div>
+        
+        <!-- Game Mode Selection -->
+        <section class="menu-modes" role="region" aria-labelledby="modes-title">
+          <h2 id="modes-title" class="modes-title">🎮 Choose Your Destiny</h2>
+          <div class="modes-grid" role="group" aria-label="Game mode selection">
+            <button class="menu-btn mode-normal" onclick="selectGameMode('normal')" 
+                    aria-label="Normal Mode - Classic divine battles with unlimited time">
+              <div class="btn-icon" aria-hidden="true">🎯</div>
+              <div class="btn-title">Normal Mode</div>
+              <div class="btn-desc">Classic divine battles with unlimited time</div>
+            </button>
+            
+            <button class="menu-btn mode-time" onclick="selectGameMode('timeAttack')"
+                    aria-label="Time Attack - Race against time for ultimate glory">
+              <div class="btn-icon" aria-hidden="true">⏱️</div>
+              <div class="btn-title">Time Attack</div>
+              <div class="btn-desc">Race against time for ultimate glory</div>
+            </button>
+            
+            <button class="menu-btn mode-daily" onclick="selectGameMode('dailyChallenge')"
+                    aria-label="Daily Divine Quest - Special divine quests that change daily">
+              <div class="btn-icon" aria-hidden="true">📅</div>
+              <div class="btn-title">Daily Divine Quest</div>
+              <div class="btn-desc">Special divine quests that change daily</div>
+            </button>
+            
+            <button class="menu-btn mode-campaign" onclick="selectGameMode('campaign')"
+                    aria-label="Divine Conquest - Epic campaign through mystical realms">
+              <div class="btn-icon" aria-hidden="true">⚔️</div>
+              <div class="btn-title">Divine Conquest</div>
+              <div class="btn-desc">Epic campaign through mystical realms</div>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Game Information -->
+        <section class="menu-info" role="region" aria-labelledby="about-title">
+          <div class="info-section">
+            <h3 id="about-title">🌟 About Divine Teams</h3>
+            <p>Master the ancient art of divine gem matching! Unite elemental powers, create epic cascades, and build legendary teams to conquer mystical realms. With 7 unique divine gems, each battle is a strategic masterpiece.</p>
+          </div>
+          
+          <div class="info-features">
+            <div class="feature">
+              <span class="feature-icon">💎</span>
+              <span class="feature-text">7 Divine Gem Types</span>
+            </div>
+            <div class="feature">
+              <span class="feature-icon">🔗</span>
+              <span class="feature-text">Epic Cascade Combos</span>
+            </div>
+            <div class="feature">
+              <span class="feature-icon">🏆</span>
+              <span class="feature-text">Achievement System</span>
+            </div>
+            <div class="feature">
+              <span class="feature-icon">📊</span>
+              <span class="feature-text">Progress Tracking</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Menu Footer -->
+        <footer class="menu-footer" role="contentinfo">
+          <button class="footer-btn" onclick="showGameInfo()">
+            <span>📖</span> Game Guide
+          </button>
+          <button class="footer-btn" onclick="openSettingsFromMenu()">
+            <span>⚙️</span> Settings
+          </button>
+          <button class="footer-btn" onclick="showCredits()">
+            <span>👥</span> Credits
+          </button>
+        </footer>
+      </div>
+    </main>
+
+    <!-- GAME INTERFACE (Initially Hidden) -->
+    <div id="gameInterface" class="game-interface" style="display: none;" role="application" aria-label="Game Interface">
+      <!-- NEW: Daily Challenge Badge -->
+      <div id="dailyChallengeBadge" class="daily-challenge-badge" style="display: none;" onclick="startDailyChallenge()">
+        📅 Daily Challenge
+      </div>
+
+    <!-- NEW: Timer Display (for Time Attack mode) -->
+    <div id="timerDisplay" class="timer-display" style="display: none;">
+      ⏰ 60s
+    </div>
+
+    <!-- NEW: Streak Counter -->
+    <div id="streakCounter" class="streak-counter" style="display: none;">
+      🔥 Streak: 0
+    </div>
+
+    <!-- NEW: Statistics Panel -->
+    <div id="statsPanel" class="stats-panel" style="display: none;">
+      <h4>📊 Game Stats</h4>
+      <div class="stat-line">
+        <span>Games:</span>
+        <span id="statGames">0</span>
+      </div>
+      <div class="stat-line">
+        <span>Best Score:</span>
+        <span id="statBestScore">0</span>
+      </div>
+      <div class="stat-line">
+        <span>Total Score:</span>
+        <span id="statTotalScore">0</span>
+      </div>
+      <div class="stat-line">
+        <span>Highest Level:</span>
+        <span id="statHighestLevel">1</span>
+      </div>
+      <div class="stat-line">
+        <span>Best Streak:</span>
+        <span id="statBestStreak">0</span>
+      </div>
+    </div>
+
     <div class="game-container">
       <!-- Game Title -->
-      <h1 class="game-title">⚡ Elemental Bejeweled ⚡</h1>
-      <p class="game-subtitle">Match Elements • Score Points • Level Up</p>
+      <h1 class="game-title">⚡ Gems Rush: Divine Teams ⚡</h1>
+      <p class="game-subtitle">Unite Divine Powers • Rush for Victory • Team Dominance</p>
       
+      <!-- NEW: Game Mode Indicator -->
+      <div id="gameModeIndicator" class="game-mode-indicator" style="display: none;">
+        🎯 Normal Mode
+      </div>
+
       <!-- Game Statistics (will be populated by JavaScript) -->
       <div class="game-stats">
         <!-- Stats will be dynamically created by JavaScript -->
@@ -30,60 +190,90 @@
       
       <!-- Game Board -->
       <div class="game-board" id="gameBoard">
-        <!-- Elemental gems will be dynamically generated by JavaScript -->
+        <!-- Divine gems will be dynamically generated by JavaScript -->
       </div>
       
       <!-- Game Controls -->
       <div class="game-controls">
         <button class="btn btn-primary" onclick="restartGame()">
-          🔄 New Game
+          🔄 New Battle
         </button>
         <button class="btn btn-secondary" onclick="showInstructions()">
-          📜 How to Play
+          📜 Divine Guide
+        </button>
+        <!-- NEW: Enhanced controls -->
+        <button class="btn btn-hint" onclick="showHint()" id="hintBtn">
+          💡 Hint
+        </button>
+        <button class="btn btn-undo" onclick="undoLastMove()" id="undoBtn">
+          ↩️ Undo
         </button>
         <button class="btn btn-settings" onclick="openSettings()">
           ⚙️ Settings
         </button>
+        <button class="btn btn-menu" onclick="backToMainMenu()">
+          🏠 Main Menu
+        </button>
       </div>
+
+
       
       <!-- Simplified Instructions -->
       <div id="instructions" class="instructions" style="display: none;">
-        <h3>⚡ How to Play Elemental Bejeweled</h3>
+        <h3>⚡ How to Play Gems Rush: Divine Teams</h3>
         
-        <p><strong>🎯 Basic Rules:</strong></p>
+        <p><strong>🎯 Divine Battle Rules:</strong></p>
         <ul>
-          <li>🔄 <strong>Swap adjacent gems</strong> to create matches of 3 or more identical elements</li>
-          <li>🎯 <strong>Reach target scores</strong> to advance through levels</li>
-          <li>💎 <strong>Create bigger matches</strong> for higher scores and combo multipliers</li>
-          <li>⚡ <strong>Chain reactions</strong> occur when new gems fall and create more matches</li>
+          <li>🔄 <strong>Swap adjacent gems</strong> to create matches of 3 or more identical divine powers</li>
+          <li>🎯 <strong>Reach target scores</strong> to advance through divine realms</li>
+          <li>💎 <strong>Create bigger matches</strong> for higher scores and divine combo multipliers</li>
+          <li>⚡ <strong>Chain reactions</strong> occur when new gems fall and create more celestial matches</li>
+          <li>💡 <strong>Use hints</strong> when stuck - they'll show you possible moves</li>
+          <li>↩️ <strong>Undo moves</strong> if you make a mistake (limited uses)</li>
         </ul>
         
-        <p><strong>🌍 Elemental Gems:</strong></p>
+        <p><strong>🎮 Game Modes:</strong></p>
         <ul>
-          <li>🔥 <strong>Fire:</strong> Blazing red-orange gem with fiery energy</li>
-          <li>💧 <strong>Water:</strong> Cool blue gem flowing with liquid power</li>
-          <li>🌍 <strong>Earth:</strong> Solid brown gem representing stability</li>
-          <li>💨 <strong>Air:</strong> Light blue gem with ethereal properties</li>
-          <li>⚡ <strong>Lightning:</strong> Golden gem crackling with electricity</li>
-          <li>🌿 <strong>Nature:</strong> Green gem full of life and growth</li>
-          <li>🔮 <strong>Magic:</strong> Purple gem containing mystical forces</li>
+          <li>🎯 <strong>Normal:</strong> Classic gameplay with unlimited time</li>
+          <li>⏱️ <strong>Time Attack:</strong> Score as much as possible in 60 seconds</li>
+          <li>📅 <strong>Divine Quest:</strong> Special daily divine quests with themed challenges</li>
         </ul>
         
-        <p><strong>🏆 Scoring System:</strong></p>
+        <p><strong>🌟 Divine Gem Powers:</strong></p>
         <ul>
-          <li>💎 <strong>3-match:</strong> 50 points base score</li>
-          <li>💎 <strong>4-match:</strong> 150 points for longer matches</li>
-          <li>💎 <strong>5+ match:</strong> 300+ points for massive combinations</li>
-          <li>🔥 <strong>Combo Multiplier:</strong> Each cascade increases your multiplier</li>
-          <li>🎯 <strong>Level Targets:</strong> Reach the score goal to advance</li>
+          <li>🔥 <strong>Fire:</strong> Blazing divine gem with sacred flames</li>
+          <li>💧 <strong>Water:</strong> Sacred waters of divine purification</li>
+          <li>🌍 <strong>Earth:</strong> Ancient divine foundation stone</li>
+          <li>💨 <strong>Air:</strong> Celestial winds of the heavens</li>
+          <li>⚡ <strong>Lightning:</strong> Divine thunderbolt of the gods</li>
+          <li>🌿 <strong>Nature:</strong> Sacred life force of creation</li>
+          <li>🔮 <strong>Magic:</strong> Pure divine essence and mystical power</li>
         </ul>
         
-        <p><strong>🕹️ Controls:</strong></p>
+        <p><strong>🏆 Divine Scoring System:</strong></p>
         <ul>
-          <li>🖱️ <strong>Click to Select:</strong> Click any gem to select it</li>
-          <li>🔄 <strong>Click to Swap:</strong> Click an adjacent gem to swap positions</li>
-          <li>❌ <strong>Deselect:</strong> Click the same gem again to deselect</li>
-          <li>🔄 <strong>New Game:</strong> Restart with a fresh board anytime</li>
+          <li>💎 <strong>3-match:</strong> 50 divine points</li>
+          <li>💎 <strong>4-match:</strong> 150 divine points for holy combinations</li>
+          <li>💎 <strong>5+ match:</strong> 300+ divine points for sacred formations</li>
+          <li>🔥 <strong>Rush Multiplier:</strong> Each cascade increases your divine power</li>
+          <li>🎯 <strong>Realm Targets:</strong> Reach the score goal to ascend divine realms</li>
+        </ul>
+        
+        <p><strong>🕹️ Divine Controls:</strong></p>
+        <ul>
+          <li>🖱️ <strong>Click to Select:</strong> Choose your divine gem</li>
+          <li>🔄 <strong>Click to Swap:</strong> Unite adjacent divine powers</li>
+          <li>📱 <strong>Swipe Gestures:</strong> Swipe to move gems on mobile</li>
+          <li>❌ <strong>Deselect:</strong> Click the same gem to cancel selection</li>
+          <li>🔄 <strong>New Battle:</strong> Start fresh divine combat anytime</li>
+        </ul>
+
+        <p><strong>🏅 Achievements & Features:</strong></p>
+        <ul>
+          <li>🔥 <strong>Streaks:</strong> Build consecutive match streaks for bonus points</li>
+          <li>💫 <strong>Power-ups:</strong> Create special gems with 4+ matches</li>
+          <li>🏆 <strong>Achievements:</strong> Unlock rewards for special accomplishments</li>
+          <li>📊 <strong>Statistics:</strong> Track your progress and improvement</li>
         </ul>
       </div>
       
@@ -222,9 +412,9 @@
         </div>
       </div>
     </div>
+    </div>
 
-    <!-- Load the main game script -->
-    <script src="script.js"></script>
+    <!-- Main game script now loaded in head with defer -->
     
     <!-- Enhanced UI functions -->
     <script>
@@ -303,7 +493,7 @@
       // Enhanced performance monitoring
       window.addEventListener('load', function() {
         const loadTime = performance.now();
-        console.log(`⚡ Elemental Bejeweled loaded in ${loadTime.toFixed(2)}ms`);
+        console.log(`⚡ Gems Rush: Divine Teams loaded in ${loadTime.toFixed(2)}ms`);
         
         // Add loading animation fade out
         document.body.style.opacity = '0';
@@ -375,5 +565,126 @@
         background: linear-gradient(145deg, #764ba2, #667eea);
       }
     </style>
+
+    <!-- Enhanced Main Menu Background Script -->
+    <script>
+      // Dynamic particle creation for main menu
+      function createMenuParticles() {
+        const particleField = document.querySelector('.particle-field');
+        if (!particleField) return;
+
+        // Create additional floating particles
+        for (let i = 0; i < 15; i++) {
+          const particle = document.createElement('div');
+          particle.className = 'dynamic-particle';
+          particle.style.cssText = `
+            position: absolute;
+            width: ${Math.random() * 4 + 2}px;
+            height: ${Math.random() * 4 + 2}px;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.8), transparent);
+            border-radius: 50%;
+            top: ${Math.random() * 100}%;
+            left: ${Math.random() * 100}%;
+            animation: floatParticle ${8 + Math.random() * 4}s ease-in-out infinite;
+            animation-delay: ${Math.random() * 3}s;
+            pointer-events: none;
+          `;
+          particleField.appendChild(particle);
+        }
+
+        // Add CSS animation
+        const style = document.createElement('style');
+        style.textContent = `
+          @keyframes floatParticle {
+            0%, 100% { 
+              transform: translateY(0px) translateX(0px) scale(1); 
+              opacity: 0.3;
+            }
+            25% { 
+              transform: translateY(-20px) translateX(10px) scale(1.2); 
+              opacity: 0.8;
+            }
+            50% { 
+              transform: translateY(-10px) translateX(-15px) scale(0.8); 
+              opacity: 0.6;
+            }
+            75% { 
+              transform: translateY(-30px) translateX(5px) scale(1.1); 
+              opacity: 0.9;
+            }
+          }
+          
+          .dynamic-particle {
+            filter: blur(0.5px);
+          }
+        `;
+        document.head.appendChild(style);
+      }
+
+      // Initialize menu particles when main menu is visible
+      document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(createMenuParticles, 500);
+        
+        // Add subtle mouse interaction to floating gems
+        const floatingGems = document.querySelectorAll('.floating-gem');
+        floatingGems.forEach(gem => {
+          gem.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.2) rotate(15deg)';
+            this.style.textShadow = `0 0 30px ${this.style.getPropertyValue('--color')}`;
+          });
+          
+          gem.addEventListener('mouseleave', function() {
+            this.style.transform = '';
+            this.style.textShadow = `0 0 20px ${this.style.getPropertyValue('--color')}`;
+          });
+        });
+        
+        // Add click ripple effect to menu buttons
+        const menuButtons = document.querySelectorAll('.menu-btn');
+        menuButtons.forEach(button => {
+          button.addEventListener('click', function(e) {
+            const ripple = document.createElement('div');
+            const rect = this.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+            
+            ripple.style.cssText = `
+              position: absolute;
+              width: ${size}px;
+              height: ${size}px;
+              left: ${x}px;
+              top: ${y}px;
+              background: radial-gradient(circle, rgba(255, 215, 0, 0.4), transparent);
+              border-radius: 50%;
+              transform: scale(0);
+              animation: rippleEffect 0.6s ease-out;
+              pointer-events: none;
+              z-index: 0;
+            `;
+            
+            this.appendChild(ripple);
+            
+            setTimeout(() => {
+              if (ripple.parentNode) {
+                ripple.parentNode.removeChild(ripple);
+              }
+            }, 600);
+          });
+        });
+        
+        // Add ripple CSS
+        const rippleStyle = document.createElement('style');
+        rippleStyle.textContent = `
+          @keyframes rippleEffect {
+            to {
+              transform: scale(2);
+              opacity: 0;
+            }
+          }
+        `;
+        document.head.appendChild(rippleStyle);
+      });
+    </script>
   </body>
 </html> 
