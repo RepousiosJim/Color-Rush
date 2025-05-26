@@ -15,14 +15,12 @@
     <meta name="theme-color" content="#1a1a3a">
     
     <!-- Preload key resources -->
-    <link rel="preload" href="script.js" as="script">
-    <script src="script.js" defer></script>
+    <link rel="preload" href="src/main.js" as="script" crossorigin>
+<script type="module" src="src/main.js"></script>
   </head>
   <body>
     <!-- GLOBAL HOME BUTTON (appears on all screens except main menu) -->
-    <button id="homeButton" class="home-button" 
-            onclick="if(typeof goToMainMenu !== 'undefined') goToMainMenu()" 
-            onkeydown="if((event.key==='Enter'||event.key===' ') && typeof goToMainMenu !== 'undefined') goToMainMenu()"
+    <button id="homeButton" class="home-button back-to-menu" 
             aria-label="Return to Main Menu" 
             title="Return to Main Menu"
             tabindex="0">
@@ -59,28 +57,28 @@
         <section class="menu-modes" role="region" aria-labelledby="modes-title">
           <h2 id="modes-title" class="modes-title">🎮 Choose Your Destiny</h2>
           <div class="modes-grid" role="group" aria-label="Game mode selection">
-            <button class="menu-btn mode-normal" onclick="selectGameMode('normal')" 
+            <button class="menu-btn mode-normal" 
                     aria-label="Normal Mode - Classic divine battles with unlimited time">
               <div class="btn-icon" aria-hidden="true">🎯</div>
               <div class="btn-title">Normal Mode</div>
               <div class="btn-desc">Classic divine battles with unlimited time</div>
             </button>
             
-            <button class="menu-btn mode-time" onclick="selectGameMode('timeAttack')"
+            <button class="menu-btn mode-time"
                     aria-label="Time Attack - Race against time for ultimate glory">
               <div class="btn-icon" aria-hidden="true">⏱️</div>
               <div class="btn-title">Time Attack</div>
               <div class="btn-desc">Race against time for ultimate glory</div>
             </button>
             
-            <button class="menu-btn mode-daily" onclick="selectGameMode('dailyChallenge')"
+            <button class="menu-btn mode-daily"
                     aria-label="Daily Divine Quest - Special divine quests that change daily">
               <div class="btn-icon" aria-hidden="true">📅</div>
               <div class="btn-title">Daily Divine Quest</div>
               <div class="btn-desc">Special divine quests that change daily</div>
             </button>
             
-            <button class="menu-btn mode-campaign" onclick="selectGameMode('campaign')"
+            <button class="menu-btn mode-campaign"
                     aria-label="Divine Conquest - Epic campaign through mystical realms">
               <div class="btn-icon" aria-hidden="true">⚔️</div>
               <div class="btn-title">Divine Conquest</div>
@@ -118,15 +116,15 @@
         
         <!-- Menu Footer -->
         <footer class="menu-footer" role="contentinfo">
-          <button class="footer-btn" onclick="showGameInfo()">
-            <span>📖</span> Game Guide
-          </button>
-          <button class="footer-btn" onclick="openSettingsFromMenu()">
-            <span>⚙️</span> Settings
-          </button>
-          <button class="footer-btn" onclick="showCredits()">
-            <span>👥</span> Credits
-          </button>
+                      <button class="footer-btn">
+                <span>📖</span> Game Guide
+            </button>
+            <button class="footer-btn">
+                <span>⚙️</span> Settings
+            </button>
+            <button class="footer-btn">
+                <span>👥</span> Credits
+            </button>
         </footer>
       </div>
     </main>
@@ -134,7 +132,7 @@
     <!-- GAME INTERFACE (Initially Hidden) -->
     <div id="gameInterface" class="game-interface" style="display: none;" role="application" aria-label="Game Interface">
       <!-- NEW: Daily Challenge Badge -->
-      <div id="dailyChallengeBadge" class="daily-challenge-badge" style="display: none;" onclick="startDailyChallenge()">
+              <div id="dailyChallengeBadge" class="daily-challenge-badge" style="display: none;">
         📅 Daily Challenge
       </div>
 
@@ -195,23 +193,23 @@
       
       <!-- Game Controls -->
       <div class="game-controls">
-        <button class="btn btn-primary" onclick="restartGame()">
+        <button class="btn btn-primary" id="restartBtn">
           🔄 New Battle
         </button>
-        <button class="btn btn-secondary" onclick="showInstructions()">
+        <button class="btn btn-secondary" id="gameGuideBtn">
           📜 Divine Guide
         </button>
         <!-- NEW: Enhanced controls -->
-        <button class="btn btn-hint" onclick="showHint()" id="hintBtn">
+        <button class="btn btn-hint" id="hintBtn">
           💡 Hint
         </button>
-        <button class="btn btn-undo" onclick="undoLastMove()" id="undoBtn">
+        <button class="btn btn-undo" id="undoBtn">
           ↩️ Undo
         </button>
-        <button class="btn btn-settings" onclick="openSettings()">
+        <button class="btn btn-settings" id="settingsBtn">
           ⚙️ Settings
         </button>
-        <button class="btn btn-menu" onclick="backToMainMenu()">
+        <button class="btn btn-menu back-to-menu">
           🏠 Main Menu
         </button>
       </div>
@@ -282,7 +280,7 @@
         <div class="settings-content">
           <div class="settings-header">
             <h2>⚙️ Game Settings</h2>
-            <button class="close-btn" onclick="closeSettings()">✕</button>
+            <button class="close-btn">✕</button>
           </div>
           
           <div class="settings-body">
@@ -402,10 +400,10 @@
           </div>
           
           <div class="settings-footer">
-            <button class="btn btn-secondary" onclick="resetSettings()">
+            <button class="btn btn-secondary">
               🔄 Reset to Defaults
             </button>
-            <button class="btn btn-primary" onclick="saveSettings()">
+            <button class="btn btn-primary">
               💾 Save Settings
             </button>
           </div>
