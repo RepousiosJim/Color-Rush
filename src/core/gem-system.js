@@ -36,12 +36,12 @@ export class GemSystem {
     createPowerUpGem(matchSize, type, position) {
         let powerUpType = null;
         
-        if (matchSize >= 5) {
+        if (matchSize >= 6) {
+            powerUpType = this.powerUpTypes.BOMB;
+        } else if (matchSize >= 5) {
             powerUpType = this.powerUpTypes.RAINBOW;
         } else if (matchSize === 4) {
             powerUpType = this.powerUpTypes.LIGHTNING;
-        } else if (matchSize >= 6) {
-            powerUpType = this.powerUpTypes.BOMB;
         }
 
         return {

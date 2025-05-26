@@ -152,8 +152,8 @@ export class InputHandler {
         const gemElement = element.closest('.gem');
         if (!gemElement) return;
         
-        const row = parseInt(gemElement.dataset.row);
-        const col = parseInt(gemElement.dataset.col);
+        const row = parseInt(gemElement.dataset.row, 10);
+        const col = parseInt(gemElement.dataset.col, 10);
         
         if (isNaN(row) || isNaN(col)) return;
         
@@ -162,18 +162,18 @@ export class InputHandler {
         let targetCol = col;
         
         switch (direction) {
-            case 'up':
+case 'up':
                 targetRow = Math.max(0, row - 1);
-                break;
-            case 'down':
-                targetRow = Math.min(7, row + 1);
-                break;
-            case 'left':
+                 break;
+             case 'down':
+                targetRow = Math.min(this.BOARD_SIZE - 1, row + 1);
+                 break;
+             case 'left':
                 targetCol = Math.max(0, col - 1);
-                break;
-            case 'right':
-                targetCol = Math.min(7, col + 1);
-                break;
+                 break;
+             case 'right':
+                targetCol = Math.min(this.BOARD_SIZE - 1, col + 1);
+                 break;
         }
         
         // Only proceed if target is different
@@ -278,11 +278,12 @@ export class InputHandler {
     }
 
     // Register swipe callback
-    registerSwipeCallback(callback) {
-        const id = Math.random().toString(36).substr(2, 9);
-        this.swipeCallbacks.set(id, callback);
-        return id;
-    }
+registerSwipeCallback(callback) {
+        // Use timestamp + random for better uniqueness
+        const id = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+         this.swipeCallbacks.set(id, callback);
+         return id;
+     }
 
     // Unregister swipe callback
     unregisterSwipeCallback(id) {

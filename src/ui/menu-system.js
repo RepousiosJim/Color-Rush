@@ -109,16 +109,8 @@ export class MenuSystem {
         const button = event.target.closest('.menu-btn');
         if (!button) return;
 
-        // Add hover animation
-        button.style.transform = 'translateY(-8px) scale(1.02)';
-        button.style.boxShadow = '0 15px 35px rgba(255, 215, 0, 0.4)';
-        button.style.borderColor = 'rgba(255, 215, 0, 0.6)';
-
-        // Add glow effect
-        const icon = button.querySelector('.btn-icon');
-        if (icon) {
-            icon.style.textShadow = '0 0 20px currentColor';
-        }
+        // Add hover class
+        button.classList.add('menu-btn-hover');
     }
 
     // Handle button leave effects
@@ -126,16 +118,8 @@ export class MenuSystem {
         const button = event.target.closest('.menu-btn');
         if (!button) return;
 
-        // Reset hover animation
-        button.style.transform = '';
-        button.style.boxShadow = '';
-        button.style.borderColor = '';
-
-        // Reset glow effect
-        const icon = button.querySelector('.btn-icon');
-        if (icon) {
-            icon.style.textShadow = '';
-        }
+        // Remove hover class
+        button.classList.remove('menu-btn-hover');
     }
 
     // Animate mode selection
@@ -470,7 +454,14 @@ export class MenuSystem {
 
     // Add menu animations CSS
     addMenuAnimations() {
+        // Check if menu animations already exist
+        const existingStyle = document.querySelector('style[data-menu-animations]');
+        if (existingStyle) {
+            return;
+        }
+
         const style = document.createElement('style');
+        style.setAttribute('data-menu-animations', 'true');
         style.textContent = `
             @keyframes selectedPulse {
                 0%, 100% { transform: scale(1.1); }
@@ -544,7 +535,7 @@ export class MenuSystem {
         return this.currentMode;
     }
 
-    // Clean up background effects
+    // Clean up background effects and resources
     cleanup() {
         this.backgroundEffects.forEach(effect => {
             if (effect.parentNode) {
@@ -552,6 +543,15 @@ export class MenuSystem {
             }
         });
         this.backgroundEffects = [];
+        
+        // Reset current mode
+        this.currentMode = null;
+        
+        // Remove any style elements created by this class
+        const menuAnimationStyle = document.querySelector('style[data-menu-animations]');
+        if (menuAnimationStyle) {
+            menuAnimationStyle.remove();
+        }
     }
 }
 

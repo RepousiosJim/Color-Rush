@@ -63,6 +63,27 @@ export class ModalSystem {
     }
 
     // Create modal base structure
+    // Helper method to escape HTML for security
+    escapeHtml(unsafe) {
+        return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    // Helper method to safely set HTML content
+    setSafeHtml(element, content, allowHtml = false) {
+        if (allowHtml) {
+            // Only for trusted content like static UI elements
+            element.innerHTML = content;
+        } else {
+            // For user-provided content, escape HTML
+            element.textContent = content;
+        }
+    }
+
     createModal(id, title, content, options = {}) {
         // Remove existing modal with same ID
         this.removeModal(id);
@@ -95,7 +116,15 @@ export class ModalSystem {
 
         const modalBody = document.createElement('div');
         modalBody.className = 'modal-body';
-        modalBody.innerHTML = content;
+        
+        // Safe HTML handling - assume content is trusted for static UI
+        // For dynamic user content, use setSafeHtml with allowHtml=false
+        if (options.safeContent) {
+            this.setSafeHtml(modalBody, content, false);
+        } else {
+            // Default behavior for trusted static content
+            modalBody.innerHTML = content;
+        }
 
         modalContent.appendChild(modalHeader);
         modalContent.appendChild(modalBody);
@@ -110,12 +139,17 @@ export class ModalSystem {
 
         modal.appendChild(modalContent);
 
-        // Click outside to close
-        modal.addEventListener('click', (event) => {
+        // Store event handler reference for cleanup
+        const clickOutsideHandler = (event) => {
             if (event.target === modal) {
                 this.removeModal(id);
             }
-        });
+        };
+        
+        modal.addEventListener('click', clickOutsideHandler);
+        
+        // Store handler reference on modal for cleanup
+        modal._clickOutsideHandler = clickOutsideHandler;
 
         document.body.appendChild(modal);
         this.activeModals.push(modal);
@@ -616,23 +650,42 @@ export class ModalSystem {
     // Show confirmation modal
     showConfirmation({ title, message, confirmText = 'Confirm', cancelText = 'Cancel' }) {
         return new Promise((resolve) => {
-            const content = `
-                <div class="confirmation-content">
-                    <p>${message}</p>
-                </div>
-            `;
+            // Create content safely using DOM methods instead of template strings
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'confirmation-content';
+            
+            const messageP = document.createElement('p');
+            messageP.textContent = message; // Safe text content, no HTML injection
+            contentDiv.appendChild(messageP);
 
-            const footer = `
-                <button class="btn btn-secondary" onclick="modalSystem.resolveConfirmation(false)">
-                    ${cancelText}
-                </button>
-                <button class="btn btn-primary" onclick="modalSystem.resolveConfirmation(true)">
-                    ${confirmText}
-                </button>
-            `;
+            // Create footer buttons safely
+            const footerDiv = document.createElement('div');
+            
+            const cancelBtn = document.createElement('button');
+            cancelBtn.className = 'btn btn-secondary';
+            cancelBtn.textContent = cancelText; // Safe text content
+            cancelBtn.onclick = () => this.resolveConfirmation(false);
+            
+            const confirmBtn = document.createElement('button');
+            confirmBtn.className = 'btn btn-primary';
+            confirmBtn.textContent = confirmText; // Safe text content
+            confirmBtn.onclick = () => this.resolveConfirmation(true);
+            
+            footerDiv.appendChild(cancelBtn);
+            footerDiv.appendChild(confirmBtn);
 
             this.confirmationResolver = resolve;
-            this.createModal('confirmationModal', title, content, { footer });
+            
+            // Use DOM elements directly instead of innerHTML
+            const modal = this.createModal('confirmationModal', title, '', { safeContent: true });
+            const modalBody = modal.querySelector('.modal-body');
+            modalBody.innerHTML = ''; // Clear any default content
+            modalBody.appendChild(contentDiv);
+            
+            const modalFooter = document.createElement('div');
+            modalFooter.className = 'modal-footer';
+            modalFooter.appendChild(footerDiv);
+            modal.querySelector('.modal-content').appendChild(modalFooter);
         });
     }
 
@@ -698,6 +751,12 @@ export class ModalSystem {
     removeModal(id) {
         const modal = document.getElementById(id);
         if (modal) {
+            // Clean up event listeners to prevent memory leaks
+            if (modal._clickOutsideHandler) {
+                modal.removeEventListener('click', modal._clickOutsideHandler);
+                modal._clickOutsideHandler = null;
+            }
+            
             modal.classList.remove('modal-visible');
             setTimeout(() => {
                 if (modal.parentNode) {
@@ -726,419 +785,52 @@ export class ModalSystem {
         });
     }
 
-    // Add modal styles
+    // Load modal styles from external CSS file
     addModalStyles() {
+        // Check if modal styles are already loaded
+        const existingLink = document.querySelector('link[href*="modals.css"]');
+        if (existingLink) {
+            return;
+        }
+
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = 'src/ui/modals.css';
+        link.onload = () => {
+            console.log('✅ Modal styles loaded successfully');
+        };
+        link.onerror = () => {
+            console.warn('⚠️ Failed to load modal styles, falling back to basic styles');
+            // Fallback: Add minimal inline styles for basic functionality
+            this.addFallbackStyles();
+        };
+        
+        document.head.appendChild(link);
+    }
+
+    // Fallback styles if CSS file fails to load
+    addFallbackStyles() {
         const style = document.createElement('style');
         style.textContent = `
             .game-modal {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.8);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                z-index: 2000;
-                opacity: 0;
-                transition: opacity 0.3s ease-in-out;
-                backdrop-filter: blur(5px);
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(0,0,0,0.8); display: flex; align-items: center;
+                justify-content: center; z-index: 2000; opacity: 0;
+                transition: opacity 0.3s ease;
             }
-            
-            .game-modal.modal-visible {
-                opacity: 1;
-            }
-            
+            .game-modal.modal-visible { opacity: 1; }
             .modal-content {
-                background: linear-gradient(145deg, rgba(26, 26, 58, 0.98), rgba(13, 13, 26, 0.95));
-                border: 3px solid rgba(255, 255, 255, 0.4);
-                border-radius: 20px;
-                max-width: 90vw;
-                max-height: 90vh;
-                width: 700px;
-                color: #f0f0f0;
-                box-shadow: 0 25px 50px rgba(0,0,0,0.7);
-                backdrop-filter: blur(15px);
-                overflow: hidden;
-                transform: scale(0.9);
-                transition: transform 0.3s ease-in-out;
+                background: #1a1a3a; border: 2px solid #fff; border-radius: 10px;
+                max-width: 90vw; max-height: 90vh; width: 600px; color: #f0f0f0;
+                transform: scale(0.9); transition: transform 0.3s ease;
             }
+            .game-modal.modal-visible .modal-content { transform: scale(1); }
+            .modal-header, .modal-body, .modal-footer { padding: 20px; }
+            .modal-close-btn { background: #ff4757; border: none; color: white; 
+                padding: 5px 10px; border-radius: 3px; cursor: pointer; }
             
-            .game-modal.modal-visible .modal-content {
-                transform: scale(1);
-            }
-            
-            .modal-header {
-                padding: 20px 30px;
-                border-bottom: 2px solid rgba(255, 255, 255, 0.2);
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                background: rgba(255, 255, 255, 0.05);
-            }
-            
-            .modal-header h2 {
-                margin: 0;
-                color: #FFD700;
-                font-size: 1.5em;
-                text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
-            }
-            
-            .modal-close-btn {
-                background: linear-gradient(145deg, #ff4757, #ff3742);
-                border: none;
-                color: white;
-                font-size: 18px;
-                cursor: pointer;
-                padding: 8px 12px;
-                border-radius: 50%;
-                box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-                transition: all 0.3s ease;
-            }
-            
-            .modal-close-btn:hover {
-                transform: scale(1.1);
-                box-shadow: 0 6px 12px rgba(0,0,0,0.4);
-            }
-            
-            .modal-body {
-                padding: 30px;
-                max-height: 60vh;
-                overflow-y: auto;
-                line-height: 1.6;
-            }
-            
-            .modal-footer {
-                padding: 20px 30px;
-                border-top: 2px solid rgba(255, 255, 255, 0.2);
-                display: flex;
-                justify-content: flex-end;
-                gap: 15px;
-                background: rgba(255, 255, 255, 0.05);
-            }
-            
-            /* Game Guide Styles */
-            .guide-section {
-                margin-bottom: 30px;
-            }
-            
-            .guide-section h3 {
-                color: #87CEEB;
-                margin-bottom: 15px;
-                font-size: 1.2em;
-            }
-            
-            .mode-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-                gap: 15px;
-                margin-top: 15px;
-            }
-            
-            .mode-card {
-                background: rgba(255, 255, 255, 0.1);
-                padding: 15px;
-                border-radius: 10px;
-                border: 1px solid rgba(255, 255, 255, 0.2);
-            }
-            
-            .mode-icon {
-                font-size: 2em;
-                margin-bottom: 10px;
-            }
-            
-            .mode-title {
-                font-weight: bold;
-                color: #FFD700;
-                margin-bottom: 5px;
-            }
-            
-            .gems-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                gap: 15px;
-                margin-top: 15px;
-            }
-            
-            .gem-info {
-                display: flex;
-                align-items: center;
-                gap: 15px;
-                padding: 10px;
-                background: rgba(255, 255, 255, 0.05);
-                border-radius: 8px;
-            }
-            
-            .gem-icon {
-                font-size: 2em;
-            }
-            
-            .scoring-table {
-                background: rgba(255, 255, 255, 0.05);
-                border-radius: 8px;
-                padding: 15px;
-            }
-            
-            .score-row {
-                display: flex;
-                justify-content: space-between;
-                padding: 8px 0;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            }
-            
-            .controls-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                gap: 10px;
-                margin-top: 15px;
-            }
-            
-            .control-item {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                padding: 8px;
-            }
-            
-            kbd {
-                background: rgba(255, 255, 255, 0.2);
-                padding: 4px 8px;
-                border-radius: 4px;
-                font-family: monospace;
-                border: 1px solid rgba(255, 255, 255, 0.3);
-            }
-            
-            /* Settings Styles */
-            .settings-section {
-                margin-bottom: 25px;
-            }
-            
-            .settings-section h3 {
-                color: #98FB98;
-                margin-bottom: 15px;
-            }
-            
-            .setting-item {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 10px 0;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            }
-            
-            .setting-item label {
-                font-weight: 500;
-            }
-            
-            .volume-control {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-            }
-            
-            .volume-slider, .theme-select, .difficulty-select {
-                background: rgba(255, 255, 255, 0.1);
-                border: 1px solid rgba(255, 255, 255, 0.3);
-                border-radius: 4px;
-                color: white;
-                padding: 5px;
-            }
-            
-            .toggle-switch {
-                width: 50px;
-                height: 25px;
-                appearance: none;
-                background: rgba(255, 255, 255, 0.2);
-                border-radius: 25px;
-                position: relative;
-                cursor: pointer;
-                transition: all 0.3s ease;
-            }
-            
-            .toggle-switch:checked {
-                background: linear-gradient(45deg, #2ed573, #17a2b8);
-            }
-            
-            .toggle-switch::before {
-                content: '';
-                position: absolute;
-                width: 21px;
-                height: 21px;
-                border-radius: 50%;
-                background: white;
-                top: 2px;
-                left: 2px;
-                transition: all 0.3s ease;
-            }
-            
-            .toggle-switch:checked::before {
-                transform: translateX(27px);
-            }
-            
-            /* Credits Styles */
-            .credits-section {
-                text-align: center;
-            }
-            
-            .credits-header {
-                margin-bottom: 30px;
-            }
-            
-            .version {
-                color: #87CEEB;
-                font-style: italic;
-            }
-            
-            .credits-group {
-                margin-bottom: 25px;
-                text-align: left;
-            }
-            
-            .credits-group h4 {
-                color: #FFD700;
-                margin-bottom: 10px;
-                text-align: center;
-            }
-            
-            .credit-item {
-                padding: 5px 0;
-            }
-            
-            .tech-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-                gap: 10px;
-                margin-top: 10px;
-            }
-            
-            .tech-item {
-                background: rgba(255, 255, 255, 0.1);
-                padding: 8px;
-                border-radius: 6px;
-                text-align: center;
-                border: 1px solid rgba(255, 255, 255, 0.2);
-            }
-            
-            .features-list {
-                list-style: none;
-                padding: 0;
-            }
-            
-            .features-list li {
-                padding: 5px 0;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            }
-            
-            .credits-footer {
-                margin-top: 30px;
-                padding-top: 20px;
-                border-top: 2px solid rgba(255, 255, 255, 0.2);
-                color: #87CEEB;
-            }
-            
-            /* Achievements Styles */
-            .achievements-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-                gap: 15px;
-            }
-            
-            .achievement-card {
-                display: flex;
-                align-items: center;
-                gap: 15px;
-                padding: 15px;
-                border-radius: 10px;
-                border: 2px solid rgba(255, 255, 255, 0.2);
-                background: rgba(255, 255, 255, 0.05);
-                transition: all 0.3s ease;
-            }
-            
-            .achievement-card.unlocked {
-                border-color: #2ed573;
-                background: rgba(46, 213, 115, 0.1);
-            }
-            
-            .achievement-card.locked {
-                opacity: 0.6;
-                filter: grayscale(0.5);
-            }
-            
-            .achievement-icon {
-                font-size: 2.5em;
-            }
-            
-            .achievement-info {
-                flex: 1;
-            }
-            
-            .achievement-title {
-                font-weight: bold;
-                color: #FFD700;
-                margin-bottom: 5px;
-            }
-            
-            .achievement-desc {
-                font-size: 0.9em;
-                color: #ccc;
-            }
-            
-            .achievement-date {
-                font-size: 0.8em;
-                color: #87CEEB;
-                margin-top: 5px;
-            }
-            
-            .achievement-status {
-                font-size: 1.5em;
-            }
-            
-            /* Button Styles */
-            .btn {
-                padding: 10px 20px;
-                border: none;
-                border-radius: 8px;
-                cursor: pointer;
-                font-weight: bold;
-                transition: all 0.3s ease;
-                text-decoration: none;
-                display: inline-block;
-            }
-            
-            .btn-primary {
-                background: linear-gradient(145deg, #667eea, #764ba2);
-                color: white;
-            }
-            
-            .btn-secondary {
-                background: linear-gradient(145deg, #6c757d, #5a6268);
-                color: white;
-            }
-            
-            .btn:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 16px rgba(0,0,0,0.3);
-            }
-            
-            /* Scrollbar Styles */
-            .modal-body::-webkit-scrollbar {
-                width: 8px;
-            }
-            
-            .modal-body::-webkit-scrollbar-track {
-                background: rgba(255,255,255,0.1);
-                border-radius: 4px;
-            }
-            
-            .modal-body::-webkit-scrollbar-thumb {
-                background: linear-gradient(145deg, #667eea, #764ba2);
-                border-radius: 4px;
-            }
-            
-            .modal-body::-webkit-scrollbar-thumb:hover {
-                background: linear-gradient(145deg, #764ba2, #667eea);
-            }
+
         `;
         document.head.appendChild(style);
     }

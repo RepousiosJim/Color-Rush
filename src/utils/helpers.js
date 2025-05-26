@@ -18,16 +18,10 @@ export class Helpers {
             };
         }
 
-        // Basic Promise polyfill check
+        // Note: Native Promise support is required for this application
+        // If Promise is not supported, consider using a proper polyfill library
         if (!window.Promise) {
-            console.warn('Promise not supported, some animations may be synchronous');
-            window.Promise = function(executor) {
-                executor(function(){}, function(){});
-            };
-            Promise.prototype.then = function(callback) {
-                if (callback) callback();
-                return this;
-            };
+            console.error('Promise is not supported in this browser. Please use a modern browser or include a Promise polyfill.');
         }
 
         // requestAnimationFrame polyfill
@@ -154,7 +148,7 @@ export class Helpers {
         if (typeof obj === 'object') {
             const clonedObj = {};
             for (const key in obj) {
-                if (obj.hasOwnProperty(key)) {
+                if (Object.prototype.hasOwnProperty.call(obj, key)) {
                     clonedObj[key] = this.deepClone(obj[key]);
                 }
             }
@@ -256,7 +250,7 @@ export class Helpers {
     setCookie(name, value, days = 30) {
         const expires = new Date();
         expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
-        document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+        document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/`;
     }
 
     getCookie(name) {
@@ -265,7 +259,9 @@ export class Helpers {
         for (let i = 0; i < ca.length; i++) {
             let c = ca[i];
             while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-            if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+            if (c.indexOf(nameEQ) === 0) {
+                return decodeURIComponent(c.substring(nameEQ.length, c.length));
+            }
         }
         return null;
     }
@@ -328,6 +324,13 @@ export class Helpers {
     // Date utilities
     formatDate(date, format = 'YYYY-MM-DD') {
         const d = new Date(date);
+        
+        // Validate if the date is valid
+        if (isNaN(d.getTime())) {
+            console.warn('Invalid date provided to formatDate:', date);
+            return null;
+        }
+        
         const year = d.getFullYear();
         const month = String(d.getMonth() + 1).padStart(2, '0');
         const day = String(d.getDate()).padStart(2, '0');

@@ -85,14 +85,8 @@ export class GameEngine {
             // Clear existing board
             this.gameBoard.innerHTML = '';
             
-            // Create board grid
-            this.gameBoard.style.display = 'grid';
-            this.gameBoard.style.gridTemplateColumns = 'repeat(8, 1fr)';
-            this.gameBoard.style.gridTemplateRows = 'repeat(8, 1fr)';
-            this.gameBoard.style.gap = '2px';
-            this.gameBoard.style.width = '400px';
-            this.gameBoard.style.height = '400px';
-            this.gameBoard.style.margin = '0 auto';
+            // Apply board layout class instead of inline styles
+            this.gameBoard.classList.add('game-board-layout');
             
             // Render each gem
             for (let row = 0; row < 8; row++) {
@@ -124,20 +118,8 @@ export class GameEngine {
         // Set gem content
         element.textContent = gem.type;
         
-        // Apply styling
-        element.style.cssText = `
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, ${gem.colors[0]}, ${gem.colors[1]});
-            border-radius: 8px;
-            font-size: 24px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            user-select: none;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        `;
+        // Apply gem styling via class and background gradient
+        element.style.background = `linear-gradient(135deg, ${gem.colors[0]}, ${gem.colors[1]})`;
         
         // Add power-up indicators
         if (gem.isPowerUp) {
@@ -148,17 +130,6 @@ export class GameEngine {
         
         // Add click handler
         element.addEventListener('click', (event) => this.handleGemClick(event));
-        
-        // Add hover effects
-        element.addEventListener('mouseenter', () => {
-            element.style.transform = 'scale(1.05)';
-            element.style.zIndex = '10';
-        });
-        
-        element.addEventListener('mouseleave', () => {
-            element.style.transform = 'scale(1)';
-            element.style.zIndex = '1';
-        });
         
         return element;
     }
@@ -358,19 +329,12 @@ export class GameEngine {
         
         const scoreElement = document.createElement('div');
         scoreElement.textContent = `+${helpers.formatNumber(points)}`;
-        scoreElement.style.cssText = `
-            position: absolute;
-            font-size: 20px;
-            font-weight: bold;
-            color: #FFD700;
-            pointer-events: none;
-            z-index: 1000;
-            animation: floatUp 1s ease-out forwards;
-        `;
+        scoreElement.className = 'floating-score-element';
         
         const rect = element.getBoundingClientRect();
-        scoreElement.style.left = rect.left + rect.width / 2 + 'px';
-        scoreElement.style.top = rect.top + 'px';
+        // Fix position calculation by adding scroll offsets
+        scoreElement.style.left = rect.left + window.scrollX + rect.width / 2 + 'px';
+        scoreElement.style.top = rect.top + window.scrollY + 'px';
         
         document.body.appendChild(scoreElement);
         

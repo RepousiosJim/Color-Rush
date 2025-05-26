@@ -219,7 +219,7 @@ export class UIInterface {
                 statGames: stats.totalGamesPlayed,
                 statBestScore: helpers.formatNumber(stats.bestScore),
                 statTotalScore: helpers.formatNumber(stats.totalScore),
-                statHighestLevel: gameState.level,
+                statHighestLevel: stats.highestLevel || gameState.level,
                 statBestStreak: stats.longestStreak || gameState.streak
             };
             
@@ -413,15 +413,14 @@ export class UIInterface {
 
     // Setup event listeners
     setupEventListeners() {
-        // Listen for visibility changes to pause/resume
-        document.addEventListener('visibilitychange', () => {
+        // Store references for cleanup
+        this.visibilityChangeHandler = () => {
             if (document.hidden) {
                 this.showNotification('⏸️ Game paused', 'info', 1000);
             }
-        });
+        };
         
-        // Listen for keyboard shortcuts
-        document.addEventListener('keydown', (event) => {
+        this.keydownHandler = (event) => {
             if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
                 return;
             }
@@ -429,16 +428,43 @@ export class UIInterface {
             if (event.key.toLowerCase() === 't') {
                 this.toggleStatistics();
             }
-        });
+        };
 
-        // Listen for game events
-        document.addEventListener('updateUI', () => {
+        this.updateUIHandler = () => {
             this.updateAllDisplays();
-        });
+        };
 
-        document.addEventListener('levelComplete', () => {
+        this.levelCompleteHandler = () => {
             this.showLevelComplete();
-        });
+        };
+
+        // Add event listeners
+        document.addEventListener('visibilitychange', this.visibilityChangeHandler);
+        document.addEventListener('keydown', this.keydownHandler);
+        document.addEventListener('updateUI', this.updateUIHandler);
+        document.addEventListener('levelComplete', this.levelCompleteHandler);
+    }
+
+    // Clean up event listeners
+    cleanup() {
+        if (this.visibilityChangeHandler) {
+            document.removeEventListener('visibilitychange', this.visibilityChangeHandler);
+        }
+        if (this.keydownHandler) {
+            document.removeEventListener('keydown', this.keydownHandler);
+        }
+        if (this.updateUIHandler) {
+            document.removeEventListener('updateUI', this.updateUIHandler);
+        }
+        if (this.levelCompleteHandler) {
+            document.removeEventListener('levelComplete', this.levelCompleteHandler);
+        }
+        
+        // Clear notification references
+        this.clearNotifications();
+        
+        // Reset initialization state
+        this.isInitialized = false;
     }
 
     // Transition between menu and game
@@ -489,7 +515,14 @@ export class UIInterface {
 
     // Add CSS animations
     addAnimations() {
+        // Check if animations already exist
+        const existingStyle = document.querySelector('style[data-ui-animations]');
+        if (existingStyle) {
+            return;
+        }
+
         const style = document.createElement('style');
+        style.setAttribute('data-ui-animations', 'true');
         style.textContent = `
             @keyframes scoreUpdate {
                 0% { transform: scale(1); color: #fff; }

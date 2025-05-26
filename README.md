@@ -1,14 +1,14 @@
 # ⚡ Gems Rush: Divine Teams ⚡
 ### Epic Match-3 Adventure with Divine Powers
 
-[![Live Demo](https://img.shields.io/badge/🎮_Play_Now-Live_Demo-brightgreen?style=for-the-badge)](https://your-username.github.io/gems-rush-game)
+[![Live Demo](https://img.shields.io/badge/🎮_Play_Now-Live_Demo-brightgreen?style=for-the-badge)](https://repousiosjim.github.io/Gems-Rush/)
 [![ES6 Modules](https://img.shields.io/badge/ES6-Modules-yellow?style=for-the-badge&logo=javascript)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules)
 [![Responsive](https://img.shields.io/badge/📱-Responsive-blue?style=for-the-badge)](https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Responsive_Design)
 [![Accessibility](https://img.shields.io/badge/♿-A11y_Ready-purple?style=for-the-badge)](https://www.w3.org/WAI/WCAG21/quickref/)
 
 *Master the ancient art of divine gem matching! Unite elemental powers, create epic cascades, and build legendary teams to conquer mystical realms.*
 
-[🎮 **Play Now**](https://your-username.github.io/gems-rush-game) • [📖 **Game Guide**](#-how-to-play) • [🛠️ **Technical Docs**](#-technical-details) • [🤝 **Contributing**](#-contributing)
+[🎮 **Play Now**](https://repousiosjim.github.io/Gems-Rush/) • [📖 **Game Guide**](#-how-to-play) • [🛠️ **Technical Docs**](#-technical-details) • [🤝 **Contributing**](#-contributing)
 
 ## 📸 Game Preview
 
@@ -107,13 +107,13 @@ src/
 ## 🚀 Quick Start
 
 ### Option 1: Play Online (Recommended)
-Just click the **[🎮 Play Now](https://your-username.github.io/gems-rush-game)** button above!
+Just click the **[🎮 Play Now](https://repousiosjim.github.io/Gems-Rush/)** button above!
 
 ### Option 2: Local Development
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/gems-rush-game.git
-cd gems-rush-game
+git clone https://github.com/repousiosjim/Gems-Rush.git
+cd Gems-Rush
 
 # Serve with any HTTP server (required for ES6 modules)
 python -m http.server 8000
@@ -197,7 +197,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ### ⚡ Ready to Master Divine Powers? ⚡
 
-[![Play Now](https://img.shields.io/badge/🎮_PLAY_NOW-brightgreen?style=for-the-badge&labelColor=darkgreen)](https://your-username.github.io/gems-rush-game)
+[![Play Now](https://img.shields.io/badge/🎮_PLAY_NOW-brightgreen?style=for-the-badge&labelColor=darkgreen)](https://repousiosjim.github.io/Gems-Rush/)
 
 **Made with 💎 for divine gaming experiences**
 

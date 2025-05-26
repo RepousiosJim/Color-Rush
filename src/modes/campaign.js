@@ -368,6 +368,9 @@ export class CampaignMode {
         
         console.log(`🏰 Starting ${realm.name} Level ${levelId}`);
         
+        // Clean up any existing level first
+        this.cleanupLevel();
+        
         // Set current level
         this.currentLevel = { realm, level };
         
@@ -458,6 +461,9 @@ export class CampaignMode {
 
     // Start level timer
     startLevelTimer(timeLimit) {
+        // Clear existing timer first
+        this.cleanupLevel();
+        
         gameState.timeRemaining = timeLimit;
         
         const timer = setInterval(() => {
@@ -471,6 +477,14 @@ export class CampaignMode {
         
         // Store timer reference
         this.levelTimer = timer;
+    }
+
+    // Clean up level resources
+    cleanupLevel() {
+        if (this.levelTimer) {
+            clearInterval(this.levelTimer);
+            this.levelTimer = null;
+        }
     }
 
     // Hide campaign level select
@@ -489,6 +503,9 @@ export class CampaignMode {
     // Check campaign level completion
     checkCampaignLevelCompletion() {
         if (!this.currentLevel) return;
+        
+        // Clean up timer immediately
+        this.cleanupLevel();
         
         const { realm, level } = this.currentLevel;
         const success = this.evaluateLevelObjectives(level);
