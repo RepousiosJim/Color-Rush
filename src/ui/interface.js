@@ -445,8 +445,11 @@ export class UIInterface {
         document.addEventListener('levelComplete', this.levelCompleteHandler);
     }
 
-    // Clean up event listeners
+    // Cleanup method
     cleanup() {
+        console.log('🧹 Cleaning up UI Interface...');
+
+        // Remove event listeners
         if (this.visibilityChangeHandler) {
             document.removeEventListener('visibilitychange', this.visibilityChangeHandler);
         }
@@ -459,13 +462,34 @@ export class UIInterface {
         if (this.levelCompleteHandler) {
             document.removeEventListener('levelComplete', this.levelCompleteHandler);
         }
-        
-        // Clear notification references
-        this.clearNotifications();
-        
-        // Reset initialization state
-        this.isInitialized = false;
+
+        // Clear UI update interval if it exists
+        if (this.updateInterval) {
+            clearInterval(this.updateInterval);
+            this.updateInterval = null;
+        }
+
+        // Remove UI animations style
+        const animationStyle = document.querySelector('style[data-ui-animations]');
+        if (animationStyle) {
+            animationStyle.remove();
+        }
+
+        // Clear cached elements
+        if (this.elements) {
+            this.elements.clear();
+        }
+
+        // Reset handlers
+        this.visibilityChangeHandler = null;
+        this.keydownHandler = null;
+        this.updateUIHandler = null;
+        this.levelCompleteHandler = null;
+
+        console.log('✅ UI Interface cleaned up');
     }
+
+
 
     // Transition between menu and game
     showGameInterface() {

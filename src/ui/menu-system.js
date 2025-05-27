@@ -242,11 +242,28 @@ export class MenuSystem {
 
     // Show settings
     async showSettings() {
-        // Trigger event for settings module
-        const event = new CustomEvent('showModal', {
-            detail: { type: 'settings' }
-        });
-        document.dispatchEvent(event);
+        try {
+            console.log('⚙️ MenuSystem: Opening comprehensive settings UI...');
+            
+            // Import settings UI if not already available
+            if (typeof settingsUI === 'undefined') {
+                const { settingsUI } = await import('./settings-ui.js');
+                window.settingsUI = settingsUI;
+            }
+            
+            // Open the new settings UI
+            settingsUI.openSettings();
+            
+            console.log('✅ MenuSystem: Settings UI opened successfully');
+            
+        } catch (error) {
+            console.error('❌ MenuSystem: Error showing settings:', error);
+            // Fallback to old event system
+            const event = new CustomEvent('showModal', {
+                detail: { type: 'settings' }
+            });
+            document.dispatchEvent(event);
+        }
     }
 
     // Show credits

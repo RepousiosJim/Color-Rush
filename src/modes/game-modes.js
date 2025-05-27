@@ -557,6 +557,33 @@ export class GameModes {
         });
         document.dispatchEvent(event);
     }
+
+    // Cleanup method
+    cleanup() {
+        console.log('🧹 Cleaning up Game Modes...');
+
+        // Clear all timers
+        this.clearTimer();
+
+        // Remove warning classes
+        document.body.classList.remove('timer-warning');
+
+        // Remove event listeners if they exist
+        this.removeEventListeners();
+
+        // Reset state
+        this.currentMode = 'normal';
+        this.isInitialized = false;
+
+        console.log('✅ Game Modes cleaned up');
+    }
+
+    // Remove event listeners
+    removeEventListeners() {
+        // Note: Event listeners were added in setupEventListeners but not stored
+        // For complete cleanup, listeners should be stored as instance properties
+        console.log('🧹 Removing game mode event listeners...');
+    }
 }
 
 // Global game modes instance

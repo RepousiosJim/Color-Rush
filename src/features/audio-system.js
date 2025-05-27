@@ -37,19 +37,27 @@ export class AudioSystem {
 
     // Setup audio context resume on user interaction
     setupAudioContextResume() {
-        const resumeAudio = () => {
+        this.resumeAudioHandler = () => {
             if (this.audioContext && this.audioContext.state === 'suspended') {
                 this.audioContext.resume().then(() => {
-                    document.removeEventListener('click', resumeAudio);
-                    document.removeEventListener('keydown', resumeAudio);
-                    document.removeEventListener('touchstart', resumeAudio);
+                    this.removeResumeAudioListeners();
                 });
             }
         };
 
-        document.addEventListener('click', resumeAudio);
-        document.addEventListener('keydown', resumeAudio);
-        document.addEventListener('touchstart', resumeAudio);
+        document.addEventListener('click', this.resumeAudioHandler);
+        document.addEventListener('keydown', this.resumeAudioHandler);
+        document.addEventListener('touchstart', this.resumeAudioHandler);
+    }
+
+    // Remove resume audio listeners
+    removeResumeAudioListeners() {
+        if (this.resumeAudioHandler) {
+            document.removeEventListener('click', this.resumeAudioHandler);
+            document.removeEventListener('keydown', this.resumeAudioHandler);
+            document.removeEventListener('touchstart', this.resumeAudioHandler);
+            this.resumeAudioHandler = null;
+        }
     }
 
     // Resume audio context
@@ -99,6 +107,9 @@ export class AudioSystem {
             match: { frequency: 440, duration: 0.15, type: 'sine' },
             cascade: { frequency: 660, duration: 0.2, type: 'triangle' },
             powerup: { frequency: 880, duration: 0.3, type: 'sawtooth' },
+            powerup_lightning: { frequency: 1200, duration: 0.4, type: 'square' },
+            powerup_bomb: { frequency: 200, duration: 0.6, type: 'sawtooth' },
+            powerup_rainbow: { frequency: 800, duration: 0.5, type: 'sine' },
             levelComplete: { frequency: 523, duration: 0.5, type: 'sine' },
             gameOver: { frequency: 220, duration: 0.8, type: 'sawtooth' },
             click: { frequency: 300, duration: 0.1, type: 'square' },
@@ -124,6 +135,29 @@ export class AudioSystem {
                 setTimeout(() => this.playSound('match'), 0);
                 setTimeout(() => this.createSound(550, 0.15, 'sine'), 100);
                 setTimeout(() => this.createSound(660, 0.15, 'sine'), 200);
+                break;
+
+            case 'lightningStrike':
+                // Lightning power-up activation sequence
+                this.createSound(1200, 0.1, 'square', 0.4);
+                setTimeout(() => this.createSound(1400, 0.1, 'square', 0.3), 50);
+                setTimeout(() => this.createSound(1600, 0.2, 'square', 0.5), 100);
+                setTimeout(() => this.createSound(800, 0.3, 'triangle', 0.2), 200);
+                break;
+
+            case 'bombExplosion':
+                // Bomb power-up activation sequence
+                this.createSound(150, 0.1, 'sawtooth', 0.6);
+                setTimeout(() => this.createSound(100, 0.3, 'sawtooth', 0.4), 100);
+                setTimeout(() => this.createSound(80, 0.4, 'sawtooth', 0.2), 200);
+                break;
+
+            case 'rainbowBurst':
+                // Rainbow power-up activation sequence
+                const frequencies = [523, 659, 784, 988, 1175]; // C major scale
+                frequencies.forEach((freq, index) => {
+                    setTimeout(() => this.createSound(freq, 0.2, 'sine', 0.3), index * 100);
+                });
                 break;
 
             case 'levelUp':
@@ -220,6 +254,33 @@ export class AudioSystem {
         this.playSound('match');
         setTimeout(() => this.playSound('cascade'), 300);
         setTimeout(() => this.playSound('powerup'), 600);
+    }
+
+    // Cleanup method
+    cleanup() {
+        console.log('🧹 Cleaning up Audio System...');
+
+        // Remove resume audio listeners
+        this.removeResumeAudioListeners();
+
+        // Close audio context if it exists
+        if (this.audioContext) {
+            try {
+                if (this.audioContext.state !== 'closed') {
+                    this.audioContext.close();
+                }
+            } catch (error) {
+                console.warn('Failed to close audio context:', error);
+            }
+            this.audioContext = null;
+        }
+
+        // Reset state
+        this.isInitialized = false;
+        this.soundEnabled = false;
+        this.musicEnabled = false;
+
+        console.log('✅ Audio System cleaned up');
     }
 }
 

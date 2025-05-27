@@ -7,7 +7,7 @@ export class GameState {
     }
 
     reset() {
-        this.board = Array(8).fill().map(() => Array(8));
+        this.board = Array(9).fill().map(() => Array(9).fill(null)); // Updated to 9x9
         this.score = 0;
         this.level = 1;
         this.targetScore = 1000;
@@ -30,25 +30,35 @@ export class GameState {
             bestScore: 0,
             averageScore: 0,
             perfectMatches: 0,
-            bigMatches: 0
+            bigMatches: 0,
+            cascadesTriggered: 0,
+            powerUpsUsed: 0,
+            boardShuffles: 0
         };
         this.currentLevelObjectives = null;
         this.campaignProgress = {
-            currentRealm: 1,
+            currentRealm: 'fire',
             currentLevel: 1,
-            unlockedRealms: [1],
+            unlockedRealms: ['fire'],
             completedLevels: {},
             totalEssence: 0
         };
     }
 
-    // Score management
-    updateScore(points) {
-        this.score += points;
-        this.gameStats.totalScore += points;
-        if (this.score > this.gameStats.bestScore) {
-            this.gameStats.bestScore = this.score;
+    // Enhanced score management
+    addScore(points) {
+        if (points > 0) {
+            this.score += points;
+            this.gameStats.totalScore += points;
+            if (this.score > this.gameStats.bestScore) {
+                this.gameStats.bestScore = this.score;
+            }
+            console.log(`📈 Score added: ${points}, Total: ${this.score}`);
         }
+    }
+
+    updateScore(points) {
+        this.addScore(points);
     }
 
     // Level management
@@ -56,15 +66,17 @@ export class GameState {
         if (this.score >= this.targetScore) {
             this.level++;
             this.targetScore = this.level * 1000 + (this.level - 1) * 500;
+            console.log(`🏆 Level up! Now level ${this.level}, target: ${this.targetScore}`);
             return true;
         }
         return false;
     }
 
-    // Move management
+    // Enhanced move management
     incrementMoves() {
         this.moves++;
         this.gameStats.totalMoves++;
+        console.log(`🎯 Move ${this.moves} completed`);
     }
 
     // Streak management
@@ -76,9 +88,10 @@ export class GameState {
         }
     }
 
-    // Cascade management
+    // Enhanced cascade management
     incrementCascade() {
         this.cascadeLevel++;
+        this.gameStats.cascadesTriggered++;
         this.rushMultiplier = Math.min(5, 1 + (this.cascadeLevel * 0.5));
     }
 
@@ -102,37 +115,51 @@ export class GameState {
         }
     }
 
-    // Board management
+    // Board management for 9x9
     setBoard(board) {
-        this.board = board;
+        if (Array.isArray(board) && board.length === 9 && 
+            board.every(row => Array.isArray(row) && row.length === 9)) {
+            this.board = board;
+            console.log('✅ 9x9 board set successfully');
+        } else {
+            console.error('Invalid board provided - must be 9x9 array');
+        }
     }
 
     getGem(row, col) {
-        return this.board[row] && this.board[row][col];
+        if (row >= 0 && row < 9 && col >= 0 && col < 9) {
+            return this.board[row] && this.board[row][col];
+        }
+        return null;
     }
 
     setGem(row, col, gem) {
-        if (this.board[row]) {
+        if (row >= 0 && row < 9 && col >= 0 && col < 9 && this.board[row]) {
             this.board[row][col] = gem;
         }
     }
 
-    // Selection management
+    // Enhanced selection management
     selectGem(row, col, element) {
         this.selectedGem = { row, col, element };
+        console.log(`💎 Gem selected at (${row}, ${col})`);
     }
 
     clearSelection() {
+        if (this.selectedGem) {
+            console.log('🔄 Gem selection cleared');
+        }
         this.selectedGem = null;
     }
 
-    // Save state for undo functionality
+    // Enhanced save state for undo functionality
     saveState() {
         this.lastMoveState = {
             board: this.board.map(row => row.slice()),
             score: this.score,
             moves: this.moves,
-            streak: this.streak
+            streak: this.streak,
+            cascadeLevel: this.cascadeLevel
         };
         this.canUndo = true;
     }
@@ -144,7 +171,9 @@ export class GameState {
             this.score = this.lastMoveState.score;
             this.moves = this.lastMoveState.moves;
             this.streak = this.lastMoveState.streak;
+            this.cascadeLevel = this.lastMoveState.cascadeLevel;
             this.canUndo = false;
+            console.log('↩️ Game state restored');
             return true;
         }
         return false;
@@ -183,7 +212,7 @@ export class GameState {
         return this.timeRemaining <= 0 && (this.gameMode === 'timeAttack' || this.gameMode === 'dailyChallenge');
     }
 
-    // Statistics
+    // Enhanced statistics tracking
     recordMatch(matchSize) {
         this.gameStats.totalMatches++;
         if (matchSize >= 5) {
@@ -192,6 +221,14 @@ export class GameState {
         if (this.cascadeLevel === 0) {
             this.gameStats.perfectMatches++;
         }
+    }
+
+    recordPowerUpUsage() {
+        this.gameStats.powerUpsUsed++;
+    }
+
+    recordBoardShuffle() {
+        this.gameStats.boardShuffles++;
     }
 
     updateAverageScore() {

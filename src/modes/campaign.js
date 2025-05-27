@@ -18,8 +18,10 @@ export class CampaignMode {
     // Initialize campaign mode
     initialize() {
         try {
+            console.log('🏰 Initializing Campaign Mode...');
             this.loadCampaignProgress();
             this.isInitialized = true;
+            console.log('✅ Campaign Mode initialized successfully');
             return true;
         } catch (error) {
             console.error('❌ Failed to initialize Campaign Mode:', error);
@@ -141,6 +143,13 @@ export class CampaignMode {
     // Start campaign mode
     startCampaign() {
         console.log('🏰 Starting Divine Conquest Campaign');
+        
+        // Ensure campaign is initialized
+        if (!this.isInitialized) {
+            console.log('⚠️ Campaign not initialized, initializing now...');
+            this.initialize();
+        }
+        
         this.showCampaignLevelSelect();
     }
 
@@ -213,14 +222,17 @@ export class CampaignMode {
     // Generate realms HTML
     generateRealmsHTML() {
         const unlockedRealms = gameState.campaignProgress.unlockedRealms || ['fire'];
+        console.log('🏰 Unlocked realms:', unlockedRealms);
+        console.log('🏰 Available realms:', Object.keys(this.divineRealms));
         
         return Object.values(this.divineRealms).map(realm => {
             const isUnlocked = unlockedRealms.includes(realm.id);
             const completedLevels = realm.levels.filter(level => level.completed).length;
             const totalLevels = realm.levels.length;
+            console.log(`🏰 Realm ${realm.id}: unlocked=${isUnlocked}, ${completedLevels}/${totalLevels} levels`);
             
             return `
-                <div class="realm-card ${isUnlocked ? 'unlocked' : 'locked'}" 
+                <div class="realm-card ${isUnlocked ? 'unlocked' : 'realm-locked'}" 
                      data-realm="${realm.id}" ${isUnlocked ? 'data-clickable="true"' : ''}>
                     <div class="realm-icon">${realm.symbol}</div>
                     <div class="realm-info">
@@ -284,7 +296,7 @@ export class CampaignMode {
             const starsHTML = '⭐'.repeat(stars) + '☆'.repeat(Math.max(0, 3 - stars));
             
             return `
-                <div class="level-card ${isUnlocked ? 'unlocked' : 'locked'}"
+                <div class="level-card ${isUnlocked ? 'unlocked' : 'level-locked'}"
                      data-realm="${realm.id}" data-level="${level.id}" ${isUnlocked ? 'data-clickable="true"' : ''}>
                     <div class="level-number">${level.id}</div>
                     <div class="level-type">${this.getLevelTypeIcon(level.type)}</div>
@@ -626,26 +638,27 @@ export class CampaignMode {
     // Load campaign progress
     loadCampaignProgress() {
         const saved = storageManager.loadCampaignProgress();
-        if (saved) {
-            gameState.setCampaignProgress(saved);
+        // Always set campaign progress (saved data or defaults)
+        gameState.setCampaignProgress(saved);
+        
+        // Apply saved progress to realms
+        Object.keys(this.divineRealms).forEach(realmId => {
+            const realm = this.divineRealms[realmId];
+            const savedRealm = saved.completedLevels?.[realmId];
             
-            // Apply saved progress to realms
-            Object.keys(this.divineRealms).forEach(realmId => {
-                const realm = this.divineRealms[realmId];
-                const savedRealm = saved.completedLevels?.[realmId];
-                
-                if (savedRealm) {
-                    realm.levels.forEach(level => {
-                        const savedLevel = savedRealm[level.id];
-                        if (savedLevel) {
-                            level.completed = savedLevel.completed;
-                            level.stars = savedLevel.stars;
-                            level.unlocked = savedLevel.unlocked;
-                        }
-                    });
-                }
-            });
-        }
+            if (savedRealm) {
+                realm.levels.forEach(level => {
+                    const savedLevel = savedRealm[level.id];
+                    if (savedLevel) {
+                        level.completed = savedLevel.completed;
+                        level.stars = savedLevel.stars;
+                        level.unlocked = savedLevel.unlocked;
+                    }
+                });
+            }
+        });
+        
+        console.log('🏰 Campaign progress loaded:', gameState.campaignProgress);
     }
 }
 

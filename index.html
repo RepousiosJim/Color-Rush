@@ -6,6 +6,7 @@
     <title>Gems Rush: Divine Teams - Epic Match-3 Adventure</title>
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="src/ui/modals.css" />
+    <link rel="stylesheet" href="src/ui/settings.css" />
     <meta name="description" content="Join the divine battle in Gems Rush: Divine Teams - an epic match-3 puzzle game with celestial gems and team-based gameplay">
     <meta name="keywords" content="gems rush, divine teams, match3, puzzle, celestial gems, team battle">
     
@@ -79,66 +80,137 @@
           </div>
         </div>
         
-        <!-- Game Mode Selection with Enhanced Layout -->
-        <section class="menu-modes" role="region" aria-labelledby="modes-title">
-          <div class="modes-header">
-            <h2 id="modes-title" class="modes-title">
-              <span class="modes-icon">🎮</span>
-              Choose Your Destiny
-              <span class="modes-underline"></span>
-            </h2>
-            <p class="modes-subtitle">Select your path to divine mastery</p>
+        <!-- Stage Map Layout -->
+        <section class="stage-map-section" role="region" aria-labelledby="stage-title">
+          <div class="stage-container">
+            <!-- Left Side Controls -->
+            <div class="left-controls">
+              <div class="control-group">
+                <button class="control-btn mode-time" aria-label="Time Attack Mode">
+                  <div class="btn-icon">⏱️</div>
+                  <div class="btn-label">Time Attack</div>
+                </button>
+                <button class="control-btn mode-daily" aria-label="Daily Challenge">
+                  <div class="btn-icon">📅</div>
+                  <div class="btn-label">Daily Quest</div>
+                </button>
+              </div>
+              
+              <div class="control-group">
+                <button class="control-btn" id="gameGuideBtn" aria-label="Game Guide">
+                  <div class="btn-icon">📖</div>
+                  <div class="btn-label">Guide</div>
+                </button>
+                <button class="control-btn" id="settingsBtn" aria-label="Settings">
+                  <div class="btn-icon">⚙️</div>
+                  <div class="btn-label">Settings</div>
+                </button>
+              </div>
+            </div>
+            
+            <!-- Central Map Area -->
+            <div class="stage-map-center">
+              <div class="stage-header">
+                <h2 id="stage-title" class="stage-title">
+                  <span class="stage-number">Stage <span id="currentStageNumber">1</span></span>
+                  <span class="stage-type" id="currentStageType">Divine Realm</span>
+                </h2>
+              </div>
+              
+              <!-- Square Map Display -->
+              <div class="stage-map-display">
+                <div class="map-container">
+                  <div class="stage-map-visual" id="stageMapVisual">
+                    <div class="map-background">
+                      <div class="divine-realm-bg"></div>
+                      <div class="map-grid"></div>
+                      <div class="floating-essence"></div>
+                    </div>
+                    
+                    <!-- Current Stage Indicator -->
+                    <div class="current-stage-marker" id="currentStageMarker">
+                      <div class="marker-icon">⚡</div>
+                      <div class="marker-glow"></div>
+                      <div class="marker-pulse"></div>
+                    </div>
+                    
+                    <!-- Stage Preview Info -->
+                    <div class="stage-preview" id="stagePreview">
+                      <div class="preview-content">
+                        <div class="preview-title" id="previewTitle">Stage 1</div>
+                        <div class="preview-target" id="previewTarget">Target: 1,000</div>
+                        <div class="preview-type" id="previewType">Normal</div>
+                      </div>
+                    </div>
+                    
+                    <!-- Boss Stage Indicator -->
+                    <div class="boss-indicator hidden" id="bossIndicator">
+                      <div class="boss-crown">👑</div>
+                      <div class="boss-text">BOSS STAGE</div>
+                      <div class="boss-effects"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Play Button -->
+              <div class="play-button-container">
+                <button class="play-button" id="playStageBtn" aria-label="Start Current Stage">
+                  <div class="play-icon">▶️</div>
+                  <div class="play-text">PLAY</div>
+                  <div class="play-effects"></div>
+                </button>
+              </div>
+            </div>
+            
+            <!-- Right Side Controls -->
+            <div class="right-controls">
+              <div class="control-group">
+                <!-- Game Mode Selector with slide arrows -->
+                <div class="game-mode-selector" id="gameModeSelector">
+                  <button class="control-btn mode-selector-btn featured" id="modeSelectorBtn" aria-label="Game Mode Selector" title="Select Game Mode">
+                    <div class="mode-arrow-left" id="modeArrowLeft">◀</div>
+                    <div class="mode-content">
+                      <div class="mode-icon btn-icon">🎯</div>
+                      <div class="mode-text btn-label">Normal</div>
+                    </div>
+                    <div class="mode-arrow-right" id="modeArrowRight">▶</div>
+                    <div class="btn-badge">ACTIVE</div>
+                  </button>
+                </div>
+                <button class="control-btn" id="stageSelectBtn" aria-label="Stage Selection">
+                  <div class="btn-icon">🗺️</div>
+                  <div class="btn-label">Map</div>
+                </button>
+              </div>
+              
+              <div class="control-group">
+                <button class="control-btn" id="creditsBtn" aria-label="Credits">
+                  <div class="btn-icon">👥</div>
+                  <div class="btn-label">Credits</div>
+                </button>
+                <button class="control-btn" id="statsBtn" aria-label="Statistics">
+                  <div class="btn-icon">📊</div>
+                  <div class="btn-label">Stats</div>
+                </button>
+              </div>
+            </div>
           </div>
           
-          <div class="modes-container">
-            <div class="modes-grid" role="group" aria-label="Game mode selection">
-              <button class="menu-btn mode-normal featured" 
-                      aria-label="Normal Mode - Classic divine battles with unlimited time">
-                <div class="btn-badge">CLASSIC</div>
-                <div class="btn-content">
-                  <div class="btn-icon" aria-hidden="true">🎯</div>
-                  <div class="btn-title">Normal Mode</div>
-                  <div class="btn-desc">Classic divine battles with unlimited time to strategize</div>
-                  <div class="btn-difficulty">★☆☆</div>
-                </div>
-                <div class="btn-glow"></div>
-              </button>
-              
-              <button class="menu-btn mode-time" 
-                      aria-label="Time Attack - Race against time for ultimate glory">
-                <div class="btn-badge">INTENSE</div>
-                <div class="btn-content">
-                  <div class="btn-icon" aria-hidden="true">⏱️</div>
-                  <div class="btn-title">Time Attack</div>
-                  <div class="btn-desc">Race against time for ultimate glory and high scores</div>
-                  <div class="btn-difficulty">★★☆</div>
-                </div>
-                <div class="btn-glow"></div>
-              </button>
-              
-              <button class="menu-btn mode-daily" 
-                      aria-label="Daily Divine Quest - Special divine quests that change daily">
-                <div class="btn-badge">DAILY</div>
-                <div class="btn-content">
-                  <div class="btn-icon" aria-hidden="true">📅</div>
-                  <div class="btn-title">Daily Divine Quest</div>
-                  <div class="btn-desc">Special divine quests that change daily with unique rewards</div>
-                  <div class="btn-difficulty">★★☆</div>
-                </div>
-                <div class="btn-glow"></div>
-              </button>
-              
-              <button class="menu-btn mode-campaign" 
-                      aria-label="Divine Conquest - Epic campaign through mystical realms">
-                <div class="btn-badge">EPIC</div>
-                <div class="btn-content">
-                  <div class="btn-icon" aria-hidden="true">⚔️</div>
-                  <div class="btn-title">Divine Conquest</div>
-                  <div class="btn-desc">Epic campaign through mystical realms and divine challenges</div>
-                  <div class="btn-difficulty">★★★</div>
-                </div>
-                <div class="btn-glow"></div>
-              </button>
+          <!-- Stage Progress Bar -->
+          <div class="stage-progress-section">
+            <div class="progress-info">
+              <div class="progress-label">Stage Progress</div>
+              <div class="progress-stats">
+                <span id="completedStages">0</span> / <span id="totalStages">1</span> Completed
+              </div>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" id="stageProgressFill" style="width: 0%"></div>
+              <div class="progress-glow"></div>
+            </div>
+            <div class="next-boss-info">
+              <span class="boss-countdown">Next Boss: Stage <span id="nextBossStage">5</span></span>
             </div>
           </div>
         </section>
