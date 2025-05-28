@@ -1,0 +1,518 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email        String    @unique @db.VarChar(255)
+  username     String    @unique @db.VarChar(50)
+  passwordHash String    @map("password_hash") @db.VarChar(255)
+  displayName  String?   @map("display_name") @db.VarChar(100)
+  avatarUrl    String?   @map("avatar_url") @db.Text
+  level        Int       @default(1)
+  totalXp      Int       @default(0) @map("total_xp")
+  coins        Int       @default(100)
+  gems         Int       @default(10)
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt    DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+  lastActive   DateTime  @default(now()) @map("last_active") @db.Timestamp(6)
+  isOnline     Boolean   @default(false) @map("is_online")
+  preferences  Json      @default("{}")
+  stats        Json      @default("{}")
+
+  // Relations
+  userSessions         UserSession[]
+  gamesSolo            GameSolo[]
+  hostedRooms          GameRoom[]           @relation("RoomHost")
+  wonRooms             GameRoom[]           @relation("RoomWinner")
+  gameParticipants     GameParticipant[]
+  gameMoves            GameMove[]
+  leaderboardEntries   LeaderboardEntry[]
+  friendshipsRequested Friendship[]         @relation("FriendshipRequester")
+  friendshipsReceived  Friendship[]         @relation("FriendshipAddressee")
+  userInventory        UserInventory[]
+  userAchievements     UserAchievement[]
+  userDailyChallenges  UserDailyChallenge[]
+  tournamentsCreated   Tournament[]
+  tournamentParticipants TournamentParticipant[]
+  gameReportsSubmitted GameReport[]         @relation("ReportSubmitter")
+  gameReportsReceived  GameReport[]         @relation("ReportTarget")
+  gameReportsResolved  GameReport[]         @relation("ReportResolver")
+
+  @@map("users")
+}
+
+model UserSession {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String    @map("user_id") @db.Uuid
+  sessionToken String    @unique @map("session_token") @db.VarChar(255)
+  socketId     String?   @map("socket_id") @db.VarChar(255)
+  ipAddress    String?   @map("ip_address") @db.Inet
+  userAgent    String?   @map("user_agent") @db.Text
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  expiresAt    DateTime  @map("expires_at") @db.Timestamp(6)
+  isActive     Boolean   @default(true) @map("is_active")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_sessions")
+}
+
+model GameMode {
+  id                 Int      @id @default(autoincrement())
+  name               String   @db.VarChar(50)
+  displayName        String   @map("display_name") @db.VarChar(100)
+  description        String?  @db.Text
+  maxPlayers         Int      @map("max_players")
+  timeLimit          Int?     @map("time_limit")
+  moveLimit          Int?     @map("move_limit")
+  scoringMultiplier  Decimal  @default(1.00) @map("scoring_multiplier") @db.Decimal(3, 2)
+  unlockLevel        Int      @default(1) @map("unlock_level")
+  isActive           Boolean  @default(true) @map("is_active")
+  config             Json     @default("{}")
+
+  gamesSolo    GameSolo[]
+  gameRooms    GameRoom[]
+  leaderboards Leaderboard[]
+  tournaments  Tournament[]
+
+  @@map("game_modes")
+}
+
+model GameSolo {
+  id               String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId           String             @map("user_id") @db.Uuid
+  modeId           Int?               @map("mode_id")
+  score            Int                @default(0)
+  level            Int                @default(1)
+  movesUsed        Int                @default(0) @map("moves_used")
+  timePlayed       Int                @default(0) @map("time_played")
+  gemsMatched      Json               @default("{}") @map("gems_matched")
+  combosAchieved   Int                @default(0) @map("combos_achieved")
+  maxCombo         Int                @default(0) @map("max_combo")
+  powerUpsUsed     Json               @default("{}") @map("power_ups_used")
+  boardState       Json?              @map("board_state")
+  gameState        GameSoloState      @default(playing) @map("game_state")
+  startedAt        DateTime           @default(now()) @map("started_at") @db.Timestamp(6)
+  completedAt      DateTime?          @map("completed_at") @db.Timestamp(6)
+  finalStats       Json?              @map("final_stats")
+
+  user User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mode GameMode? @relation(fields: [modeId], references: [id])
+
+  @@map("games_solo")
+}
+
+model GameRoom {
+  id             String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  roomCode       String         @unique @map("room_code") @db.VarChar(10)
+  hostId         String         @map("host_id") @db.Uuid
+  modeId         Int?           @map("mode_id")
+  maxPlayers     Int            @default(2) @map("max_players")
+  currentPlayers Int            @default(0) @map("current_players")
+  status         GameRoomStatus @default(waiting)
+  isPrivate      Boolean        @default(false) @map("is_private")
+  passwordHash   String?        @map("password_hash") @db.VarChar(255)
+  settings       Json           @default("{}")
+  createdAt      DateTime       @default(now()) @map("created_at") @db.Timestamp(6)
+  startedAt      DateTime?      @map("started_at") @db.Timestamp(6)
+  endedAt        DateTime?      @map("ended_at") @db.Timestamp(6)
+  winnerId       String?        @map("winner_id") @db.Uuid
+
+  host         User               @relation("RoomHost", fields: [hostId], references: [id], onDelete: Cascade)
+  mode         GameMode?          @relation(fields: [modeId], references: [id])
+  winner       User?              @relation("RoomWinner", fields: [winnerId], references: [id])
+  participants GameParticipant[]
+  gameMoves    GameMove[]
+
+  @@map("game_rooms")
+}
+
+model GameParticipant {
+  id             String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  roomId         String                @map("room_id") @db.Uuid
+  userId         String                @map("user_id") @db.Uuid
+  position       Int
+  score          Int                   @default(0)
+  movesUsed      Int                   @default(0) @map("moves_used")
+  status         GameParticipantStatus @default(waiting)
+  boardState     Json?                 @map("board_state")
+  powerUps       Json                  @default("{}") @map("power_ups")
+  joinedAt       DateTime              @default(now()) @map("joined_at") @db.Timestamp(6)
+  finishedAt     DateTime?             @map("finished_at") @db.Timestamp(6)
+  finalRanking   Int?                  @map("final_ranking")
+  rewardsEarned  Json                  @default("{}") @map("rewards_earned")
+
+  room GameRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([roomId, userId])
+  @@unique([roomId, position])
+  @@map("game_participants")
+}
+
+model GameMove {
+  id         String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  roomId     String              @map("room_id") @db.Uuid
+  userId     String              @map("user_id") @db.Uuid
+  moveNumber Int                 @map("move_number")
+  moveType   GameMoveType        @map("move_type")
+  moveData   Json                @map("move_data")
+  timestamp  DateTime            @default(now()) @db.Timestamp(6)
+  resultData Json?               @map("result_data")
+
+  room GameRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("game_moves")
+}
+
+model Leaderboard {
+  id          Int                   @id @default(autoincrement())
+  name        String                @db.VarChar(100)
+  type        LeaderboardType
+  modeId      Int?                  @map("mode_id")
+  periodStart DateTime?             @map("period_start") @db.Date
+  periodEnd   DateTime?             @map("period_end") @db.Date
+  isActive    Boolean               @default(true) @map("is_active")
+  rewards     Json                  @default("{}")
+  createdAt   DateTime              @default(now()) @map("created_at") @db.Timestamp(6)
+
+  mode    GameMode?           @relation(fields: [modeId], references: [id])
+  entries LeaderboardEntry[]
+
+  @@map("leaderboards")
+}
+
+model LeaderboardEntry {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  leaderboardId   Int       @map("leaderboard_id")
+  userId          String    @map("user_id") @db.Uuid
+  score           Int
+  rank            Int?
+  additionalStats Json      @default("{}") @map("additional_stats")
+  gameId          String?   @map("game_id") @db.Uuid
+  achievedAt      DateTime  @default(now()) @map("achieved_at") @db.Timestamp(6)
+
+  leaderboard Leaderboard @relation(fields: [leaderboardId], references: [id], onDelete: Cascade)
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([leaderboardId, userId])
+  @@map("leaderboard_entries")
+}
+
+model Friendship {
+  id           String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  requesterId  String           @map("requester_id") @db.Uuid
+  addresseeId  String           @map("addressee_id") @db.Uuid
+  status       FriendshipStatus @default(pending)
+  createdAt    DateTime         @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt    DateTime         @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  requester User @relation("FriendshipRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  addressee User @relation("FriendshipAddressee", fields: [addresseeId], references: [id], onDelete: Cascade)
+
+  @@unique([requesterId, addresseeId])
+  @@map("friendships")
+}
+
+model Item {
+  id           Int        @id @default(autoincrement())
+  name         String     @db.VarChar(50)
+  displayName  String     @map("display_name") @db.VarChar(100)
+  description  String?    @db.Text
+  type         ItemType
+  rarity       ItemRarity @default(common)
+  costCoins    Int        @default(0) @map("cost_coins")
+  costGems     Int        @default(0) @map("cost_gems")
+  unlockLevel  Int        @default(1) @map("unlock_level")
+  effects      Json       @default("{}")
+  isTradeable  Boolean    @default(false) @map("is_tradeable")
+  isActive     Boolean    @default(true) @map("is_active")
+
+  userInventory UserInventory[]
+
+  @@map("items")
+}
+
+model UserInventory {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId     String    @map("user_id") @db.Uuid
+  itemId     Int       @map("item_id")
+  quantity   Int       @default(1)
+  acquiredAt DateTime  @default(now()) @map("acquired_at") @db.Timestamp(6)
+  expiresAt  DateTime? @map("expires_at") @db.Timestamp(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, itemId])
+  @@map("user_inventory")
+}
+
+model Achievement {
+  id           Int                @id @default(autoincrement())
+  name         String             @db.VarChar(100)
+  displayName  String             @map("display_name") @db.VarChar(150)
+  description  String?            @db.Text
+  iconUrl      String?            @map("icon_url") @db.Text
+  type         AchievementType
+  category     String?            @db.VarChar(50)
+  requirements Json
+  rewards      Json               @default("{}")
+  points       Int                @default(0)
+  rarity       AchievementRarity  @default(bronze)
+  isHidden     Boolean            @default(false) @map("is_hidden")
+  isActive     Boolean            @default(true) @map("is_active")
+  createdAt    DateTime           @default(now()) @map("created_at") @db.Timestamp(6)
+
+  userAchievements UserAchievement[]
+
+  @@map("achievements")
+}
+
+model UserAchievement {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId        String    @map("user_id") @db.Uuid
+  achievementId Int       @map("achievement_id")
+  progress      Json      @default("{}")
+  completedAt   DateTime? @map("completed_at") @db.Timestamp(6)
+  isClaimed     Boolean   @default(false) @map("is_claimed")
+  claimedAt     DateTime? @map("claimed_at") @db.Timestamp(6)
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+  @@map("user_achievements")
+}
+
+model DailyChallenge {
+  id              Int                     @id @default(autoincrement())
+  name            String                  @db.VarChar(100)
+  description     String?                 @db.Text
+  requirements    Json
+  rewards         Json
+  difficulty      ChallengeDifficulty     @default(medium)
+  date            DateTime                @db.Date
+  isActive        Boolean                 @default(true) @map("is_active")
+  completionCount Int                     @default(0) @map("completion_count")
+
+  userDailyChallenges UserDailyChallenge[]
+
+  @@map("daily_challenges")
+}
+
+model UserDailyChallenge {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String    @map("user_id") @db.Uuid
+  challengeId Int       @map("challenge_id")
+  progress    Json      @default("{}")
+  completedAt DateTime? @map("completed_at") @db.Timestamp(6)
+  isClaimed   Boolean   @default(false) @map("is_claimed")
+  claimedAt   DateTime? @map("claimed_at") @db.Timestamp(6)
+
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challenge DailyChallenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, challengeId])
+  @@map("user_daily_challenges")
+}
+
+model Tournament {
+  id                   String                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                 String                     @db.VarChar(150)
+  description          String?                    @db.Text
+  type                 TournamentType
+  modeId               Int?                       @map("mode_id")
+  entryFeeCoins        Int                        @default(0) @map("entry_fee_coins")
+  entryFeeGems         Int                        @default(0) @map("entry_fee_gems")
+  maxParticipants      Int?                       @map("max_participants")
+  minParticipants      Int                        @default(2) @map("min_participants")
+  prizePool            Json                       @map("prize_pool")
+  status               TournamentStatus           @default(scheduled)
+  registrationStart    DateTime?                  @map("registration_start") @db.Timestamp(6)
+  registrationEnd      DateTime?                  @map("registration_end") @db.Timestamp(6)
+  tournamentStart      DateTime?                  @map("tournament_start") @db.Timestamp(6)
+  tournamentEnd        DateTime?                  @map("tournament_end") @db.Timestamp(6)
+  rules                Json                       @default("{}")
+  createdBy            String?                    @map("created_by") @db.Uuid
+  createdAt            DateTime                   @default(now()) @map("created_at") @db.Timestamp(6)
+
+  mode         GameMode?                @relation(fields: [modeId], references: [id])
+  creator      User?                    @relation(fields: [createdBy], references: [id])
+  participants TournamentParticipant[]
+
+  @@map("tournaments")
+}
+
+model TournamentParticipant {
+  id           String                       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tournamentId String                       @map("tournament_id") @db.Uuid
+  userId       String                       @map("user_id") @db.Uuid
+  registeredAt DateTime                     @default(now()) @map("registered_at") @db.Timestamp(6)
+  status       TournamentParticipantStatus  @default(registered)
+  currentRound Int                          @default(1) @map("current_round")
+  wins         Int                          @default(0)
+  losses       Int                          @default(0)
+  totalScore   Int                          @default(0) @map("total_score")
+  finalRank    Int?                         @map("final_rank")
+  rewardsEarned Json                        @default("{}") @map("rewards_earned")
+
+  tournament Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([tournamentId, userId])
+  @@map("tournament_participants")
+}
+
+model GameReport {
+  id               String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  reporterId       String           @map("reporter_id") @db.Uuid
+  reportedUserId   String           @map("reported_user_id") @db.Uuid
+  gameId           String?          @map("game_id") @db.Uuid
+  reportType       GameReportType   @map("report_type")
+  description      String?          @db.Text
+  status           GameReportStatus @default(pending)
+  createdAt        DateTime         @default(now()) @map("created_at") @db.Timestamp(6)
+  resolvedAt       DateTime?        @map("resolved_at") @db.Timestamp(6)
+  resolvedBy       String?          @map("resolved_by") @db.Uuid
+  resolutionNotes  String?          @map("resolution_notes") @db.Text
+
+  reporter    User  @relation("ReportSubmitter", fields: [reporterId], references: [id], onDelete: Cascade)
+  reportedUser User @relation("ReportTarget", fields: [reportedUserId], references: [id], onDelete: Cascade)
+  resolver    User? @relation("ReportResolver", fields: [resolvedBy], references: [id])
+
+  @@map("game_reports")
+}
+
+// Enums
+enum GameSoloState {
+  playing
+  paused
+  completed
+  failed
+}
+
+enum GameRoomStatus {
+  waiting
+  starting
+  active
+  paused
+  completed
+  cancelled
+}
+
+enum GameParticipantStatus {
+  waiting
+  ready
+  playing
+  finished
+  disconnected
+}
+
+enum GameMoveType {
+  swap
+  power_up
+  special
+}
+
+enum LeaderboardType {
+  daily
+  weekly
+  monthly
+  all_time
+  seasonal
+}
+
+enum FriendshipStatus {
+  pending
+  accepted
+  blocked
+  declined
+}
+
+enum ItemType {
+  power_up
+  booster
+  cosmetic
+  currency
+}
+
+enum ItemRarity {
+  common
+  rare
+  epic
+  legendary
+}
+
+enum AchievementType {
+  progress
+  milestone
+  challenge
+  social
+}
+
+enum AchievementRarity {
+  bronze
+  silver
+  gold
+  platinum
+  diamond
+}
+
+enum ChallengeDifficulty {
+  easy
+  medium
+  hard
+  expert
+}
+
+enum TournamentType {
+  bracket
+  round_robin
+  elimination
+  ladder
+}
+
+enum TournamentStatus {
+  scheduled
+  registration
+  active
+  completed
+  cancelled
+}
+
+enum TournamentParticipantStatus {
+  registered
+  active
+  eliminated
+  winner
+  withdrawn
+}
+
+enum GameReportType {
+  cheating
+  harassment
+  inappropriate_name
+  other
+}
+
+enum GameReportStatus {
+  pending
+  investigating
+  resolved
+  dismissed
+}
