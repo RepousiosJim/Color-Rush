@@ -735,8 +735,95 @@ const PerformanceSettings: React.FC<{
   onUpdate: (updates: Partial<GameSettings['performance']>) => void
 }> = ({ settings, onUpdate }) => {
   return (
-    <div className="text-slate-400">
-      Performance settings will be implemented next...
+    <div className="space-y-6">
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold text-white">Graphics Quality</h3>
+        
+        <SettingsSelect
+          label="Quality Level"
+          value={settings?.qualityLevel || 'high'}
+          onChange={(value) => onUpdate({ qualityLevel: value as any })}
+          options={[
+            { value: 'minimal', label: 'Minimal - Best Performance' },
+            { value: 'low', label: 'Low - Good Performance' },
+            { value: 'medium', label: 'Medium - Balanced' },
+            { value: 'high', label: 'High - Good Quality' },
+            { value: 'ultra', label: 'Ultra - Best Quality' }
+          ]}
+          icon="🎨"
+          description="Set graphics quality level for stable performance"
+        />
+        
+        <SettingsToggle
+          label="Auto Quality Adjustment"
+          description="Automatically adjust quality based on performance (may cause fluctuations)"
+          checked={settings?.autoQuality ?? false}
+          onChange={(checked) => onUpdate({ autoQuality: checked })}
+          icon="🔄"
+        />
+        
+        <SettingsToggle
+          label="Enable Visual Effects"
+          description="Show particle effects, glows, and animations"
+          checked={settings?.enableEffects ?? true}
+          onChange={(checked) => onUpdate({ enableEffects: checked })}
+          icon="✨"
+        />
+        
+        <SettingsToggle
+          label="Enable Animations"
+          description="Show smooth transitions and movements"
+          checked={settings?.enableAnimations ?? true}
+          onChange={(checked) => onUpdate({ enableAnimations: checked })}
+          icon="🎬"
+        />
+      </div>
+
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold text-white">Performance Optimization</h3>
+        
+        <SettingsSlider
+          label="Max Visual Effects"
+          value={settings?.maxEffects ?? 15}
+          onChange={(value) => onUpdate({ maxEffects: value })}
+          min={2}
+          max={50}
+          icon="💫"
+          description="Maximum number of visual effects shown simultaneously"
+        />
+        
+        <SettingsSlider
+          label="Frame Rate Target"
+          value={settings?.targetFPS ?? 60}
+          onChange={(value) => onUpdate({ targetFPS: value })}
+          min={30}
+          max={120}
+          unit=" FPS"
+          icon="📈"
+          description="Target frame rate for performance optimization"
+        />
+        
+        <SettingsToggle
+          label="Hardware Acceleration"
+          description="Use GPU acceleration for better performance"
+          checked={settings?.hardwareAcceleration ?? true}
+          onChange={(checked) => onUpdate({ hardwareAcceleration: checked })}
+          icon="⚡"
+        />
+      </div>
+
+      <div className="p-4 bg-blue-900/20 rounded-lg border border-blue-500/30">
+        <div className="flex items-center gap-2 text-blue-400 mb-2">
+          <span>💡</span>
+          <span className="font-medium">Performance Tips</span>
+        </div>
+        <ul className="text-sm text-slate-300 space-y-1">
+          <li>• Disable "Auto Quality" to prevent quality fluctuations during gameplay</li>
+          <li>• Use "High" quality for the best balance of performance and visuals</li>
+          <li>• Lower "Max Visual Effects" if experiencing lag</li>
+          <li>• Enable "Hardware Acceleration" for smooth animations</li>
+        </ul>
+      </div>
     </div>
   )
 }

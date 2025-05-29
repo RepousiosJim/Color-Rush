@@ -98,6 +98,13 @@ export const DEFAULT_SETTINGS: GameSettings = {
   performance: {
     maxFPS: 60,
     renderQuality: 'high',
+    qualityLevel: 'high',
+    autoQuality: false,
+    enableEffects: true,
+    enableAnimations: true,
+    maxEffects: 15,
+    targetFPS: 60,
+    hardwareAcceleration: true,
     useWebGL: true,
     enableShadows: true,
     antiAliasing: true,

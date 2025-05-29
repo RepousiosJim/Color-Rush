@@ -16,7 +16,7 @@ type ModalState = 'settings' | 'guide' | 'credits' | 'statistics' | null
 export default function HomePage() {
   const [appState, setAppState] = useState<AppState>('loading')
   const [settingsInitialized, setSettingsInitialized] = useState(false)
-  const [currentStage, setCurrentStage] = useState(1)
+  const [currentStage] = useState(1)
   const [gameEngine, setGameEngine] = useState<GameEngine | null>(null)
   const [gameState, setGameState] = useState<GameState | null>(null)
   const [modalState, setModalState] = useState<ModalState>(null)
@@ -161,16 +161,6 @@ export default function HomePage() {
     setAppState('menu')
   }
 
-  const handleGemClick = (row: number, col: number) => {
-    if (gameEngine && gameState?.gameStatus === 'playing' && !gameState?.isAnimating) {
-      const success = gameEngine.selectGem(row, col)
-      if (success) {
-        // Update game state immediately to reflect any changes
-        setGameState(gameEngine.getGameState())
-      }
-    }
-  }
-
   const handleRestart = () => {
     if (gameEngine) {
       gameEngine.reset()
@@ -260,7 +250,14 @@ export default function HomePage() {
       <>
         <GameInterface
           gameState={gameState}
-          onGemClick={handleGemClick}
+          onMove={(fromRow, fromCol, _toRow, _toCol) => {
+            if (gameEngine && gameState?.gameStatus === 'playing' && !gameState?.isAnimating) {
+              const success = gameEngine.selectGem(fromRow, fromCol)
+              if (success) {
+                setGameState(gameEngine.getGameState())
+              }
+            }
+          }}
           onRestart={handleRestart}
           onNextLevel={handleNextLevel}
           onPause={handlePause}
@@ -268,6 +265,7 @@ export default function HomePage() {
           onShowSettings={() => setModalState('settings')}
           onShowHint={handleShowHint}
           currentHint={currentHint}
+          disabled={gameState.gameStatus !== 'playing' || gameState.isAnimating}
         />
         
         {/* Modals available during game */}

@@ -1,68 +1,156 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useMemo } from 'react'
+import { useCallback, useEffect, useRef, useMemo, useState } from 'react'
 
 export interface PerformanceMetrics {
   frameRate: number
   memoryUsage: number
   lastUpdate: number
+  deviceType: 'mobile' | 'tablet' | 'desktop'
+  isLowEnd: boolean
 }
 
-// Debounce function for performance
-export const debounce = <T extends (...args: any[]) => any>(
-  func: T,
-  delay: number
-): T => {
-  let timeoutId: NodeJS.Timeout
+// Enhanced performance detection
+const detectDevicePerformance = () => {
+  const ua = navigator.userAgent
+  const hardwareConcurrency = navigator.hardwareConcurrency || 2
+  const memory = (navigator as any).deviceMemory || 4
+  
+  // Mobile detection
+  const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua)
+  const isTablet = /iPad|Android(?=.*Tablet)|Tablet/i.test(ua)
+  
+  // Low-end device detection
+  const isLowEnd = hardwareConcurrency <= 2 || memory <= 2 || 
+    (isMobile && !(/iPhone 1[2-9]|iPhone [2-9][0-9]/.test(ua)))
+  
+  const deviceType: 'mobile' | 'tablet' | 'desktop' = isMobile ? 'mobile' : (isTablet ? 'tablet' : 'desktop')
+  
+  return { deviceType, isLowEnd }
+}
+
+// Debounce utility
+const debounce = <T extends (...args: any[]) => any>(func: T, delay: number): T => {
+  let timeoutId: ReturnType<typeof setTimeout>
   return ((...args: any[]) => {
     clearTimeout(timeoutId)
     timeoutId = setTimeout(() => func.apply(null, args), delay)
   }) as T
 }
 
-// Throttle function for performance
-export const throttle = <T extends (...args: any[]) => any>(
-  func: T,
-  limit: number
-): T => {
+// Throttle utility
+const throttle = <T extends (...args: any[]) => any>(func: T, limit: number): T => {
   let inThrottle: boolean
   return ((...args: any[]) => {
     if (!inThrottle) {
       func.apply(null, args)
       inThrottle = true
-      setTimeout(() => (inThrottle = false), limit)
+      setTimeout(() => inThrottle = false, limit)
     }
   }) as T
 }
 
-// Check if reduced motion is preferred
-export const prefersReducedMotion = (): boolean => {
-  if (typeof window === 'undefined') return false
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+// Check for reduced motion preference
+const prefersReducedMotion = () => {
+  return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
+}
+
+// Performance quality levels
+export type PerformanceQuality = 'ultra' | 'high' | 'medium' | 'low' | 'minimal'
+
+// User preference for auto-quality adjustment
+export type QualityMode = 'auto' | 'locked'
+
+export const getPerformanceQuality = (
+  frameRate: number, 
+  isLowEnd: boolean, 
+  prefersReduced: boolean,
+  currentQuality?: PerformanceQuality,
+  qualityMode: QualityMode = 'auto'
+): PerformanceQuality => {
+  if (prefersReduced) return 'minimal'
+  if (isLowEnd) return 'low'
+  
+  // If quality is locked, don't change it
+  if (qualityMode === 'locked' && currentQuality) {
+    return currentQuality
+  }
+  
+  // Use much wider hysteresis to prevent oscillation between quality levels
+  // Require significant performance difference for quality changes
+  const upgradeThresholds = { minimal: 30, low: 40, medium: 52, high: 60 }
+  const downgradeThresholds = { ultra: 45, high: 35, medium: 25, low: 15 }
+  
+  // If we have a current quality, use hysteresis with wider margins
+  if (currentQuality) {
+    switch (currentQuality) {
+      case 'minimal':
+        return frameRate >= upgradeThresholds.minimal ? 'low' : 'minimal'
+      case 'low':
+        if (frameRate <= downgradeThresholds.low) return 'minimal'
+        if (frameRate >= upgradeThresholds.low) return 'medium'
+        return 'low'
+      case 'medium':
+        if (frameRate <= downgradeThresholds.medium) return 'low'
+        if (frameRate >= upgradeThresholds.medium) return 'high'
+        return 'medium'
+      case 'high':
+        if (frameRate <= downgradeThresholds.high) return 'medium'
+        if (frameRate >= upgradeThresholds.high) return 'ultra'
+        return 'high'
+      case 'ultra':
+        return frameRate <= downgradeThresholds.ultra ? 'high' : 'ultra'
+      default:
+        break
+    }
+  }
+  
+  // Conservative initial quality determination to prevent immediate upgrades
+  if (frameRate < 20) return 'minimal'
+  if (frameRate < 30) return 'low'
+  if (frameRate < 40) return 'medium'
+  if (frameRate < 50) return 'high'
+  return 'ultra'
 }
 
 // Get optimized animation config based on performance
-export const getOptimizedAnimationConfig = (baseConfig: any, frameRate: number = 60) => {
-  if (prefersReducedMotion()) {
-    return {
+export const getOptimizedAnimationConfig = (baseConfig: any, quality: PerformanceQuality) => {
+  const configs = {
+    minimal: {
       ...baseConfig,
       duration: 0,
-      transition: { duration: 0 }
-    }
-  }
-
-  if (frameRate < 30) {
-    return {
+      transition: { duration: 0 },
+      animate: false,
+      enableEffects: false
+    },
+    low: {
+      ...baseConfig,
+      duration: (baseConfig.duration || 0.3) * 0.3,
+      transition: { ...baseConfig.transition, ease: 'linear' },
+      animate: false,
+      enableEffects: false
+    },
+    medium: {
       ...baseConfig,
       duration: (baseConfig.duration || 0.3) * 0.5,
-      transition: {
-        ...baseConfig.transition,
-        ease: 'linear'
-      }
+      transition: { ...baseConfig.transition, ease: 'easeOut' },
+      animate: true,
+      enableEffects: false
+    },
+    high: {
+      ...baseConfig,
+      duration: (baseConfig.duration || 0.3) * 0.8,
+      animate: true,
+      enableEffects: true
+    },
+    ultra: {
+      ...baseConfig,
+      animate: true,
+      enableEffects: true
     }
   }
-
-  return baseConfig
+  
+  return configs[quality]
 }
 
 // Hardware acceleration utilities
@@ -73,75 +161,182 @@ export const enableHardwareAcceleration = (element: HTMLElement) => {
 }
 
 export const disableHardwareAcceleration = (element: HTMLElement) => {
-  element.style.transform = ''
   element.style.willChange = 'auto'
+  element.style.transform = ''
   element.style.backfaceVisibility = ''
 }
 
-// Performance optimization hook
-export const usePerformanceOptimization = () => {
+// Enhanced performance optimization hook
+export const usePerformanceOptimization = (userQualityMode: QualityMode = 'auto') => {
   const frameRateRef = useRef(60)
+  const frameTimesRef = useRef<number[]>([])
   const lastFrameTime = useRef(performance.now())
-  const frameCount = useRef(0)
+  const [quality, setQuality] = useState<PerformanceQuality>('high')
+  const [deviceInfo] = useState(() => detectDevicePerformance())
+  const rafIdRef = useRef<number | undefined>(undefined)
+  const lastQualityChange = useRef(Date.now())
+  const qualityStabilityCounter = useRef(0)
+  const [isQualityLocked, setIsQualityLocked] = useState(false)
 
-  // Measure frame rate
+  // Lock quality if user prefers it
   useEffect(() => {
-    let rafId: number
+    setIsQualityLocked(userQualityMode === 'locked')
+  }, [userQualityMode])
 
-    const measureFrameRate = () => {
-      const now = performance.now()
-      const deltaTime = now - lastFrameTime.current
+  // Advanced frame rate monitoring with much more conservative quality changes
+  useEffect(() => {
+    let frameCount = 0
+    const maxSamples = 90 // Longer sampling for stability
+    
+    const measureFrameRate = (timestamp: number) => {
+      const deltaTime = timestamp - lastFrameTime.current
+      frameTimesRef.current.push(deltaTime)
       
-      frameCount.current++
-      
-      if (deltaTime >= 1000) {
-        frameRateRef.current = Math.round((frameCount.current * 1000) / deltaTime)
-        frameCount.current = 0
-        lastFrameTime.current = now
+      // Keep only recent samples
+      if (frameTimesRef.current.length > maxSamples) {
+        frameTimesRef.current.shift()
       }
       
-      rafId = requestAnimationFrame(measureFrameRate)
+      frameCount++
+      lastFrameTime.current = timestamp
+      
+      // Calculate average FPS every 60 frames (more stable)
+      if (frameCount >= 60 && frameTimesRef.current.length >= 30) {
+        const avgFrameTime = frameTimesRef.current.reduce((a, b) => a + b) / frameTimesRef.current.length
+        const fps = Math.round(1000 / avgFrameTime)
+        frameRateRef.current = Math.max(1, Math.min(60, fps))
+        
+        // Only update quality if auto mode is enabled and not locked
+        if (!isQualityLocked && userQualityMode === 'auto') {
+          const newQuality = getPerformanceQuality(fps, deviceInfo.isLowEnd, prefersReducedMotion(), quality, userQualityMode)
+          const now = Date.now()
+          
+          // Much more conservative quality changes:
+          // 1. At least 5 seconds between changes
+          // 2. Need consistent performance for at least 5 cycles (300 frames)
+          // 3. Only change if there's a significant performance difference
+          if (newQuality !== quality) {
+            qualityStabilityCounter.current++
+            
+            if (now - lastQualityChange.current > 5000 && qualityStabilityCounter.current >= 5) {
+              // Additional check: only change if the FPS difference is significant
+              const qualityToFpsMap = { minimal: 15, low: 25, medium: 35, high: 45, ultra: 55 }
+              const currentQualityExpectedFps = qualityToFpsMap[quality]
+              const newQualityExpectedFps = qualityToFpsMap[newQuality]
+              
+              // Only change if there's at least a 10 FPS difference from expected
+              if (Math.abs(fps - currentQualityExpectedFps) > 10) {
+                console.log(`🎮 Performance: Quality changed from ${quality} to ${newQuality} (FPS: ${fps})`)
+                setQuality(newQuality)
+                lastQualityChange.current = now
+                qualityStabilityCounter.current = 0
+              }
+            }
+          } else {
+            // Reset counter if quality is stable
+            qualityStabilityCounter.current = Math.max(0, qualityStabilityCounter.current - 1)
+          }
+        }
+        
+        frameCount = 0
+      }
+      
+      rafIdRef.current = requestAnimationFrame(measureFrameRate)
     }
 
-    rafId = requestAnimationFrame(measureFrameRate)
+    rafIdRef.current = requestAnimationFrame(measureFrameRate)
 
     return () => {
-      if (rafId) {
-        cancelAnimationFrame(rafId)
+      if (rafIdRef.current) {
+        cancelAnimationFrame(rafIdRef.current)
       }
     }
+  }, [quality, deviceInfo.isLowEnd, isQualityLocked, userQualityMode])
+
+  // Function to manually set quality (locks it)
+  const setManualQuality = useCallback((newQuality: PerformanceQuality) => {
+    setQuality(newQuality)
+    setIsQualityLocked(true)
+    console.log(`🎮 Performance: Quality manually locked to ${newQuality}`)
+  }, [])
+
+  // Function to enable auto quality
+  const enableAutoQuality = useCallback(() => {
+    setIsQualityLocked(false)
+    console.log('🎮 Performance: Auto quality enabled')
   }, [])
 
   const optimizedDebounce = useCallback(
     <T extends (...args: any[]) => any>(func: T, delay: number) => {
-      return debounce(func, delay)
+      const adjustedDelay = quality === 'minimal' ? delay * 2 : 
+                           quality === 'low' ? delay * 1.5 : delay
+      return debounce(func, adjustedDelay)
     },
-    []
+    [quality]
   )
 
   const optimizedThrottle = useCallback(
     <T extends (...args: any[]) => any>(func: T, limit: number) => {
-      return throttle(func, limit)
+      const adjustedLimit = quality === 'minimal' ? limit * 2 : 
+                            quality === 'low' ? limit * 1.5 : limit
+      return throttle(func, adjustedLimit)
     },
-    []
+    [quality]
   )
 
   const getOptimizedAnimation = useCallback((baseConfig: any) => {
-    return getOptimizedAnimationConfig(baseConfig, frameRateRef.current)
-  }, [])
+    return getOptimizedAnimationConfig(baseConfig, quality)
+  }, [quality])
 
-  const isHighPerformance = useMemo(() => frameRateRef.current >= 55, [])
+  const shouldAnimate = useMemo(() => {
+    return quality !== 'minimal' && !prefersReducedMotion()
+  }, [quality])
+
+  const shouldShowEffects = useMemo(() => {
+    return ['high', 'ultra'].includes(quality) && !prefersReducedMotion()
+  }, [quality])
+
+  const shouldShowParticles = useMemo(() => {
+    return quality === 'ultra' && !prefersReducedMotion()
+  }, [quality])
+
+  const isHighPerformance = useMemo(() => frameRateRef.current >= 50 && quality === 'ultra', [quality])
   const isReducedMotion = useMemo(() => prefersReducedMotion(), [])
+
+  // Performance monitoring
+  const getPerformanceStats = useCallback(() => {
+    return {
+      frameRate: frameRateRef.current,
+      quality,
+      deviceType: deviceInfo.deviceType,
+      isLowEnd: deviceInfo.isLowEnd,
+      shouldAnimate,
+      shouldShowEffects,
+      shouldShowParticles,
+      isQualityLocked,
+      memoryUsage: (performance as any).memory?.usedJSHeapSize || 0
+    }
+  }, [quality, deviceInfo.deviceType, deviceInfo.isLowEnd, shouldAnimate, shouldShowEffects, shouldShowParticles, isQualityLocked])
 
   return {
     frameRate: frameRateRef.current,
+    quality,
+    deviceType: deviceInfo.deviceType,
+    isLowEnd: deviceInfo.isLowEnd,
+    isQualityLocked,
+    setManualQuality,
+    enableAutoQuality,
     optimizedDebounce,
     optimizedThrottle,
     getOptimizedAnimation,
     isHighPerformance,
     isReducedMotion,
+    shouldAnimate,
+    shouldShowEffects,
+    shouldShowParticles,
     enableHardwareAcceleration,
-    disableHardwareAcceleration
+    disableHardwareAcceleration,
+    getPerformanceStats
   }
 }
 

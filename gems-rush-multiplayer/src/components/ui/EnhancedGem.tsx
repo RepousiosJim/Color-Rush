@@ -2,8 +2,10 @@
 
 import { motion } from 'framer-motion'
 import { Gem } from '@/types/game'
-import { GEM_TYPES } from '@/lib/game/constants'
+import { GEM_TYPES, GEM_COLORS } from '@/lib/game/constants'
 import { cn } from '@/lib/utils'
+import { usePerformanceOptimization } from '@/hooks/usePerformanceOptimization'
+import { useMemo } from 'react'
 
 interface EnhancedGemProps {
   gem: Gem | null
@@ -31,232 +33,288 @@ export default function EnhancedGem({
   size = 'md'
 }: EnhancedGemProps) {
   
+  const { 
+    quality, 
+    shouldAnimate, 
+    shouldShowEffects, 
+    getOptimizedAnimation,
+    enableHardwareAcceleration
+  } = usePerformanceOptimization()
+  
   const sizeClasses = {
-    sm: 'w-10 h-10 text-xl',
-    md: 'w-12 h-12 text-2xl',
-    lg: 'w-16 h-16 text-3xl'
+    sm: 'w-10 h-10 text-sm',
+    md: 'w-12 h-12 text-base',
+    lg: 'w-16 h-16 text-lg'
   }
 
-  const getGemColors = (gemType: string) => {
-    const colorMap = {
-      fire: 'from-red-500 to-orange-600 shadow-red-500/50',
-      water: 'from-blue-500 to-cyan-600 shadow-blue-500/50',
-      earth: 'from-amber-600 to-yellow-700 shadow-amber-600/50',
-      air: 'from-sky-400 to-blue-500 shadow-sky-400/50',
-      lightning: 'from-yellow-400 to-orange-500 shadow-yellow-400/50',
-      nature: 'from-green-500 to-emerald-600 shadow-green-500/50',
-      magic: 'from-purple-500 to-violet-600 shadow-purple-500/50'
+  const getSizeValues = () => {
+    const sizes = {
+      sm: { icon: 'text-lg', border: 2, radius: 8 },
+      md: { icon: 'text-xl', border: 3, radius: 12 },
+      lg: { icon: 'text-2xl', border: 4, radius: 16 }
     }
-    return colorMap[gemType as keyof typeof colorMap] || 'from-gray-500 to-gray-600 shadow-gray-500/50'
+    return sizes[size]
   }
 
-  const getStateColors = () => {
+  const sizeVals = getSizeValues()
+
+  // Optimized gem visuals based on performance
+  const getOptimizedGemVisuals = useMemo(() => {
+    if (!gem || !GEM_TYPES[gem.type]) return null
+    
+    const gemConfig = GEM_TYPES[gem.type]
+    const colors = GEM_COLORS[gem.type]
+    
+    // Simplify visual complexity based on performance
+    const simplifiedPattern = quality === 'minimal' || quality === 'low' ? 'solid' : gemConfig.pattern
+    
+    return {
+      config: { ...gemConfig, pattern: simplifiedPattern },
+      colors,
+      shape: gemConfig.shape,
+      pattern: simplifiedPattern
+    }
+  }, [gem, quality])
+
+  // Generate shape-specific CSS classes
+  const getShapeClasses = (shape: string) => {
+    if (quality === 'minimal') return 'rounded-lg' // Fallback for performance
+    
+    const shapeMap = {
+      circle: 'rounded-full',
+      square: 'rounded-lg',
+      diamond: 'rounded-lg',
+      hexagon: quality === 'low' ? 'rounded-lg' : 'hexagon-clip',
+      star: quality === 'low' ? 'rounded-lg' : 'star-clip',
+      triangle: quality === 'low' ? 'rounded-lg' : 'triangle-clip',
+      octagon: quality === 'low' ? 'rounded-lg' : 'octagon-clip'
+    }
+    return shapeMap[shape as keyof typeof shapeMap] || 'rounded-lg'
+  }
+
+  // Simplified pattern background for performance
+  const getOptimizedPatternBackground = (pattern: string, colors: any) => {
+    // Use simple gradients for lower performance
+    if (quality === 'minimal') {
+      return {
+        background: colors.primary,
+        boxShadow: 'none'
+      }
+    }
+    
+    if (quality === 'low') {
+      return {
+        background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
+        boxShadow: `0 0 5px ${colors.glow}`
+      }
+    }
+
+    // Full complexity only for higher performance
+    switch (pattern) {
+      case 'solid':
+        return {
+          background: colors.primary,
+          boxShadow: `inset 0 0 20px ${colors.shadow}, 0 0 15px ${colors.glow}`
+        }
+      case 'gradient':
+        return {
+          background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 50%, ${colors.tertiary} 100%)`,
+          boxShadow: `inset 0 0 15px ${colors.shadow}, 0 0 10px ${colors.glow}`
+        }
+      case 'radial':
+        return {
+          background: `radial-gradient(circle at 30% 30%, ${colors.primary} 0%, ${colors.secondary} 40%, ${colors.tertiary} 100%)`,
+          boxShadow: `inset 0 0 20px ${colors.shadow}, 0 0 15px ${colors.accent}`
+        }
+      default:
+        return {
+          background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
+          boxShadow: `inset 0 0 15px ${colors.shadow}, 0 0 10px ${colors.glow}`
+        }
+    }
+  }
+
+  const getStateOverlay = () => {
     if (isSelected) {
-      return 'bg-gradient-to-br from-yellow-400 to-yellow-600 border-yellow-400 shadow-yellow-400/70'
+      return {
+        background: 'rgba(255, 215, 0, 0.3)',
+        borderColor: '#FFD700',
+        boxShadow: quality === 'minimal' ? 'none' : '0 0 30px rgba(255, 215, 0, 0.8)'
+      }
     }
     if (isHinted) {
-      return 'bg-gradient-to-br from-blue-400 to-blue-600 border-blue-400 shadow-blue-400/70'
+      return {
+        background: 'rgba(59, 130, 246, 0.3)',
+        borderColor: '#3B82F6',
+        boxShadow: quality === 'minimal' ? 'none' : '0 0 25px rgba(59, 130, 246, 0.8)'
+      }
     }
     if (isAdjacent) {
-      return 'bg-gradient-to-br from-green-400 to-green-600 border-green-400 shadow-green-400/50'
+      return {
+        background: 'rgba(34, 197, 94, 0.2)',
+        borderColor: '#22C55E',
+        boxShadow: quality === 'minimal' ? 'none' : '0 0 20px rgba(34, 197, 94, 0.6)'
+      }
     }
-    if (gem) {
-      return `bg-gradient-to-br ${getGemColors(gem.type)} border-white/30`
-    }
-    return 'bg-white/10 border-white/20'
+    return {}
   }
 
   const getAnimationVariant = () => {
+    if (!shouldAnimate) return 'static'
+    if (isMatched) return 'matched'
     if (isSelected) return 'selected'
     if (isHinted) return 'hinted'
     if (isAdjacent) return 'adjacent'
-    if (isMatched) return 'matched'
     return 'default'
   }
 
-  const gemVariants = {
-    default: {
-      scale: 1,
-      rotate: 0,
-      opacity: 1,
-      borderWidth: 2,
-      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'
-    },
-    selected: {
-      scale: 1.1,
-      rotate: [0, 2, -2, 0],
-      opacity: 1,
-      borderWidth: 3,
-      boxShadow: '0 0 20px rgba(255, 215, 0, 0.8)'
-    },
-    hinted: {
-      scale: [1, 1.05, 1],
-      rotate: 0,
-      opacity: [1, 0.8, 1],
-      borderWidth: 3,
-      boxShadow: '0 0 15px rgba(59, 130, 246, 0.8)'
-    },
-    adjacent: {
-      scale: 1.02,
-      rotate: 0,
-      opacity: 1,
-      borderWidth: 2,
-      boxShadow: '0 0 12px rgba(34, 197, 94, 0.6)'
-    },
-    matched: {
-      scale: [1, 1.2, 0],
-      rotate: [0, 180, 360],
-      opacity: [1, 0.7, 0],
-      borderWidth: 2,
-      boxShadow: '0 0 25px rgba(255, 255, 255, 0.8)'
+  // Optimized animation variants based on performance
+  const gemVariants = useMemo(() => {
+    const baseVariants = {
+      static: { scale: 1, rotate: 0, opacity: 1, y: 0 },
+      default: { scale: 1, rotate: 0, opacity: 1, y: 0 },
+      selected: getOptimizedAnimation({
+        scale: [1, 1.05, 1.02],
+        transition: { duration: 0.8, repeat: Infinity, ease: "easeInOut" }
+      }),
+      hinted: getOptimizedAnimation({
+        scale: [1, 1.03, 1],
+        opacity: [1, 0.8, 1],
+        transition: { duration: 1.5, repeat: Infinity, ease: "easeInOut" }
+      }),
+      adjacent: { scale: 1.02, opacity: 1 },
+      matched: getOptimizedAnimation({
+        scale: [1, 1.2, 0],
+        opacity: [1, 0.5, 0],
+        transition: { duration: 0.6, ease: "easeOut" }
+      })
     }
+    return baseVariants
+  }, [getOptimizedAnimation])
+
+  if (!gem) {
+    return (
+      <div className={cn(
+        "flex items-center justify-center border-2 border-dashed border-gray-400/30 bg-gray-200/10 rounded-lg",
+        sizeClasses[size]
+      )} />
+    )
   }
 
-  const getParticleColor = (gemType: string) => {
-    const particleColors = {
-      fire: '#ef4444',
-      water: '#3b82f6',
-      earth: '#f59e0b',
-      air: '#06b6d4',
-      lightning: '#eab308',
-      nature: '#10b981',
-      magic: '#8b5cf6'
-    }
-    return particleColors[gemType as keyof typeof particleColors] || '#ffffff'
-  }
+  const visuals = getOptimizedGemVisuals
+  if (!visuals) return null
+
+  const patternStyle = getOptimizedPatternBackground(visuals.pattern, visuals.colors)
+  const stateOverlay = getStateOverlay()
 
   return (
     <motion.button
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        "relative rounded-lg border-2 flex items-center justify-center font-bold transition-all duration-200 overflow-hidden",
+        "relative flex items-center justify-center font-bold overflow-hidden border-2",
         sizeClasses[size],
-        getStateColors(),
-        disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer hover:scale-105 active:scale-95"
+        getShapeClasses(visuals.shape),
+        disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer",
+        // Only add hover effects for higher performance
+        quality !== 'minimal' && !disabled ? "hover:scale-105 active:scale-95 transition-transform duration-200" : ""
       )}
+      style={{
+        ...patternStyle,
+        borderColor: stateOverlay.borderColor || visuals.config.border,
+        ...stateOverlay
+      }}
       variants={gemVariants}
       animate={getAnimationVariant()}
-      transition={{
-        type: "spring",
-        stiffness: 400,
-        damping: 30,
-        rotate: {
-          repeat: isSelected ? Infinity : 0,
-          duration: 2,
-          ease: "easeInOut"
-        },
-        scale: {
-          repeat: isHinted ? Infinity : 0,
-          duration: 1.5,
-          ease: "easeInOut"
+      whileHover={shouldAnimate && !disabled ? { 
+        scale: 1.04,
+        filter: quality === 'ultra' ? 'brightness(1.2)' : 'brightness(1.1)'
+      } : {}}
+      whileTap={shouldAnimate && !disabled ? { scale: 0.96 } : {}}
+      onMouseEnter={(e) => {
+        if (quality === 'ultra') {
+          enableHardwareAcceleration(e.currentTarget)
         }
       }}
-      whileHover={!disabled ? { 
-        scale: 1.05,
-        boxShadow: '0 0 15px rgba(255, 255, 255, 0.5)'
-      } : {}}
-      whileTap={!disabled ? { scale: 0.95 } : {}}
     >
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent" />
-        <div className="absolute top-1 left-1 w-2 h-2 bg-white/60 rounded-full" />
-      </div>
-
-      {/* Gem Content */}
-      {gem && (
-        <span className="relative z-10 drop-shadow-sm">
-          {GEM_TYPES[gem.type].emoji}
-        </span>
+      {/* Simplified geometric overlay only for medium+ performance */}
+      {shouldShowEffects && visuals.shape === 'diamond' && (
+        <div 
+          className="absolute inset-1"
+          style={{
+            background: `linear-gradient(45deg, transparent 30%, ${visuals.colors.accent}30 50%, transparent 70%)`,
+            borderRadius: '6px'
+          }}
+        />
       )}
 
-      {/* Shimmer Effect */}
-      {!disabled && (
+      {/* Central gem content */}
+      <div className="relative z-10 flex flex-col items-center justify-center">
+        {/* Main gem icon */}
+        <div 
+          className={cn(
+            "font-bold transition-all duration-200",
+            sizeVals.icon
+          )}
+          style={{ 
+            color: gem.type === 'air' ? '#1A1A1A' : '#FFFFFF',
+            textShadow: gem.type === 'air' ? 
+              '1px 1px 2px rgba(255,255,255,0.8)' : 
+              '1px 1px 3px rgba(0,0,0,0.8)',
+            filter: quality === 'minimal' ? 'none' : 'drop-shadow(0 1px 2px rgba(0,0,0,0.5))'
+          }}
+        >
+          {visuals.config.icon}
+        </div>
+
+        {/* Symbol overlay only for medium+ performance */}
+        {quality !== 'minimal' && quality !== 'low' && (
+          <div 
+            className="absolute text-xs opacity-60"
+            style={{ 
+              color: visuals.colors.accent,
+              textShadow: '1px 1px 2px rgba(0,0,0,0.3)'
+            }}
+          >
+            {visuals.config.symbol}
+          </div>
+        )}
+      </div>
+
+      {/* Shine effect only for ultra performance */}
+      {quality === 'ultra' && shouldShowEffects && !disabled && (
         <motion.div
-          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full"
-          animate={{ translateX: ['100%', '100%', '-100%', '-100%'] }}
+          className="absolute inset-0 bg-gradient-to-br from-white/30 via-transparent to-transparent opacity-0"
+          animate={{
+            opacity: [0, 0.4, 0],
+            x: ['-100%', '100%']
+          }}
           transition={{
             duration: 3,
             repeat: Infinity,
-            ease: "linear",
-            times: [0, 0.5, 0.8, 1]
-          }}
-        />
-      )}
-
-      {/* Selection Glow */}
-      {isSelected && (
-        <motion.div
-          className="absolute inset-0 rounded-lg bg-yellow-400/30"
-          animate={{
-            opacity: [0.3, 0.6, 0.3],
-            scale: [0.8, 1.1, 0.8]
-          }}
-          transition={{
-            duration: 1.5,
-            repeat: Infinity,
+            repeatDelay: 4,
             ease: "easeInOut"
           }}
         />
       )}
 
-      {/* Hint Pulse */}
-      {isHinted && (
+      {/* Simplified pattern effects only for high+ performance */}
+      {shouldShowEffects && quality === 'ultra' && visuals.pattern === 'pulse' && !disabled && (
         <motion.div
-          className="absolute inset-0 rounded-lg border-2 border-blue-400"
+          className="absolute inset-0 rounded-lg opacity-40"
+          style={{ 
+            background: `radial-gradient(circle, ${visuals.colors.glow}15 0%, transparent 60%)` 
+          }}
           animate={{
-            opacity: [0.5, 1, 0.5],
-            scale: [0.9, 1.05, 0.9]
+            scale: [0.9, 1.1, 0.9],
+            opacity: [0.2, 0.4, 0.2]
           }}
           transition={{
-            duration: 1,
+            duration: 2.5,
             repeat: Infinity,
             ease: "easeInOut"
           }}
         />
-      )}
-
-      {/* Adjacent Highlight */}
-      {isAdjacent && (
-        <div className="absolute inset-0 rounded-lg bg-green-400/20 border border-green-400/50" />
-      )}
-
-      {/* Particle Effects for Matches */}
-      {isMatched && gem && (
-        <>
-          {[...Array(6)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-1 h-1 rounded-full"
-              style={{ backgroundColor: getParticleColor(gem.type) }}
-              initial={{
-                opacity: 1,
-                scale: 1,
-                x: 0,
-                y: 0
-              }}
-              animate={{
-                opacity: 0,
-                scale: 0,
-                x: (Math.random() - 0.5) * 80,
-                y: (Math.random() - 0.5) * 80
-              }}
-              transition={{
-                duration: 0.8,
-                delay: i * 0.1,
-                ease: "easeOut"
-              }}
-            />
-          ))}
-        </>
-      )}
-
-      {/* Debug Info (only in development) */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="absolute -bottom-6 left-0 text-xs text-white/60">
-          {row},{col}
-        </div>
       )}
     </motion.button>
   )

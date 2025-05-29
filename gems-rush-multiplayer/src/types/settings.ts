@@ -133,6 +133,13 @@ export interface CustomGesture {
 export interface PerformanceSettings {
   maxFPS: number // 30, 60, 120, unlimited
   renderQuality: 'low' | 'medium' | 'high' | 'ultra'
+  qualityLevel: 'minimal' | 'low' | 'medium' | 'high' | 'ultra'
+  autoQuality: boolean
+  enableEffects: boolean
+  enableAnimations: boolean
+  maxEffects: number
+  targetFPS: number
+  hardwareAcceleration: boolean
   useWebGL: boolean
   enableShadows: boolean
   antiAliasing: boolean

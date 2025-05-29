@@ -1,917 +1,484 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { GameState } from '@/types/game'
-import { GEM_TYPES } from '@/lib/game/constants'
-import CustomCursor from '@/components/ui/CustomCursor'
-import { RestartButton, HintButton, PauseButton, MenuButton, NextLevelButton } from '@/components/ui/GameButton'
-import GameStatsCard from '@/components/ui/GameStatsCard'
+import { useState, useRef, useCallback, useMemo, useEffect } from 'react'
+import { motion } from 'framer-motion'
+import { Gem, GameState } from '@/types/game'
 import EnhancedGem from '@/components/ui/EnhancedGem'
-import EnhancedProgress from '@/components/ui/EnhancedProgress'
-import ModernGamePanel from '@/components/ui/ModernGamePanel'
-import Modern3DBoard from '@/components/ui/Modern3DBoard'
-import ModernNotificationCenter from '@/components/ui/ModernNotificationCenter'
-import ParticleSystem from '@/components/ui/ParticleSystem'
-import EnhancedGemEffects from '@/components/ui/EnhancedGemEffects'
-import ComboTextDisplay from '@/components/ui/ComboTextDisplay'
-import PowerUpIndicators, { PowerUpGem, PowerUpType, createPowerUpGem } from '@/components/ui/PowerUpIndicators'
-import { ThemeProvider, useTheme, ThemeSelector } from '@/components/ui/ThemeCustomization'
-import { VisualEffectsProvider, useVisualEffects, useComboEffects, useGemMatchEffects, usePowerUpEffects } from '@/components/ui/VisualEffectsManager'
-import usePerformanceOptimization from '@/hooks/usePerformanceOptimization'
-import useResponsive from '@/hooks/useResponsive'
+import { VisualEffectsProvider, useVisualEffects } from '@/components/ui/VisualEffectsManager'
+import { usePerformanceOptimization } from '@/hooks/usePerformanceOptimization'
+
+// Simple className utility function
+const cn = (...classes: (string | undefined | null | false)[]): string => {
+  return classes.filter(Boolean).join(' ')
+}
 
 interface GameInterfaceProps {
   gameState: GameState
-  onGemClick: (row: number, col: number) => void
+  onMove: (fromRow: number, fromCol: number, toRow: number, toCol: number) => void
   onRestart: () => void
-  onNextLevel: () => void
-  onPause: () => void
-  onShowMenu: () => void
-  onShowSettings: () => void
-  onShowHint: () => void
-  currentHint: { from: { row: number; col: number }; to: { row: number; col: number } } | null
+  onNextLevel?: () => void
+  onPause?: () => void
+  onShowMenu?: () => void
+  onShowSettings?: () => void
+  onShowHint?: () => void
+  currentHint?: { from: { row: number; col: number }; to: { row: number; col: number } } | null
+  disabled?: boolean
 }
 
-interface Notification {
-  id: string
-  message: string
-  type: 'info' | 'success' | 'warning' | 'error' | 'achievement'
-  duration: number
-  timestamp: number
-  icon?: string
-  action?: {
-    label: string
-    onClick: () => void
-  }
-}
-
-interface FloatingScore {
-  id: string
-  points: number
-  x: number
-  y: number
-  timestamp: number
-}
-
-export default function GameInterface({
-  gameState,
-  onGemClick,
-  onRestart,
-  onNextLevel,
-  onPause,
-  onShowMenu,
-  onShowSettings,
-  onShowHint,
-  currentHint
-}: GameInterfaceProps) {
-  // Performance and responsive hooks
-  const { 
-    isHighPerformance, 
-    isReducedMotion, 
-    getOptimizedAnimation,
-    optimizedDebounce,
-    optimizedThrottle 
-  } = usePerformanceOptimization()
-  
-  const { 
-    screenSize, 
-    boardSize, 
-    getResponsiveValue, 
-    showCompactUI,
-    useStackedLayout,
-    getContainerPadding,
-    getButtonSize,
-    reduceAnimations
-  } = useResponsive()
-
-  const [notifications, setNotifications] = useState<Notification[]>([])
-  const [floatingScores, setFloatingScores] = useState<FloatingScore[]>([])
-  const [showStats, setShowStats] = useState(false)
-  const [isHoveringGem, setIsHoveringGem] = useState(false)
-  const [isHoveringButton, setIsHoveringButton] = useState(false)
-  
-  // Enhanced Visual Effects State
-  const [activePowerUps, setActivePowerUps] = useState<PowerUpGem[]>([])
-  const [comboLevel, setComboLevel] = useState(0)
-  const [lastComboScore, setLastComboScore] = useState(0)
-  const [matchedGemTypes, setMatchedGemTypes] = useState<string[]>([])
-  const [showThemeSelector, setShowThemeSelector] = useState(false)
-  const [visualEffectsEnabled, setVisualEffectsEnabled] = useState(true)
-  const [comboHistory, setComboHistory] = useState<{ level: number; score: number; timestamp: number }[]>([])
-  
-  const [gameStats] = useState({
-    totalMatches: 0,
-    bestCombo: 0,
-    totalScore: 0,
-    averageScore: 0,
-    gemsMatched: {
-      fire: 0,
-      water: 0,
-      earth: 0,
-      air: 0,
-      lightning: 0,
-      nature: 0,
-      magic: 0
-    }
-  })
-
+// Separate component to avoid provider nesting issues
+const GameInterfaceContent = ({ gameState, onMove, onRestart, onNextLevel, onPause, onShowMenu, onShowSettings, onShowHint, currentHint, disabled }: GameInterfaceProps) => {
+  const [selectedGem, setSelectedGem] = useState<{ row: number; col: number } | null>(null)
+  const [adjacentGems, setAdjacentGems] = useState<{ row: number; col: number }[]>([])
+  const [hintedGems, setHintedGems] = useState<{ row: number; col: number }[]>([])
+  const [combos, setCombos] = useState<number>(0)
   const boardRef = useRef<HTMLDivElement>(null)
   
-  // Refs to track if initial instructions have been shown
-  const initialInstructionsShown = useRef(false)
-  const lastCompletedLevel = useRef<number | null>(null)
-  const lastSelectedGem = useRef<{ row: number; col: number } | null>(null)
+  const { addEffect } = useVisualEffects()
+  
+  // Use user's auto quality preference, defaulting to locked for stability
+  const { 
+    quality, 
+    shouldAnimate, 
+    shouldShowEffects, 
+    optimizedThrottle,
+    optimizedDebounce,
+    setManualQuality,
+    isQualityLocked
+  } = usePerformanceOptimization('locked') // Always lock quality during gameplay
 
-  // Format numbers with commas
-  const formatNumber = (num: number): string => {
-    return num.toLocaleString()
-  }
-
-  // Format time in mm:ss format
-  const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
-  }
-
-  // Show notification
-  const showNotification = (
-    message: string, 
-    type: Notification['type'] = 'info', 
-    duration: number = 3000,
-    icon?: string,
-    action?: { label: string; onClick: () => void }
-  ) => {
-    const notification: Notification = {
-      id: Date.now().toString() + Math.random(),
-      message,
-      type,
-      duration,
-      timestamp: Date.now(),
-      icon,
-      action
+  // Lock quality to 'high' when game starts to prevent fluctuations
+  // Users can change this in settings if they prefer auto quality
+  useEffect(() => {
+    if (gameState?.gameStatus === 'playing' && !isQualityLocked) {
+      setManualQuality('high') // Lock to high quality for stable gameplay experience
     }
-    
-    setNotifications(prev => [...prev.slice(-4), notification])
-  }
+  }, [gameState?.gameStatus, isQualityLocked, setManualQuality])
 
-  // Show floating score
-  const showFloatingScore = (points: number, row: number, col: number) => {
-    if (!boardRef.current) return
-    
-    const board = boardRef.current
-    const rect = board.getBoundingClientRect()
-    const cellSize = rect.width / gameState.boardSize
-    
-    const x = rect.left + (col * cellSize) + (cellSize / 2)
-    const y = rect.top + (row * cellSize) + (cellSize / 2)
-    
-    const floatingScore: FloatingScore = {
-      id: Date.now().toString() + Math.random(),
-      points,
-      x: x - rect.left,
-      y: y - rect.top,
-      timestamp: Date.now()
+  // Optimized board size based on performance
+  const boardSize = useMemo(() => {
+    const sizes = {
+      minimal: 320,
+      low: 360,
+      medium: 400,
+      high: 440,
+      ultra: 480
     }
-    
-    setFloatingScores(prev => [...prev, floatingScore])
-    
-    setTimeout(() => {
-      setFloatingScores(prev => prev.filter(s => s.id !== floatingScore.id))
-    }, 1500)
-  }
+    return sizes[quality] || 400
+  }, [quality])
 
-  // Optimize the gem click handler with throttling for performance
-  const handleGemClick = optimizedThrottle((row: number, col: number) => {
-    // Provide user feedback for game rules
-    if (gameState.gameStatus !== 'playing') {
-      showNotification('Game is paused. Resume to continue playing.', 'warning', 3000, '⏸️')
-      return
-    }
-    
-    if (gameState.isAnimating) {
-      showNotification('Please wait for the current move to complete.', 'info', 3000, '⏳')
-      return
-    }
-    
-    // If a gem is already selected and user clicks non-adjacent gem
-    if (gameState.selectedGem && !isAdjacentToSelected(row, col) && 
-        !(gameState.selectedGem.row === row && gameState.selectedGem.col === col)) {
-      showNotification('You can only swap adjacent gems! Click a green highlighted gem.', 'warning', 4000, '❌')
-      return
-    }
-    
-    onGemClick(row, col)
-    
-    // Show floating score if move resulted in points
-    if (gameState.lastMoveScore > 0) {
-      showFloatingScore(gameState.lastMoveScore, row, col)
-      showNotification(
-        `Great move! +${formatNumber(gameState.lastMoveScore)} points!`, 
-        'success',
-        3000,
-        '🎉'
-      )
-    }
-  }, 100) // 100ms throttle for performance
+  // Optimized gem size calculation
+  const gemSize = useMemo(() => Math.floor(boardSize / 8) - 4, [boardSize])
 
-  // Optimized animation configs based on performance
-  const getAnimationConfig = (baseConfig: any) => {
-    if (reduceAnimations || isReducedMotion) {
-      return getOptimizedAnimation(baseConfig)
-    }
-    return baseConfig
-  }
+  // Performance-optimized hint system
+  const showHints = useCallback(
+    optimizedDebounce(() => {
+      if (quality === 'minimal') return // Skip hints for minimal performance
+      
+      // Simplified hint logic for performance - just log potential hints
+      console.log('Hint system: analyzing board for potential moves...')
+      
+      // Note: Visual hints are now handled through the currentHint prop
+      // which comes from the parent component
+    }, 2000),
+    [quality]
+  )
 
-  // Check if two positions are adjacent
-  const isAdjacent = (row1: number, col1: number, row2: number, col2: number): boolean => {
-    const rowDiff = Math.abs(row1 - row2)
-    const colDiff = Math.abs(col1 - col2)
-    return (rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1)
-  }
-
-  // Get adjacent positions for a gem
-  const getAdjacentPositions = (row: number, col: number): Array<{row: number, col: number}> => {
-    const adjacent = []
-    const directions = [
-      { row: -1, col: 0 }, // up
-      { row: 1, col: 0 },  // down
-      { row: 0, col: -1 }, // left
-      { row: 0, col: 1 }   // right
-    ]
+  // Optimized adjacent positions calculation
+  const getAdjacentPositions = useCallback((row: number, col: number) => {
+    const positions: { row: number; col: number }[] = []
+    const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]]
     
-    for (const dir of directions) {
-      const newRow = row + dir.row
-      const newCol = col + dir.col
-      if (newRow >= 0 && newRow < gameState.boardSize && newCol >= 0 && newCol < gameState.boardSize) {
-        adjacent.push({ row: newRow, col: newCol })
+    for (const [dr, dc] of directions) {
+      const newRow = row + dr
+      const newCol = col + dc
+      if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
+        positions.push({ row: newRow, col: newCol })
       }
     }
     
-    return adjacent
-  }
+    return positions
+  }, [])
 
-  // Check if a gem should be highlighted as adjacent to selected gem
-  const isAdjacentToSelected = (row: number, col: number): boolean => {
-    if (!gameState.selectedGem) return false
-    return isAdjacent(gameState.selectedGem.row, gameState.selectedGem.col, row, col)
-  }
-
-  // Check if a gem is part of the current hint
-  const isPartOfHint = (row: number, col: number): boolean => {
-    if (!currentHint) return false
-    return (currentHint.from.row === row && currentHint.from.col === col) ||
-           (currentHint.to.row === row && currentHint.to.col === col)
-  }
-
-  // Get notification color
-  const getNotificationColor = (type: Notification['type']) => {
-    switch (type) {
-      case 'success': return 'bg-green-500/90 border-green-400'
-      case 'warning': return 'bg-yellow-500/90 border-yellow-400'
-      case 'error': return 'bg-red-500/90 border-red-400'
-      default: return 'bg-blue-500/90 border-blue-400'
-    }
-  }
-
-  // Game mode display names
-  const getGameModeDisplay = () => {
-    const modeMap = {
-      'normal': { icon: '🎯', name: 'Normal Mode' },
-      'timeAttack': { icon: '⏱️', name: 'Time Attack' },
-      'dailyChallenge': { icon: '📅', name: 'Daily Challenge' },
-      'campaign': { icon: '⚔️', name: 'Divine Conquest' }
-    }
+  // Simplified match detection for performance
+  const canCreateMatch = useCallback((fromRow: number, fromCol: number, toRow: number, toCol: number) => {
+    const fromGem = gameState.board[fromRow]?.[fromCol]
+    const toGem = gameState.board[toRow]?.[toCol]
     
-    return modeMap[gameState.gameMode as keyof typeof modeMap] || { icon: '🎯', name: 'Normal Mode' }
-  }
+    if (!fromGem || !toGem) return false
+    
+    // Simple validation - just check if gems are different types
+    return fromGem.type !== toGem.type
+  }, [gameState.board])
 
-  const modeDisplay = getGameModeDisplay()
+  // Performance-optimized match detection and visual effects
+  const handleMatchDetection = useCallback(
+    optimizedThrottle((matchedPositions: { row: number; col: number }[]) => {
+      if (matchedPositions.length === 0) return
 
-  // Show level complete notification
-  useEffect(() => {
-    if (gameState.gameStatus === 'completed' && lastCompletedLevel.current !== gameState.level) {
-      lastCompletedLevel.current = gameState.level
-      showNotification(
-        `Level ${gameState.level} Complete! You scored ${formatNumber(gameState.score)} points!`,
-        'achievement',
-        5000,
-        '🎉',
-        {
-          label: 'Next Level',
-          onClick: onNextLevel
+      // Increment combo counter
+      setCombos(prev => prev + 1)
+      
+      // Add visual effects only if performance allows
+      if (shouldShowEffects) {
+        matchedPositions.forEach((pos, index) => {
+          if (boardRef.current) {
+            const rect = boardRef.current.getBoundingClientRect()
+            const x = rect.left + (pos.col * gemSize) + gemSize / 2
+            const y = rect.top + (pos.row * gemSize) + gemSize / 2
+            
+            // Stagger effects for performance
+            setTimeout(() => {
+              addEffect({
+                type: 'glow',
+                position: { x, y },
+                duration: 1000,
+                intensity: 1,
+                priority: 'medium'
+              })
+              
+              if (quality === 'ultra') {
+                addEffect({
+                  type: 'particle',
+                  position: { x, y },
+                  duration: 800,
+                  intensity: 0.8,
+                  priority: 'low'
+                })
+              }
+            }, index * 50)
+          }
+        })
+
+        // Add combo effect for larger matches
+        if (matchedPositions.length >= 4 && boardRef.current) {
+          const rect = boardRef.current.getBoundingClientRect()
+          const centerX = rect.left + rect.width / 2
+          const centerY = rect.top + rect.height / 2
+          
+          setTimeout(() => {
+            addEffect({
+              type: 'combo',
+              position: { x: centerX, y: centerY },
+              duration: 1500,
+              intensity: Math.min(matchedPositions.length / 3, 2),
+              priority: 'high'
+            })
+          }, 200)
         }
-      )
-    }
-  }, [gameState.gameStatus, gameState.level, gameState.score])
-
-  // Show game instructions when starting (only once per game session)
-  useEffect(() => {
-    if (gameState.gameStatus === 'playing' && gameState.moves === 0 && !initialInstructionsShown.current) {
-      initialInstructionsShown.current = true
-      
-      const timer1 = setTimeout(() => {
-        showNotification(
-          'Click a gem, then click an adjacent gem to swap them!', 
-          'info', 
-          6000,
-          '🎮'
-        )
-      }, 1000)
-      
-      const timer2 = setTimeout(() => {
-        showNotification(
-          'Make matches of 3+ identical gems to score points!', 
-          'info', 
-          6000,
-          '🎯'
-        )
-      }, 3000)
-      
-      // Cleanup timers if component unmounts
-      return () => {
-        clearTimeout(timer1)
-        clearTimeout(timer2)
       }
-    }
-  }, [gameState.gameStatus, gameState.moves])
+    }, 100),
+    [shouldShowEffects, addEffect, gemSize, quality]
+  )
 
-  // Reset instruction flag when game is restarted
-  useEffect(() => {
-    if (gameState.moves === 0) {
-      initialInstructionsShown.current = false
-    }
-  }, [gameState.moves])
+  // Optimized gem click handler
+  const handleGemClick = useCallback((row: number, col: number) => {
+    if (disabled || !gameState.board[row]?.[col]) return
 
-  // Show selection guidance (only when gem selection changes)
-  useEffect(() => {
-    const currentSelectedGem = gameState.selectedGem
-    const lastSelected = lastSelectedGem.current
+    if (!selectedGem) {
+      // Select gem
+      setSelectedGem({ row, col })
+      setAdjacentGems(getAdjacentPositions(row, col))
+    } else if (selectedGem.row === row && selectedGem.col === col) {
+      // Deselect gem
+      setSelectedGem(null)
+      setAdjacentGems([])
+    } else {
+      // Attempt move
+      const isAdjacent = adjacentGems.some(gem => gem.row === row && gem.col === col)
+      
+      if (isAdjacent) {
+        onMove(selectedGem.row, selectedGem.col, row, col)
+        
+        // Trigger match detection for visual effects
+        const matchedGems = [selectedGem, { row, col }]
+        handleMatchDetection(matchedGems)
+      }
+      
+      // Clear selection
+      setSelectedGem(null)
+      setAdjacentGems([])
+    }
+  }, [selectedGem, adjacentGems, disabled, gameState.board, onMove, getAdjacentPositions, handleMatchDetection])
+
+  // Performance-optimized gem rendering with memoization
+  const renderGemWithEffects = useCallback((gem: Gem | null, row: number, col: number, isHinted: boolean) => {
+    const isSelected = selectedGem?.row === row && selectedGem?.col === col
+    const isAdjacent = adjacentGems.some(g => g.row === row && g.col === col)
     
-    // Only show notification if gem selection actually changed
-    if (currentSelectedGem && 
-        (!lastSelected || 
-         lastSelected.row !== currentSelectedGem.row || 
-         lastSelected.col !== currentSelectedGem.col)) {
-      lastSelectedGem.current = currentSelectedGem
-      showNotification(
-        'Now click a green highlighted adjacent gem to swap!', 
-        'info', 
-        4000,
-        '✨'
-      )
-    } else if (!currentSelectedGem) {
-      lastSelectedGem.current = null
-    }
-  }, [gameState.selectedGem])
-
-  // Enhanced Visual Effects Integration
-  const handleMatchDetection = (matches: any[], matchType: 'normal' | 'cascade' | 'power' = 'normal') => {
-    if (matches.length === 0 || !visualEffectsEnabled) return
-
-    // Calculate combo level based on chain reactions
-    const newComboLevel = matchType === 'cascade' ? comboLevel + 1 : 1
-    setComboLevel(newComboLevel)
-
-    // Track matched gem types for visual effects
-    const types = matches.map(match => match.type).filter(Boolean)
-    setMatchedGemTypes(prev => [...new Set([...prev, ...types])])
-
-    // Calculate combo score bonus
-    const baseScore = matches.length * 50
-    const comboMultiplier = newComboLevel > 1 ? Math.pow(1.5, newComboLevel - 1) : 1
-    const comboScore = Math.floor(baseScore * comboMultiplier)
-    setLastComboScore(comboScore)
-
-    // Add to combo history
-    if (newComboLevel > 1) {
-      setComboHistory(prev => [...prev.slice(-9), {
-        level: newComboLevel,
-        score: comboScore,
-        timestamp: Date.now()
-      }])
-    }
-
-    // Trigger combo text effect if significant
-    if (newComboLevel >= 2 && boardRef.current) {
-      const rect = boardRef.current.getBoundingClientRect()
-      const centerX = rect.left + rect.width / 2
-      const centerY = rect.top + rect.height / 2
-
-      // This would integrate with our VisualEffectsManager
-      // For now, we'll show enhanced notifications
-      if (newComboLevel >= 5) {
-        showNotification(
-          `AMAZING ${newComboLevel}x COMBO! +${formatNumber(comboScore)} points!`,
-          'achievement',
-          4000,
-          '🔥'
-        )
-      } else if (newComboLevel >= 3) {
-        showNotification(
-          `Great ${newComboLevel}x Combo! +${formatNumber(comboScore)} points!`,
-          'success',
-          3000,
-          '⭐'
-        )
-      }
-    }
-
-    // Check for power-up creation opportunities
-    if (matches.length >= 4) {
-      const powerUpType: PowerUpType = matches.length >= 6 ? 'RAINBOW' : 
-                                      matches.length >= 5 ? 'LIGHTNING' : 'BOMB'
-      
-      // Create power-up gem (this would integrate with actual game logic)
-      const powerUpGem = createPowerUpGem(
-        `powerup-${Date.now()}`,
-        matches[0].type,
-        powerUpType,
-        { row: matches[0].row, col: matches[0].col },
-        newComboLevel
-      )
-
-      setActivePowerUps(prev => [...prev, powerUpGem])
-      
-      showNotification(
-        `Power-up created! ${powerUpType} gem is ready!`,
-        'achievement',
-        3000,
-        '💫'
-      )
-    }
-  }
-
-  // Monitor game state changes for visual effects
-  useEffect(() => {
-    // Reset combo when no moves for a while
-    const timer = setTimeout(() => {
-      if (comboLevel > 0) {
-        setComboLevel(0)
-        setMatchedGemTypes([])
-      }
-    }, 2000)
-
-    return () => clearTimeout(timer)
-  }, [gameState.lastMoveScore, comboLevel])
-
-  // Clear visual state on game restart
-  useEffect(() => {
-    if (gameState.moves === 0) {
-      setActivePowerUps([])
-      setComboLevel(0)
-      setLastComboScore(0)
-      setMatchedGemTypes([])
-      setComboHistory([])
-    }
-  }, [gameState.moves])
-
-  // Enhanced gem rendering with visual effects
-  const renderGemWithEffects = (gem: any, row: number, col: number) => {
-    const isSelected = gameState.selectedGem?.row === row && gameState.selectedGem?.col === col
-    const isAdjacent = isAdjacentToSelected(row, col)
-    const isHinted = isPartOfHint(row, col)
-    const powerUp = activePowerUps.find(p => p.position.row === row && p.position.col === col)
-
     return (
-      <div key={`${row}-${col}`} className="relative w-full h-full group">
-        {/* Base Gem */}
-        <EnhancedGem
-          gem={gem}
-          row={row}
-          col={col}
-          onClick={() => handleGemClick(row, col)}
-          isSelected={isSelected}
-          isAdjacent={isAdjacent}
-          isHinted={isHinted}
-          disabled={gameState.isAnimating || gameState.gameStatus !== 'playing'}
-        />
-
-        {/* Enhanced Visual Effects Layer */}
-        {visualEffectsEnabled && (
-          <EnhancedGemEffects
-            gem={gem}
-            isSelected={isSelected}
-            isAdjacent={isAdjacent}
-            isHinted={isHinted}
-            isMatched={matchedGemTypes.includes(gem?.type)}
-            comboLevel={comboLevel}
-            effectIntensity={isHighPerformance ? 'high' : 'medium'}
-            enableAdvancedEffects={isHighPerformance && !isReducedMotion}
-          />
-        )}
-
-        {/* Power-up Indicator */}
-        {powerUp && (
-          <div className="absolute inset-0">
-            <PowerUpIndicators
-              gem={powerUp}
-              size={screenSize.isMobile ? 'sm' : 'md'}
-              showAura={!isReducedMotion}
-              showParticles={visualEffectsEnabled && isHighPerformance}
-              animationIntensity={isHighPerformance ? 'high' : 'medium'}
-              enableSoundEffects={false}
-            />
-          </div>
-        )}
-      </div>
+      <EnhancedGem
+        key={`${row}-${col}-${gem?.id || 'empty'}`}
+        gem={gem}
+        row={row}
+        col={col}
+        isSelected={isSelected}
+        isAdjacent={isAdjacent}
+        isHinted={isHinted}
+        onClick={() => handleGemClick(row, col)}
+        disabled={disabled}
+        size={quality === 'minimal' ? 'sm' : quality === 'low' ? 'md' : 'md'}
+      />
     )
-  }
+  }, [selectedGem, adjacentGems, disabled, handleGemClick, quality])
+
+  // Auto-show hints for better UX (performance permitting)
+  useEffect(() => {
+    if (quality !== 'minimal' && !selectedGem) {
+      const hintTimer = setTimeout(showHints, 5000)
+      return () => clearTimeout(hintTimer)
+    }
+  }, [selectedGem, showHints, quality])
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 ${getContainerPadding()} relative overflow-hidden`}>
-      {/* Background Particle System */}
-      <ParticleSystem
-        active={true}
-        type="ambient"
-        intensity="low"
-        className="fixed inset-0 z-0"
-      />
-      
-      {/* Custom Cursor */}
-      <CustomCursor
-        gameState={gameState.gameStatus === 'idle' ? 'playing' : gameState.gameStatus}
-        isHoveringGem={isHoveringGem}
-        isHoveringButton={isHoveringButton}
-        selectedGemType={gameState.selectedGem ? gameState.board[gameState.selectedGem.row][gameState.selectedGem.col]?.type : undefined}
-        isHintActive={currentHint !== null}
-      />
-      
-      {/* Modern Notification System */}
-      <ModernNotificationCenter
-        notifications={notifications}
-        onRemove={(id) => setNotifications(prev => prev.filter(n => n.id !== id))}
-        position="top-right"
-        maxVisible={4}
-      />
-      
-      <div className="max-w-6xl mx-auto relative z-10">
-        
-        {/* Header */}
-        <div className={`flex justify-between items-center mb-6 ${showCompactUI ? 'flex-col gap-4' : ''}`}>
-          {/* Home Button */}
-          <MenuButton
-            onClick={onShowMenu}
-            onMouseEnter={() => setIsHoveringButton(true)}
-            onMouseLeave={() => setIsHoveringButton(false)}
-            size={getButtonSize()}
-          />
-
-          {/* Game Title */}
-          <div className="text-center">
-            <motion.h1 
-              className={`font-bold text-white mb-1 ${getResponsiveValue('text-xl', 'text-2xl', 'text-3xl')}`}
-              {...getAnimationConfig({
-                animate: {
-                  textShadow: [
-                    '0 0 10px rgba(147, 51, 234, 0.8)',
-                    '0 0 20px rgba(59, 130, 246, 0.8)',
-                    '0 0 10px rgba(147, 51, 234, 0.8)'
-                  ]
-                },
-                transition: { duration: 3, repeat: Infinity }
-              })}
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 relative">
+      {/* Game Header */}
+      <div className="flex items-center justify-between p-4 text-white">
+        {/* Left side - Menu & Settings */}
+        <div className="flex items-center gap-3">
+          {onShowMenu && (
+            <motion.button
+              onClick={onShowMenu}
+              className="p-2 bg-white/10 backdrop-blur-md rounded-lg border border-white/20 hover:bg-white/20 transition-colors"
+              whileHover={shouldAnimate ? { scale: 1.05 } : {}}
+              whileTap={shouldAnimate ? { scale: 0.95 } : {}}
             >
-              🔮 Gems Rush: Divine Teams
-            </motion.h1>
-            <div className="flex items-center justify-center gap-2 text-purple-200">
-              <span className="text-lg">{modeDisplay.icon}</span>
-              <span className="text-sm">{modeDisplay.name}</span>
-            </div>
-          </div>
-
-          {/* Settings Button */}
-          <button
-            onClick={onShowSettings}
-            onMouseEnter={() => setIsHoveringButton(true)}
-            onMouseLeave={() => setIsHoveringButton(false)}
-            className={`bg-white/10 backdrop-blur-md rounded-lg border border-white/20 hover:bg-white/20 transition-all duration-200 text-white hover:scale-105 active:scale-95 ${getResponsiveValue('p-2', 'p-3', 'p-3')}`}
-            aria-label="Settings"
-          >
-            <span className={getResponsiveValue('text-lg', 'text-xl', 'text-xl')}>⚙️</span>
-          </button>
+              <span className="text-xl">🏠</span>
+            </motion.button>
+          )}
+          
+          {onShowSettings && (
+            <motion.button
+              onClick={onShowSettings}
+              className="p-2 bg-white/10 backdrop-blur-md rounded-lg border border-white/20 hover:bg-white/20 transition-colors"
+              whileHover={shouldAnimate ? { scale: 1.05 } : {}}
+              whileTap={shouldAnimate ? { scale: 0.95 } : {}}
+            >
+              <span className="text-xl">⚙️</span>
+            </motion.button>
+          )}
         </div>
 
-        <div className={`grid gap-6 ${useStackedLayout ? 'grid-cols-1' : getResponsiveValue('grid-cols-1', 'lg:grid-cols-3', 'lg:grid-cols-4')}`}>
-          
-          {/* Left Panel - Game Stats */}
-          <div className={useStackedLayout ? 'order-2' : 'lg:col-span-1'}>
-            <ModernGamePanel variant="neumorph" blur="lg" glow={false} className="p-4 mb-4">
-              <GameStatsCard
-                title="📊 Game Stats"
-                stats={[
-                  {
-                    label: 'Divine Score',
-                    value: gameState.score,
-                    icon: '🏆',
-                    color: 'text-yellow-400',
-                    highlight: gameState.lastMoveScore > 0,
-                    trend: gameState.lastMoveScore > 0 ? 'up' : 'neutral'
-                  },
-                  {
-                    label: 'Divine Realm',
-                    value: gameState.level,
-                    icon: '⚡',
-                    color: 'text-purple-400'
-                  },
-                  {
-                    label: 'Target Score',
-                    value: gameState.targetScore,
-                    icon: '🎯',
-                    color: 'text-blue-400'
-                  },
-                  {
-                    label: 'Moves',
-                    value: gameState.moves,
-                    icon: '🔄',
-                    color: 'text-green-400'
-                  },
-                  ...(gameState.comboMultiplier > 1 ? [{
-                    label: 'Rush Multiplier',
-                    value: `${gameState.comboMultiplier.toFixed(1)}x`,
-                    icon: '🔥',
-                    color: 'text-orange-400',
-                    highlight: true
-                  }] : []),
-                  ...(gameState.timeRemaining !== undefined && gameState.timeRemaining > 0 ? [{
-                    label: 'Time',
-                    value: formatTime(gameState.timeRemaining),
-                    icon: '⏰',
-                    color: gameState.timeRemaining <= 10 ? 'text-red-400' : 
-                           gameState.timeRemaining <= 30 ? 'text-yellow-400' : 'text-green-400'
-                  }] : [])
-                ]}
-                progress={{
-                  label: 'Progress to Next Level',
-                  current: gameState.score,
-                  target: gameState.targetScore,
-                  showPercentage: true
-                }}
-                className="bg-transparent border-none shadow-none"
-              />
-            </ModernGamePanel>
+        {/* Center - Game Title */}
+        <div className="text-center">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-300 to-blue-300 bg-clip-text text-transparent">
+            Gems Rush: Divine Teams
+          </h1>
+          <div className="text-sm text-purple-300">Level {gameState.level} - Divine Realm</div>
+        </div>
 
-            {/* Controls */}
-            <ModernGamePanel variant="floating" blur="md" glow={false} className="p-4">
-              <h3 className={`font-semibold text-white mb-4 ${getResponsiveValue('text-base', 'text-lg', 'text-lg')}`}>🎮 Controls</h3>
-              <div className="space-y-2">
-                <RestartButton
-                  onClick={onRestart}
-                  onMouseEnter={() => setIsHoveringButton(true)}
-                  onMouseLeave={() => setIsHoveringButton(false)}
-                  className="w-full"
-                  size={getButtonSize()}
-                >
-                  Restart Game
-                </RestartButton>
-                
-                <PauseButton
-                  isPaused={gameState.gameStatus === 'paused'}
-                  onClick={onPause}
-                  disabled={gameState.gameStatus !== 'playing' && gameState.gameStatus !== 'paused'}
-                  onMouseEnter={() => setIsHoveringButton(true)}
-                  onMouseLeave={() => setIsHoveringButton(false)}
-                  className="w-full"
-                  size={getButtonSize()}
-                >
-                  {gameState.gameStatus === 'paused' ? 'Resume' : 'Pause'}
-                </PauseButton>
-                
-                <HintButton
-                  onClick={onShowHint}
-                  disabled={gameState.gameStatus !== 'playing'}
-                  onMouseEnter={() => setIsHoveringButton(true)}
-                  onMouseLeave={() => setIsHoveringButton(false)}
-                  className="w-full"
-                  size={getButtonSize()}
-                >
-                  Show Hint
-                </HintButton>
-              </div>
-            </ModernGamePanel>
-          </div>
-
-          {/* Center Panel - Game Board */}
-          <div className={`${useStackedLayout ? 'order-1' : 'lg:col-span-2'}`}>
-            <Modern3DBoard
-              size={{ width: boardSize.size, height: boardSize.size }}
-              enableParticles={!reduceAnimations}
-              enable3D={isHighPerformance && !reduceAnimations}
+        {/* Right side - Game Status */}
+        <div className="flex items-center gap-3">
+          {onPause && (
+            <motion.button
+              onClick={onPause}
+              className="p-2 bg-white/10 backdrop-blur-md rounded-lg border border-white/20 hover:bg-white/20 transition-colors"
+              whileHover={shouldAnimate ? { scale: 1.05 } : {}}
+              whileTap={shouldAnimate ? { scale: 0.95 } : {}}
             >
-              <div 
-                ref={boardRef}
-                className="grid gap-1 h-full w-full"
-                style={{ 
-                  gridTemplateColumns: `repeat(${gameState.boardSize}, minmax(0, 1fr))`
-                }}
-              >
-                {gameState.board.map((row, rowIndex) =>
-                  row.map((gem, colIndex) => (
-                    renderGemWithEffects(gem, rowIndex, colIndex))
-                  )
-                )}
-              </div>
+              <span className="text-xl">{gameState.gameStatus === 'paused' ? '▶️' : '⏸️'}</span>
+            </motion.button>
+          )}
+          
+          <div className="text-center">
+            <div className="text-xs opacity-80">Status</div>
+            <div className="text-sm font-semibold capitalize">{gameState.gameStatus}</div>
+          </div>
+        </div>
+      </div>
 
-              {/* Floating Scores */}
-              <AnimatePresence>
-                {floatingScores.map((score) => (
-                  <motion.div
-                    key={score.id}
-                    className="absolute pointer-events-none z-10 text-yellow-400 font-bold text-lg"
-                    style={{
-                      left: score.x,
-                      top: score.y
-                    }}
-                    {...getAnimationConfig({
-                      initial: { opacity: 1, scale: 1, y: 0 },
-                      animate: { opacity: 0, scale: 1.5, y: -50 },
-                      exit: { opacity: 0 },
-                      transition: { duration: 1.5 }
-                    })}
-                  >
-                    +{formatNumber(score.points)}
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </Modern3DBoard>
-
-            {/* Progress Bar */}
-            <div className="mt-4">
-              <EnhancedProgress
-                value={gameState.score}
-                max={gameState.targetScore}
-                label="Progress to Next Level"
-                showPercentage={true}
-                showValues={true}
-                variant={gameState.score >= gameState.targetScore ? 'success' : 'default'}
-                animated={!reduceAnimations}
-                glowing={gameState.score >= gameState.targetScore}
-              />
+      {/* Game Stats Panel */}
+      <div className="mx-4 mb-6 p-4 bg-white/10 backdrop-blur-md rounded-xl border border-white/20">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-white text-center">
+          <div className="space-y-1">
+            <div className="text-sm opacity-80">Score</div>
+            <div className="text-2xl font-bold text-yellow-400">{gameState.score.toLocaleString()}</div>
+            {gameState.lastMoveScore > 0 && (
+              <div className="text-xs text-green-400">+{gameState.lastMoveScore}</div>
+            )}
+          </div>
+          
+          <div className="space-y-1">
+            <div className="text-sm opacity-80">Target</div>
+            <div className="text-2xl font-bold text-purple-400">{gameState.targetScore.toLocaleString()}</div>
+            <div className="text-xs opacity-60">
+              {Math.max(0, gameState.targetScore - gameState.score).toLocaleString()} to go
             </div>
           </div>
-
-          {/* Right Panel - Tips */}
-          <div className={`${useStackedLayout ? 'order-3' : 'lg:col-span-1'}`}>
-            {/* Game Tips */}
-            {!showCompactUI && (
-              <ModernGamePanel variant="gradient" blur="lg" glow={false} className="p-4">
-                <h3 className={`font-semibold text-white mb-4 ${getResponsiveValue('text-base', 'text-lg', 'text-lg')}`}>💡 Match-3 Tips</h3>
-                <div className="space-y-2 text-purple-200 text-sm">
-                  <div className="flex items-start gap-2">
-                    <span className="text-yellow-400">•</span>
-                    <span>Click a gem, then click an adjacent gem to swap them</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className="text-yellow-400">•</span>
-                    <span>Create lines of 3+ identical gems horizontally or vertically</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className="text-yellow-400">•</span>
-                    <span>Swaps only work if they create a 3+ match</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className="text-yellow-400">•</span>
-                    <span>Longer matches give more points (4+=150, 5+=300, 6+=500)</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className="text-yellow-400">•</span>
-                    <span>Chain reactions create cascades for bonus points</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className="text-yellow-400">•</span>
-                    <span>Look for moves that set up future cascades</span>
-                  </div>
-                </div>
-              </ModernGamePanel>
+          
+          <div className="space-y-1">
+            <div className="text-sm opacity-80">Moves</div>
+            <div className="text-2xl font-bold text-blue-400">{gameState.moves}</div>
+            <div className="text-xs opacity-60">Divine moves</div>
+          </div>
+          
+          <div className="space-y-1">
+            <div className="text-sm opacity-80">Combo</div>
+            <div className="text-2xl font-bold text-orange-400">{gameState.comboMultiplier.toFixed(1)}x</div>
+            {combos > 0 && (
+              <div className="text-xs text-orange-300">{combos} chains</div>
             )}
           </div>
         </div>
 
-        {/* Game Status Overlays */}
-        <AnimatePresence>
-          {gameState.gameStatus === 'completed' && (
-            <motion.div
-              {...getAnimationConfig({
-                initial: { opacity: 0 },
-                animate: { opacity: 1 },
-                exit: { opacity: 0 }
-              })}
-              className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-            >
-              <motion.div
-                {...getAnimationConfig({
-                  initial: { scale: 0.5, opacity: 0 },
-                  animate: { scale: 1, opacity: 1 }
-                })}
-                className="bg-white/20 backdrop-blur-md rounded-lg p-8 text-center border border-green-500"
-              >
-                <motion.div 
-                  className="text-6xl mb-4"
-                  {...getAnimationConfig({
-                    animate: { 
-                      scale: [1, 1.2, 1],
-                      rotate: [0, 10, -10, 0]
-                    },
-                    transition: { 
-                      duration: 2, 
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }
-                  })}
-                >
-                  🎉
-                </motion.div>
-                <h2 className="text-3xl font-bold text-green-400 mb-4">Level Complete!</h2>
-                <div className="text-white space-y-2">
-                  <p>Score: <span className="font-bold text-yellow-400">{formatNumber(gameState.score)}</span></p>
-                  <p>Moves: <span className="font-bold text-blue-400">{gameState.moves}</span></p>
-                  <p>Level: <span className="font-bold text-purple-400">{gameState.level}</span></p>
-                </div>
-                <NextLevelButton
-                  onClick={onNextLevel}
-                  onMouseEnter={() => setIsHoveringButton(true)}
-                  onMouseLeave={() => setIsHoveringButton(false)}
-                  className="mt-6"
-                  size={getButtonSize()}
-                >
-                  Next Level
-                </NextLevelButton>
-              </motion.div>
-            </motion.div>
-          )}
-
-          {gameState.gameStatus === 'failed' && (
-            <motion.div
-              {...getAnimationConfig({
-                initial: { opacity: 0 },
-                animate: { opacity: 1 },
-                exit: { opacity: 0 }
-              })}
-              className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-            >
-              <motion.div
-                {...getAnimationConfig({
-                  initial: { scale: 0.5, opacity: 0 },
-                  animate: { scale: 1, opacity: 1 }
-                })}
-                className="bg-white/20 backdrop-blur-md rounded-lg p-8 text-center border border-red-500"
-              >
-                <div className="text-6xl mb-4">💔</div>
-                <h2 className="text-3xl font-bold text-red-400 mb-4">Game Over</h2>
-                <div className="text-white space-y-2">
-                  <p>Final Score: <span className="font-bold">{formatNumber(gameState.score)}</span></p>
-                  <p>Moves Used: <span className="font-bold">{gameState.moves}</span></p>
-                  <p>Level Reached: <span className="font-bold">{gameState.level}</span></p>
-                </div>
-                <button
-                  onClick={onRestart}
-                  className="mt-6 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition-colors"
-                >
-                  Try Again
-                </button>
-              </motion.div>
-            </motion.div>
-          )}
-
-          {gameState.gameStatus === 'paused' && (
-            <motion.div
-              {...getAnimationConfig({
-                initial: { opacity: 0 },
-                animate: { opacity: 1 },
-                exit: { opacity: 0 }
-              })}
-              className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-            >
-              <motion.div
-                {...getAnimationConfig({
-                  initial: { scale: 0.5, opacity: 0 },
-                  animate: { scale: 1, opacity: 1 }
-                })}
-                className="bg-white/20 backdrop-blur-md rounded-lg p-8 text-center"
-              >
-                <div className="text-6xl mb-4">⏸️</div>
-                <h2 className="text-3xl font-bold text-white mb-4">Game Paused</h2>
-                <button
-                  onClick={onPause}
-                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors"
-                >
-                  Resume Game
-                </button>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Performance indicator in development */}
-        {process.env.NODE_ENV === 'development' && (
-          <div className="fixed bottom-4 right-4 bg-black/80 text-white p-2 rounded text-xs">
-            <div>FPS: {isHighPerformance ? '✅' : '⚠️'}</div>
-            <div>Screen: {screenSize.width}x{screenSize.height}</div>
-            <div>Device: {screenSize.isMobile ? 'Mobile' : screenSize.isTablet ? 'Tablet' : 'Desktop'}</div>
+        {/* Progress Bar */}
+        <div className="mt-4">
+          <div className="flex justify-between text-xs text-white/80 mb-1">
+            <span>Progress to Next Realm</span>
+            <span>{Math.round((gameState.score / gameState.targetScore) * 100)}%</span>
           </div>
+          <div className="w-full bg-black/30 rounded-full h-2 overflow-hidden">
+            <motion.div
+              className="h-full bg-gradient-to-r from-purple-500 to-blue-500 rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${Math.min((gameState.score / gameState.targetScore) * 100, 100)}%` }}
+              transition={{ duration: 0.5 }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Main Game Area */}
+      <div className="flex flex-col items-center space-y-6 px-4">
+        {/* Game Board - Performance optimized */}
+        <div 
+          ref={boardRef}
+          className={cn(
+            "grid grid-cols-8 gap-1 p-3 rounded-xl border-2 relative",
+            quality === 'minimal' ? 'bg-gray-800 border-gray-600' : 
+            quality === 'low' ? 'bg-gray-800/90 border-gray-500' :
+            'bg-black/20 backdrop-blur-sm border-white/20 shadow-2xl'
+          )}
+          style={{
+            width: boardSize,
+            height: boardSize,
+          }}
+        >
+          {gameState.board.map((row, rowIndex) =>
+            row.map((gem, colIndex) => {
+              const isHintFrom = currentHint?.from.row === rowIndex && currentHint?.from.col === colIndex
+              const isHintTo = currentHint?.to.row === rowIndex && currentHint?.to.col === colIndex
+              
+              return renderGemWithEffects(gem, rowIndex, colIndex, isHintFrom || isHintTo)
+            })
+          )}
+        </div>
+
+        {/* Game Controls */}
+        <div className="flex flex-wrap gap-3 justify-center">
+          <motion.button
+            onClick={onRestart}
+            disabled={disabled}
+            className={cn(
+              "px-6 py-3 rounded-lg font-semibold transition-colors flex items-center gap-2",
+              disabled 
+                ? "bg-gray-600 text-gray-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700 text-white shadow-lg"
+            )}
+            whileHover={shouldAnimate ? { scale: 1.05 } : {}}
+            whileTap={shouldAnimate ? { scale: 0.95 } : {}}
+          >
+            <span>🔄</span>
+            Restart
+          </motion.button>
+
+          {onShowHint && quality !== 'minimal' && (
+            <motion.button
+              onClick={onShowHint}
+              disabled={disabled}
+              className={cn(
+                "px-6 py-3 rounded-lg font-semibold transition-colors flex items-center gap-2",
+                disabled 
+                  ? "bg-gray-600 text-gray-400 cursor-not-allowed"
+                  : "bg-green-600 hover:bg-green-700 text-white shadow-lg"
+              )}
+              whileHover={shouldAnimate ? { scale: 1.05 } : {}}
+              whileTap={shouldAnimate ? { scale: 0.95 } : {}}
+            >
+              <span>💡</span>
+              Hint
+            </motion.button>
+          )}
+
+          {onNextLevel && gameState.gameStatus === 'completed' && (
+            <motion.button
+              onClick={onNextLevel}
+              className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-lg font-semibold shadow-lg flex items-center gap-2"
+              whileHover={shouldAnimate ? { scale: 1.05 } : {}}
+              whileTap={shouldAnimate ? { scale: 0.95 } : {}}
+            >
+              <span>⚡</span>
+              Next Realm
+            </motion.button>
+          )}
+        </div>
+
+        {/* Game Status Messages */}
+        {gameState.gameStatus === 'completed' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center p-6 bg-gradient-to-r from-green-500/20 to-blue-500/20 rounded-xl border border-green-400/30 backdrop-blur-sm"
+          >
+            <div className="text-4xl mb-2">🎉</div>
+            <div className="text-2xl font-bold text-green-400 mb-2">Realm Completed!</div>
+            <div className="text-white/80">
+              You've successfully conquered the Divine Realm {gameState.level}
+            </div>
+            <div className="text-lg text-yellow-400 mt-2">
+              Final Score: {gameState.score.toLocaleString()}
+            </div>
+          </motion.div>
+        )}
+
+        {gameState.gameStatus === 'failed' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center p-6 bg-gradient-to-r from-red-500/20 to-orange-500/20 rounded-xl border border-red-400/30 backdrop-blur-sm"
+          >
+            <div className="text-4xl mb-2">💫</div>
+            <div className="text-2xl font-bold text-red-400 mb-2">Realm Challenge</div>
+            <div className="text-white/80">
+              The divine forces were too strong this time
+            </div>
+            <div className="text-lg text-orange-400 mt-2">
+              Score: {gameState.score.toLocaleString()} / {gameState.targetScore.toLocaleString()}
+            </div>
+          </motion.div>
+        )}
+
+        {gameState.gameStatus === 'paused' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
+          >
+            <div className="text-center p-8 bg-white/10 rounded-xl border border-white/20">
+              <div className="text-6xl mb-4">⏸️</div>
+              <div className="text-2xl font-bold text-white mb-4">Game Paused</div>
+              <div className="text-white/80">Click pause button to resume your divine journey</div>
+            </div>
+          </motion.div>
         )}
       </div>
+
+      {/* Performance indicator (development only) */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="fixed bottom-4 right-4 bg-black/80 text-white p-2 rounded text-xs z-50">
+          <div>Quality: {quality} {isQualityLocked ? '🔒' : '🔄'}</div>
+          <div>Combos: {combos}</div>
+          <div>DEV MODE</div>
+        </div>
+      )}
     </div>
+  )
+}
+
+// Main component with provider
+export default function GameInterface(props: GameInterfaceProps) {
+  return (
+    <VisualEffectsProvider>
+      <GameInterfaceContent {...props} />
+    </VisualEffectsProvider>
   )
 }

@@ -87,15 +87,87 @@ export const GAME_CONFIG = {
   REQUIRED_STATE_PROPERTIES: ['board', 'score', 'level', 'gameStatus'] as const
 } as const
 
-// Gem Types and Configurations
-export const GEM_TYPES: Record<GemType, { emoji: string; colors: string[] }> = {
-  fire: { emoji: '🔥', colors: ['#FF4500', '#DC143C'] },
-  water: { emoji: '💧', colors: ['#1E90FF', '#4169E1'] },
-  earth: { emoji: '🌍', colors: ['#8B4513', '#A0522D'] },
-  air: { emoji: '💨', colors: ['#87CEEB', '#B0E0E6'] },
-  lightning: { emoji: '⚡', colors: ['#FFD700', '#FFA500'] },
-  nature: { emoji: '🌿', colors: ['#32CD32', '#228B22'] },
-  magic: { emoji: '🔮', colors: ['#9932CC', '#8A2BE2'] }
+// Gem Types and Configurations - Enhanced for Visual Distinction
+export const GEM_TYPES: Record<GemType, { 
+  emoji: string; 
+  symbol: string;
+  name: string;
+  colors: string[];
+  shape: 'circle' | 'square' | 'diamond' | 'hexagon' | 'star' | 'triangle' | 'octagon';
+  pattern: 'solid' | 'gradient' | 'radial' | 'stripe' | 'pulse' | 'swirl' | 'crystalline';
+  border: string;
+  icon: string;
+}> = {
+  fire: { 
+    emoji: '🔥', 
+    symbol: '♦',
+    name: 'Fire',
+    colors: ['#FF6B35', '#FF4500', '#DC2F02', '#E63946'], 
+    shape: 'diamond',
+    pattern: 'pulse',
+    border: '#FF6B35',
+    icon: '🔥'
+  },
+  water: { 
+    emoji: '💧', 
+    symbol: '●',
+    name: 'Water',
+    colors: ['#4CC9F0', '#219EBC', '#023047', '#1D3557'], 
+    shape: 'circle',
+    pattern: 'radial',
+    border: '#4CC9F0',
+    icon: '💧'
+  },
+  earth: { 
+    emoji: '🌍', 
+    symbol: '■',
+    name: 'Earth',
+    colors: ['#D4A574', '#B08D57', '#8B5A3C', '#5D4037'], 
+    shape: 'square',
+    pattern: 'solid',
+    border: '#D4A574',
+    icon: '⛰️'
+  },
+  air: { 
+    emoji: '💨', 
+    symbol: '▲',
+    name: 'Air',
+    colors: ['#E8F4FD', '#B8E6E6', '#87CEEB', '#6BB6FF'], 
+    shape: 'triangle',
+    pattern: 'swirl',
+    border: '#B8E6E6',
+    icon: '🌪️'
+  },
+  lightning: { 
+    emoji: '⚡', 
+    symbol: '✦',
+    name: 'Lightning',
+    colors: ['#FFEB3B', '#FFC107', '#FF9800', '#FF5722'], 
+    shape: 'star',
+    pattern: 'stripe',
+    border: '#FFEB3B',
+    icon: '⚡'
+  },
+  nature: { 
+    emoji: '🌿', 
+    symbol: '⬟',
+    name: 'Nature',
+    colors: ['#8BC34A', '#4CAF50', '#2E7D32', '#1B5E20'], 
+    shape: 'hexagon',
+    pattern: 'gradient',
+    border: '#8BC34A',
+    icon: '🍃'
+  },
+  magic: { 
+    emoji: '🔮', 
+    symbol: '⬢',
+    name: 'Magic',
+    colors: ['#E1BEE7', '#9C27B0', '#673AB7', '#3F51B5'], 
+    shape: 'octagon',
+    pattern: 'crystalline',
+    border: '#E1BEE7',
+    icon: '✨'
+  }
 }
 
 // Animation Constants
@@ -163,42 +235,70 @@ export const SUCCESS_MESSAGES = {
   SETTINGS_SAVED: 'Settings saved successfully'
 } as const
 
-// Gem color schemes for different themes
-export const GEM_COLORS: Record<GemType, { primary: string; secondary: string; glow: string }> = {
+// Enhanced gem color schemes for better visual distinction
+export const GEM_COLORS: Record<GemType, { 
+  primary: string; 
+  secondary: string; 
+  tertiary: string;
+  glow: string; 
+  shadow: string;
+  accent: string;
+}> = {
   fire: {
-    primary: '#FF4500',
-    secondary: '#DC143C',
-    glow: '#FF6347'
+    primary: '#FF6B35',
+    secondary: '#DC2F02',
+    tertiary: '#E63946',
+    glow: '#FF8A65',
+    shadow: '#BF360C',
+    accent: '#FFAB40'
   },
   water: {
-    primary: '#1E90FF',
-    secondary: '#4169E1',
-    glow: '#87CEEB'
+    primary: '#4CC9F0',
+    secondary: '#023047',
+    tertiary: '#1D3557',
+    glow: '#81D4FA',
+    shadow: '#01579B',
+    accent: '#00BCD4'
   },
   earth: {
-    primary: '#8B4513',
-    secondary: '#A0522D',
-    glow: '#D2691E'
+    primary: '#D4A574',
+    secondary: '#8B5A3C',
+    tertiary: '#5D4037',
+    glow: '#FFCC80',
+    shadow: '#3E2723',
+    accent: '#FF8F00'
   },
   air: {
-    primary: '#87CEEB',
-    secondary: '#B0E0E6',
-    glow: '#E0F6FF'
+    primary: '#E8F4FD',
+    secondary: '#87CEEB',
+    tertiary: '#6BB6FF',
+    glow: '#F0F8FF',
+    shadow: '#1565C0',
+    accent: '#03DAC6'
   },
   lightning: {
-    primary: '#FFD700',
-    secondary: '#FFA500',
-    glow: '#FFFF00'
+    primary: '#FFEB3B',
+    secondary: '#FF9800',
+    tertiary: '#FF5722',
+    glow: '#FFF176',
+    shadow: '#E65100',
+    accent: '#FFD54F'
   },
   nature: {
-    primary: '#32CD32',
-    secondary: '#228B22',
-    glow: '#90EE90'
+    primary: '#8BC34A',
+    secondary: '#2E7D32',
+    tertiary: '#1B5E20',
+    glow: '#AED581',
+    shadow: '#1B5E20',
+    accent: '#00E676'
   },
   magic: {
-    primary: '#9932CC',
-    secondary: '#8A2BE2',
-    glow: '#DA70D6'
+    primary: '#E1BEE7',
+    secondary: '#673AB7',
+    tertiary: '#3F51B5',
+    glow: '#F8BBD9',
+    shadow: '#1A237E',
+    accent: '#E040FB'
   }
 } as const
 

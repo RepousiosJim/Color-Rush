@@ -32,7 +32,7 @@ const ParticleSystem = ({
   className = ''
 }: ParticleSystemProps) => {
   const [particles, setParticles] = useState<Particle[]>([])
-  const animationRef = useRef<number>()
+  const animationRef = useRef<number | undefined>(undefined)
   const containerRef = useRef<HTMLDivElement>(null)
 
   const particleConfigs = {

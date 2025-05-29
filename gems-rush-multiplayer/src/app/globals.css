@@ -621,3 +621,30 @@ button:focus,
     @apply bg-background text-foreground;
   }
 }
+
+/* Enhanced Gem Shape Styles - Custom clip-paths for distinct gem shapes */
+.hexagon-clip {
+  clip-path: polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%);
+}
+
+.star-clip {
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+
+.triangle-clip {
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+}
+
+.octagon-clip {
+  clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+}
+
+/* Additional shape support for fallback browsers */
+@supports not (clip-path: polygon(50% 0%, 0% 100%, 100% 100%)) {
+  .hexagon-clip,
+  .star-clip,
+  .triangle-clip,
+  .octagon-clip {
+    border-radius: 12px; /* Fallback to rounded rectangles */
+  }
+}

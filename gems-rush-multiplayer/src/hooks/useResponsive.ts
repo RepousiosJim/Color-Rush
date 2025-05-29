@@ -2,25 +2,27 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { getScreenSize, getResponsiveValue, getOptimalBoardSize, getOptimalGridColumns, getOptimalSpacing, getOptimalTouchTargetSize, isTouchDevice, type ScreenSize, type ResponsiveConfig, defaultResponsiveConfig } from '@/lib/utils/responsive'
-import { debounce } from './usePerformanceOptimization'
+import { usePerformanceOptimization } from './usePerformanceOptimization'
 
 export const useResponsive = (config: ResponsiveConfig = defaultResponsiveConfig) => {
-  const [screenSize, setScreenSize] = useState<ScreenSize>(getScreenSize(config))
+  const [screenSize, setScreenSize] = useState<ScreenSize>(() => getScreenSize(config))
+  const { optimizedDebounce } = usePerformanceOptimization()
+
+  const updateScreenSize = useCallback(() => {
+    setScreenSize(getScreenSize(config))
+  }, [config])
 
   useEffect(() => {
-    const updateScreenSize = () => {
-      setScreenSize(getScreenSize(config))
-    }
-
+    // Set initial screen size
     updateScreenSize()
     
-    const debouncedUpdate = debounce(updateScreenSize, 150)
+    const debouncedUpdate = optimizedDebounce(updateScreenSize, 150)
     window.addEventListener('resize', debouncedUpdate)
 
     return () => {
       window.removeEventListener('resize', debouncedUpdate)
     }
-  }, [config])
+  }, [updateScreenSize, optimizedDebounce])
 
   const getResponsiveValueHelper = useCallback(<T>(mobile: T, tablet: T, desktop: T): T => {
     return getResponsiveValue(screenSize, mobile, tablet, desktop)
