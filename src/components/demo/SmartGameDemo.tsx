@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState } from 'react'
 import { Gem, GemType, GameState } from '@/types/game'
 import { useSmartGameFeatures, useSmartGameDebug } from '@/lib/game/useSmartGameFeatures'
 
@@ -20,8 +20,6 @@ const SmartGameDemo: React.FC = () => {
 
   // Debug information
   const debug = useSmartGameDebug()
-
-  const demoRef = useRef<HTMLDivElement>(null)
 
   // Create initial demo board
   function createDemoBoard(): (Gem | null)[][] {
@@ -161,12 +159,6 @@ const SmartGameDemo: React.FC = () => {
     console.log('Smart gem generated:', smartGem)
   }
 
-  const optimizeGemPlacement = (): (Gem | null)[][] => {
-    const gemTypes: GemType[] = ['fire', 'water', 'earth', 'nature', 'lightning']
-    // Implementation of optimizeGemPlacement function
-    return demoBoard
-  }
-
   return (
     <div className="p-6 bg-gradient-to-br from-indigo-900/50 to-purple-900/50 rounded-xl border border-indigo-500/30">
       <h2 className="text-2xl font-bold text-white mb-6 text-center">
@@ -220,10 +212,7 @@ const SmartGameDemo: React.FC = () => {
       </div>
 
       {/* Game Board */}
-      <div 
-        ref={demoRef}
-        className="grid grid-cols-8 gap-1 mb-6 max-w-lg mx-auto"
-      >
+      <div className="grid grid-cols-8 gap-1 mb-6 max-w-lg mx-auto">
         {demoBoard.map((row, rowIndex) =>
           row.map((gem, colIndex) => (
             <div
@@ -324,7 +313,7 @@ const SmartGameDemo: React.FC = () => {
             </div>
           ) : (
             <div className="text-gray-400 text-sm">
-              Click "Analyze Board" to see analysis
+              Click &quot;Analyze Board&quot; to see analysis
             </div>
           )}
         </div>
@@ -418,9 +407,9 @@ const SmartGameDemo: React.FC = () => {
       <div className="mt-6 text-center text-sm text-gray-300">
         <p className="mb-2">🎮 <strong>How to Use:</strong></p>
         <p className="text-xs leading-relaxed">
-          • Click "Start Playing" and select adjacent gems to swap them<br />
-          • Use "Request Hint" to get progressive hints based on your skill level<br />
-          • "Analyze Board" shows intelligent analysis of current board state<br />
+          • Click &quot;Start Playing&quot; and select adjacent gems to swap them<br />
+          • Use &quot;Request Hint&quot; to get progressive hints based on your skill level<br />
+          • &quot;Analyze Board&quot; shows intelligent analysis of current board state<br />
           • The system automatically adjusts difficulty based on your performance<br />
           • Smart spawning ensures better gem distribution and fewer deadlocks
         </p>

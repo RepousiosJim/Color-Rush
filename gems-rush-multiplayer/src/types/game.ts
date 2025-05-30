@@ -1,19 +1,37 @@
 // Game Types
-export type GemType = 'fire' | 'water' | 'earth' | 'air' | 'lightning' | 'nature' | 'magic'
+export type GemType = 'fire' | 'water' | 'earth' | 'nature' | 'lightning'
+
+// New block types for destructible obstacles
+export type BlockType = 'green' | 'blue'
 
 export interface Gem {
-  type: GemType
   id: string
+  type: GemType
   row: number
   col: number
+  powerUpType?: 'bomb' | 'lightning' | 'swap' | 'multiplier' | 'rainbow' | 'hammer' | 'shuffle'
+  comboLevel?: number
   isMatched?: boolean
   isAnimating?: boolean
   isSelected?: boolean
 }
 
+// New interface for obstacle blocks
+export interface ObstacleBlock {
+  id: string
+  type: BlockType
+  row: number
+  col: number
+  orientation: 'horizontal' | 'vertical' // How the block spans
+  isDestroyed?: boolean
+  isAnimating?: boolean
+  health?: number // Some blocks might require multiple hits
+}
+
 export interface GameState {
   // Board state
   board: (Gem | null)[][]
+  obstacleBlocks: ObstacleBlock[] // New: obstacle blocks on the board
   boardSize: number
   
   // Game status
@@ -23,7 +41,11 @@ export interface GameState {
   targetScore: number
   timeRemaining?: number
   gameStatus: 'idle' | 'playing' | 'paused' | 'completed' | 'failed'
-  gameMode: 'normal' | 'timeAttack' | 'dailyChallenge' | 'campaign'
+  gameMode: 'normal' | 'timeAttack' | 'dailyChallenge' | 'campaign' | 'stage'
+  
+  // Stage system integration
+  currentStage?: number
+  blocksDestroyed?: number // Track blocks destroyed for stage objectives
   
   // Selection and animation
   selectedGem: { row: number; col: number } | null

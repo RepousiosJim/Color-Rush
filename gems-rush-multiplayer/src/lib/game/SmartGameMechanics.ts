@@ -69,7 +69,7 @@ export class SmartGameMechanics {
   }
 
   private initializeGemFrequency(): void {
-    const gemTypes: GemType[] = ['fire', 'water', 'earth', 'air', 'lightning', 'nature', 'magic']
+    const gemTypes: GemType[] = ['fire', 'water', 'earth', 'nature', 'lightning']
     gemTypes.forEach(type => {
       this.gemTypeFrequency.set(type, 0)
     })
@@ -301,7 +301,7 @@ export class SmartGameMechanics {
   private generateSpecialGem(context: any): GemType {
     // Logic for special gem generation based on context
     // This could be extended to create power-ups, bombs, etc.
-    const specialTypes: GemType[] = ['lightning', 'magic']
+    const specialTypes: GemType[] = ['lightning', 'nature']
     return specialTypes[Math.floor(Math.random() * specialTypes.length)]
   }
 

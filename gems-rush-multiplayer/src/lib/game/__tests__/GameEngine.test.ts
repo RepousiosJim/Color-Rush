@@ -42,9 +42,9 @@ describe('GameEngine', () => {
   describe('match detection', () => {
     it('should detect horizontal matches of 3', () => {
       const board = createTestBoard([
-        ['fire', 'fire', 'fire', 'water', 'earth', 'air', 'lightning', 'nature'],
-        ['water', 'earth', 'air', 'lightning', 'nature', 'magic', 'fire', 'water'],
-        // ... other rows
+        ['fire', 'fire', 'fire', 'water', 'earth', 'nature', 'lightning', 'nature'],
+        ['water', 'earth', 'nature', 'lightning', 'nature', 'fire', 'fire', 'water'],
+        ['earth', 'water', 'fire', 'lightning', 'nature', 'fire', 'water', 'earth'],
       ])
 
       const matches = gameEngine.findMatches(board)
@@ -55,10 +55,9 @@ describe('GameEngine', () => {
 
     it('should detect vertical matches of 3', () => {
       const board = createTestBoard([
-        ['fire', 'water', 'earth', 'air', 'lightning', 'nature', 'magic', 'fire'],
-        ['fire', 'earth', 'air', 'lightning', 'nature', 'magic', 'water', 'earth'],
-        ['fire', 'air', 'lightning', 'nature', 'magic', 'water', 'earth', 'air'],
-        // ... other rows
+        ['fire', 'water', 'earth', 'nature', 'lightning', 'nature', 'water', 'fire'],
+        ['fire', 'earth', 'nature', 'lightning', 'nature', 'lightning', 'water', 'earth'],
+        ['fire', 'nature', 'lightning', 'nature', 'water', 'water', 'earth', 'nature'],
       ])
 
       const matches = gameEngine.findMatches(board)
@@ -69,7 +68,7 @@ describe('GameEngine', () => {
 
     it('should detect longer matches (4+ gems)', () => {
       const board = createTestBoard([
-        ['fire', 'fire', 'fire', 'fire', 'earth', 'air', 'lightning', 'nature'],
+        ['fire', 'fire', 'fire', 'fire', 'earth', 'nature', 'lightning', 'nature'],
         // ... other rows
       ])
 
@@ -80,7 +79,7 @@ describe('GameEngine', () => {
 
     it('should not detect matches of length 2', () => {
       const board = createTestBoard([
-        ['fire', 'fire', 'water', 'earth', 'air', 'lightning', 'nature', 'magic'],
+        ['fire', 'fire', 'water', 'earth', 'nature', 'lightning', 'nature', 'water'],
         // ... other rows with no matches
       ])
 
@@ -209,7 +208,7 @@ function createGemArray(type: GemType, length: number): Gem[] {
 
 function createTestBoardWithMatch(): (Gem | null)[][] {
   // Create a specific 8x8 board where swapping (0,0) and (0,1) creates a match
-  const gemTypes: GemType[] = ['fire', 'water', 'earth', 'air', 'lightning', 'nature', 'magic']
+  const gemTypes: GemType[] = ['fire', 'water', 'earth', 'nature', 'lightning']
   
   return Array.from({ length: 8 }, (_, row) =>
     Array.from({ length: 8 }, (_, col) => ({

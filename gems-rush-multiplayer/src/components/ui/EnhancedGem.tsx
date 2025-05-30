@@ -65,6 +65,10 @@ export default function EnhancedGem({
     const gemConfig = GEM_TYPES[gem.type]
     const colors = GEM_COLORS[gem.type]
     
+    // Use professional visual icon for high quality, fallback to emoji for lower quality
+    const displayIcon = quality === 'ultra' || quality === 'high' ? 
+      gemConfig.visualIcon : gemConfig.icon
+    
     // Simplify visual complexity based on performance
     const simplifiedPattern = quality === 'minimal' || quality === 'low' ? 'solid' : gemConfig.pattern
     
@@ -72,7 +76,11 @@ export default function EnhancedGem({
       config: { ...gemConfig, pattern: simplifiedPattern },
       colors,
       shape: gemConfig.shape,
-      pattern: simplifiedPattern
+      pattern: simplifiedPattern,
+      displayIcon,
+      // NEW: Professional visual metrics
+      readabilityScore: gemConfig.gameplayReadability,
+      uniquenessScore: gemConfig.uniqueness
     }
   }, [gem, quality])
 
@@ -92,7 +100,7 @@ export default function EnhancedGem({
     return shapeMap[shape as keyof typeof shapeMap] || 'rounded-lg'
   }
 
-  // Simplified pattern background for performance
+  // Enhanced pattern background with professional gradients
   const getOptimizedPatternBackground = (pattern: string, colors: any) => {
     // Use simple gradients for lower performance
     if (quality === 'minimal') {
@@ -104,31 +112,41 @@ export default function EnhancedGem({
     
     if (quality === 'low') {
       return {
-        background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
+        background: colors.premiumGradient,
         boxShadow: `0 0 5px ${colors.glow}`
       }
     }
 
-    // Full complexity only for higher performance
+    // Full complexity with professional effects for higher performance
     switch (pattern) {
       case 'solid':
         return {
-          background: colors.primary,
-          boxShadow: `inset 0 0 20px ${colors.shadow}, 0 0 15px ${colors.glow}`
+          background: colors.premiumGradient,
+          boxShadow: `inset 0 0 20px ${colors.shadow}, 0 0 15px ${colors.glow}, 0 2px 8px ${colors.edgeHighlight}50`
         }
       case 'gradient':
         return {
-          background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 50%, ${colors.tertiary} 100%)`,
-          boxShadow: `inset 0 0 15px ${colors.shadow}, 0 0 10px ${colors.glow}`
+          background: colors.premiumGradient,
+          boxShadow: `inset 0 0 15px ${colors.shadow}, 0 0 10px ${colors.glow}, inset 0 2px 4px ${colors.edgeHighlight}60`
         }
       case 'radial':
         return {
-          background: `radial-gradient(circle at 30% 30%, ${colors.primary} 0%, ${colors.secondary} 40%, ${colors.tertiary} 100%)`,
-          boxShadow: `inset 0 0 20px ${colors.shadow}, 0 0 15px ${colors.accent}`
+          background: `radial-gradient(circle at 30% 30%, ${colors.coreGlow} 0%, ${colors.primary} 40%, ${colors.secondary} 100%)`,
+          boxShadow: `inset 0 0 20px ${colors.shadow}, 0 0 15px ${colors.glow}, 0 0 25px ${colors.coreGlow}40`
+        }
+      case 'crystalline':
+        return {
+          background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 30%, ${colors.edgeHighlight}40 50%, ${colors.secondary} 70%, ${colors.tertiary} 100%)`,
+          boxShadow: `inset 0 0 15px ${colors.shadow}, 0 0 20px ${colors.glow}, inset 0 4px 8px ${colors.edgeHighlight}80`
+        }
+      case 'swirl':
+        return {
+          background: `conic-gradient(from 45deg, ${colors.primary} 0%, ${colors.secondary} 25%, ${colors.tertiary} 50%, ${colors.secondary} 75%, ${colors.primary} 100%)`,
+          boxShadow: `inset 0 0 15px ${colors.shadow}, 0 0 18px ${colors.glow}, 0 0 30px ${colors.coreGlow}30`
         }
       default:
         return {
-          background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
+          background: colors.premiumGradient,
           boxShadow: `inset 0 0 15px ${colors.shadow}, 0 0 10px ${colors.glow}`
         }
     }
@@ -144,9 +162,9 @@ export default function EnhancedGem({
     }
     if (isHinted) {
       return {
-        background: 'rgba(59, 130, 246, 0.3)',
+        background: 'rgba(59, 130, 246, 0.4)',
         borderColor: '#3B82F6',
-        boxShadow: quality === 'minimal' ? 'none' : '0 0 25px rgba(59, 130, 246, 0.8)'
+        boxShadow: quality === 'minimal' ? 'none' : '0 0 35px rgba(59, 130, 246, 0.9), inset 0 0 20px rgba(59, 130, 246, 0.3)'
       }
     }
     if (isAdjacent) {
@@ -178,9 +196,9 @@ export default function EnhancedGem({
         transition: { duration: 0.8, repeat: Infinity, ease: "easeInOut" }
       }),
       hinted: getOptimizedAnimation({
-        scale: [1, 1.03, 1],
-        opacity: [1, 0.8, 1],
-        transition: { duration: 1.5, repeat: Infinity, ease: "easeInOut" }
+        scale: [1, 1.08, 1],
+        opacity: [1, 0.7, 1],
+        transition: { duration: 1.2, repeat: Infinity, ease: "easeInOut" }
       }),
       adjacent: { scale: 1.02, opacity: 1 },
       matched: getOptimizedAnimation({
@@ -257,14 +275,14 @@ export default function EnhancedGem({
             sizeVals.icon
           )}
           style={{ 
-            color: gem.type === 'air' ? '#1A1A1A' : '#FFFFFF',
-            textShadow: gem.type === 'air' ? 
-              '1px 1px 2px rgba(255,255,255,0.8)' : 
-              '1px 1px 3px rgba(0,0,0,0.8)',
+            color: visuals.colors.contrast,
+            textShadow: visuals.colors.contrast === '#FFFFFF' ? 
+              '1px 1px 3px rgba(0,0,0,0.8)' : 
+              '1px 1px 2px rgba(255,255,255,0.8)',
             filter: quality === 'minimal' ? 'none' : 'drop-shadow(0 1px 2px rgba(0,0,0,0.5))'
           }}
         >
-          {visuals.config.icon}
+          {visuals.displayIcon}
         </div>
 
         {/* Symbol overlay only for medium+ performance */}

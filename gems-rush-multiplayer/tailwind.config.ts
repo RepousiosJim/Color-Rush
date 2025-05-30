@@ -13,13 +13,16 @@ const config: Config = {
         'gradient-conic':
           'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
         'divine-gradient': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        'fire-gradient': 'linear-gradient(135deg, #FF4500 0%, #DC143C 100%)',
-        'water-gradient': 'linear-gradient(135deg, #1E90FF 0%, #4169E1 100%)',
-        'earth-gradient': 'linear-gradient(135deg, #8B4513 0%, #A0522D 100%)',
-        'air-gradient': 'linear-gradient(135deg, #87CEEB 0%, #B0E0E6 100%)',
-        'lightning-gradient': 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
-        'nature-gradient': 'linear-gradient(135deg, #32CD32 0%, #228B22 100%)',
-        'magic-gradient': 'linear-gradient(135deg, #9932CC 0%, #8A2BE2 100%)',
+        'fire-gradient': 'linear-gradient(135deg, #E53E3E 0%, #FD8B1E 50%, #F6AD55 100%)',
+        'water-gradient': 'linear-gradient(135deg, #2B6CB0 0%, #3182CE 50%, #63B3ED 100%)',
+        'earth-gradient': 'linear-gradient(135deg, #744210 0%, #A0522D 50%, #D69E2E 100%)',
+        'nature-gradient': 'linear-gradient(135deg, #22543D 0%, #38A169 50%, #68D391 100%)',
+        'lightning-gradient': 'linear-gradient(135deg, #D69E2E 0%, #F6E05E 50%, #FEFCBF 100%)',
+        'fire-crystalline': 'linear-gradient(135deg, #E53E3E 0%, #FD8B1E 30%, #FFE4E140 50%, #FD8B1E 70%, #F6AD55 100%)',
+        'water-crystalline': 'linear-gradient(135deg, #2B6CB0 0%, #3182CE 30%, #E6F7FF40 50%, #3182CE 70%, #63B3ED 100%)',
+        'earth-crystalline': 'linear-gradient(135deg, #744210 0%, #A0522D 30%, #FFF8DC40 50%, #A0522D 70%, #D69E2E 100%)',
+        'nature-crystalline': 'linear-gradient(135deg, #22543D 0%, #38A169 30%, #F0FFF440 50%, #38A169 70%, #68D391 100%)',
+        'lightning-crystalline': 'linear-gradient(135deg, #D69E2E 0%, #F6E05E 30%, #FFFFF040 50%, #F6E05E 70%, #FEFCBF 100%)',
       },
       colors: {
         divine: {
@@ -35,13 +38,11 @@ const config: Config = {
           900: '#581fae',
         },
         gem: {
-          fire: '#FF4500',
-          water: '#1E90FF',
-          earth: '#8B4513',
-          air: '#87CEEB',
-          lightning: '#FFD700',
-          nature: '#32CD32',
-          magic: '#9932CC',
+          fire: '#E53E3E',
+          water: '#2B6CB0',
+          earth: '#744210',
+          lightning: '#D69E2E',
+          nature: '#22543D',
         }
       },
       animation: {
