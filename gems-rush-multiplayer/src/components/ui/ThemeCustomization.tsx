@@ -111,10 +111,6 @@ const GAME_THEMES: Record<ThemeVariant, GameTheme> = {
         colors: { primary: '#8B4513', secondary: '#A0522D', glow: '#D2691E', shadow: '#654321' },
         effects: { glow: true, particles: true, animation: 'standard' }
       },
-      air: {
-        colors: { primary: '#87CEEB', secondary: '#B0E0E6', glow: '#E0F6FF', shadow: '#4682B4' },
-        effects: { glow: true, particles: true, animation: 'float' }
-      },
       lightning: {
         colors: { primary: '#FFD700', secondary: '#FFA500', glow: '#FFFF00', shadow: '#FF8C00' },
         effects: { glow: true, particles: true, animation: 'pulse', specialFx: 'electric' }
@@ -122,10 +118,6 @@ const GAME_THEMES: Record<ThemeVariant, GameTheme> = {
       nature: {
         colors: { primary: '#32CD32', secondary: '#228B22', glow: '#90EE90', shadow: '#006400' },
         effects: { glow: true, particles: true, animation: 'float' }
-      },
-      magic: {
-        colors: { primary: '#9932CC', secondary: '#8A2BE2', glow: '#DDA0DD', shadow: '#4B0082' },
-        effects: { glow: true, particles: true, animation: 'rotate', specialFx: 'sparkle' }
       }
     },
     boardStyles: {
@@ -170,10 +162,6 @@ const GAME_THEMES: Record<ThemeVariant, GameTheme> = {
         colors: { primary: '#ffbe0b', secondary: '#fb8500', glow: '#ffd60a', shadow: '#d68100' },
         effects: { glow: true, particles: true, animation: 'pulse' }
       },
-      air: {
-        colors: { primary: '#8338ec', secondary: '#a663cc', glow: '#c77dff', shadow: '#6929c4' },
-        effects: { glow: true, particles: true, animation: 'float' }
-      },
       lightning: {
         colors: { primary: '#06ffa5', secondary: '#00f5ff', glow: '#00ff9f', shadow: '#00cc78' },
         effects: { glow: true, particles: true, animation: 'pulse', specialFx: 'cyber-lightning' }
@@ -181,10 +169,6 @@ const GAME_THEMES: Record<ThemeVariant, GameTheme> = {
       nature: {
         colors: { primary: '#32ff32', secondary: '#00ff00', glow: '#7fff00', shadow: '#00cc00' },
         effects: { glow: true, particles: true, animation: 'float', specialFx: 'matrix-code' }
-      },
-      magic: {
-        colors: { primary: '#ff00ff', secondary: '#bf00ff', glow: '#ff80ff', shadow: '#9900cc' },
-        effects: { glow: true, particles: true, animation: 'rotate', specialFx: 'hologram' }
       }
     },
     boardStyles: {
@@ -230,10 +214,6 @@ const GAME_THEMES: Record<ThemeVariant, GameTheme> = {
         colors: { primary: '#8b4513', secondary: '#cd853f', glow: '#daa520', shadow: '#654321' },
         effects: { glow: true, particles: true, animation: 'standard', specialFx: 'earth-crumble' }
       },
-      air: {
-        colors: { primary: '#98fb98', secondary: '#90ee90', glow: '#f0fff0', shadow: '#228b22' },
-        effects: { glow: true, particles: true, animation: 'float', specialFx: 'wind-swirl' }
-      },
       lightning: {
         colors: { primary: '#9acd32', secondary: '#adff2f', glow: '#7fff00', shadow: '#556b2f' },
         effects: { glow: true, particles: true, animation: 'pulse', specialFx: 'bio-electric' }
@@ -241,10 +221,6 @@ const GAME_THEMES: Record<ThemeVariant, GameTheme> = {
       nature: {
         colors: { primary: '#228b22', secondary: '#32cd32', glow: '#90ee90', shadow: '#006400' },
         effects: { glow: true, particles: true, animation: 'float', specialFx: 'growth-spiral' }
-      },
-      magic: {
-        colors: { primary: '#9370db', secondary: '#ba55d3', glow: '#dda0dd', shadow: '#4b0082' },
-        effects: { glow: true, particles: true, animation: 'rotate', specialFx: 'fairy-dust' }
       }
     },
     boardStyles: {
@@ -289,10 +265,6 @@ const GAME_THEMES: Record<ThemeVariant, GameTheme> = {
         colors: { primary: '#ffa502', secondary: '#ff6348', glow: '#ffb142', shadow: '#e55039' },
         effects: { glow: true, particles: true, animation: 'standard', specialFx: 'asteroid-spin' }
       },
-      air: {
-        colors: { primary: '#7bed9f', secondary: '#70a1ff', glow: '#a4b0be', shadow: '#57606f' },
-        effects: { glow: true, particles: true, animation: 'float', specialFx: 'cosmic-wind' }
-      },
       lightning: {
         colors: { primary: '#eccc68', secondary: '#ffa502', glow: '#f1c40f', shadow: '#f39c12' },
         effects: { glow: true, particles: true, animation: 'pulse', specialFx: 'cosmic-storm' }
@@ -300,10 +272,6 @@ const GAME_THEMES: Record<ThemeVariant, GameTheme> = {
       nature: {
         colors: { primary: '#7bed9f', secondary: '#2ed573', glow: '#7bed9f', shadow: '#2ed573' },
         effects: { glow: true, particles: true, animation: 'float', specialFx: 'alien-growth' }
-      },
-      magic: {
-        colors: { primary: '#e056fd', secondary: '#f8acff', glow: '#f8acff', shadow: '#c44569' },
-        effects: { glow: true, particles: true, animation: 'rotate', specialFx: 'quantum-flux' }
       }
     },
     boardStyles: {
@@ -348,10 +316,6 @@ const GAME_THEMES: Record<ThemeVariant, GameTheme> = {
         colors: { primary: '#ffa502', secondary: '#ff6348', glow: '#ffb142', shadow: '#e55039' },
         effects: { glow: true, particles: true, animation: 'standard', specialFx: 'lava-burst' }
       },
-      air: {
-        colors: { primary: '#ff7675', secondary: '#fd79a8', glow: '#fdcb6e', shadow: '#e84393' },
-        effects: { glow: true, particles: true, animation: 'float', specialFx: 'heat-wave' }
-      },
       lightning: {
         colors: { primary: '#fdcb6e', secondary: '#e17055', glow: '#f39c12', shadow: '#d63031' },
         effects: { glow: true, particles: true, animation: 'pulse', specialFx: 'fire-lightning' }
@@ -359,10 +323,6 @@ const GAME_THEMES: Record<ThemeVariant, GameTheme> = {
       nature: {
         colors: { primary: '#e17055', secondary: '#d63031', glow: '#fab1a0', shadow: '#a29bfe' },
         effects: { glow: true, particles: true, animation: 'float', specialFx: 'burning-leaves' }
-      },
-      magic: {
-        colors: { primary: '#fd79a8', secondary: '#e84393', glow: '#fdcb6e', shadow: '#6c5ce7' },
-        effects: { glow: true, particles: true, animation: 'rotate', specialFx: 'fire-magic' }
       }
     },
     boardStyles: {
@@ -406,10 +366,6 @@ const GAME_THEMES: Record<ThemeVariant, GameTheme> = {
         colors: { primary: '#4db6ac', secondary: '#26a69a', glow: '#80cbc4', shadow: '#00695c' },
         effects: { glow: true, particles: true, animation: 'standard', specialFx: 'coral-growth' }
       },
-      air: {
-        colors: { primary: '#81c784', secondary: '#66bb6a', glow: '#a5d6a7', shadow: '#388e3c' },
-        effects: { glow: true, particles: true, animation: 'float', specialFx: 'underwater-current' }
-      },
       lightning: {
         colors: { primary: '#29b6f6', secondary: '#039be5', glow: '#4fc3f7', shadow: '#0277bd' },
         effects: { glow: true, particles: true, animation: 'pulse', specialFx: 'bio-luminescence' }
@@ -417,10 +373,6 @@ const GAME_THEMES: Record<ThemeVariant, GameTheme> = {
       nature: {
         colors: { primary: '#66bb6a', secondary: '#4caf50', glow: '#81c784', shadow: '#2e7d32' },
         effects: { glow: true, particles: true, animation: 'float', specialFx: 'seaweed-sway' }
-      },
-      magic: {
-        colors: { primary: '#7986cb', secondary: '#5c6bc0', glow: '#9fa8da', shadow: '#3f51b5' },
-        effects: { glow: true, particles: true, animation: 'rotate', specialFx: 'deep-magic' }
       }
     },
     boardStyles: {
@@ -464,10 +416,6 @@ const GAME_THEMES: Record<ThemeVariant, GameTheme> = {
         colors: { primary: '#f39c12', secondary: '#f4d03f', glow: '#f7dc6f', shadow: '#d68910' },
         effects: { glow: true, particles: true, animation: 'standard', specialFx: 'crystal-formation' }
       },
-      air: {
-        colors: { primary: '#17a2b8', secondary: '#5499c7', glow: '#7fb3d3', shadow: '#1b4f72' },
-        effects: { glow: true, particles: true, animation: 'float', specialFx: 'ethereal-wind' }
-      },
       lightning: {
         colors: { primary: '#e74c3c', secondary: '#ec7063', glow: '#f1948a', shadow: '#c0392b' },
         effects: { glow: true, particles: true, animation: 'pulse', specialFx: 'arcane-lightning' }
@@ -475,10 +423,6 @@ const GAME_THEMES: Record<ThemeVariant, GameTheme> = {
       nature: {
         colors: { primary: '#27ae60', secondary: '#58d68d', glow: '#7dcea0', shadow: '#1e8449' },
         effects: { glow: true, particles: true, animation: 'float', specialFx: 'life-force' }
-      },
-      magic: {
-        colors: { primary: '#9b59b6', secondary: '#bb8fce', glow: '#d7bde2', shadow: '#7d3c98' },
-        effects: { glow: true, particles: true, animation: 'rotate', specialFx: 'pure-magic' }
       }
     },
     boardStyles: {
@@ -522,10 +466,6 @@ const GAME_THEMES: Record<ThemeVariant, GameTheme> = {
         colors: { primary: '#8bc34a', secondary: '#9ccc65', glow: '#aed581', shadow: '#689f38' },
         effects: { glow: true, particles: true, animation: 'standard', specialFx: 'crystal-growth' }
       },
-      air: {
-        colors: { primary: '#00bcd4', secondary: '#26c6da', glow: '#4dd0e1', shadow: '#0097a7' },
-        effects: { glow: true, particles: true, animation: 'float', specialFx: 'crystal-wind' }
-      },
       lightning: {
         colors: { primary: '#ffc107', secondary: '#ffca28', glow: '#ffd54f', shadow: '#f57f17' },
         effects: { glow: true, particles: true, animation: 'pulse', specialFx: 'crystal-lightning' }
@@ -533,10 +473,6 @@ const GAME_THEMES: Record<ThemeVariant, GameTheme> = {
       nature: {
         colors: { primary: '#4caf50', secondary: '#66bb6a', glow: '#81c784', shadow: '#2e7d32' },
         effects: { glow: true, particles: true, animation: 'float', specialFx: 'crystal-nature' }
-      },
-      magic: {
-        colors: { primary: '#9c27b0', secondary: '#ab47bc', glow: '#ba68c8', shadow: '#6a1b9a' },
-        effects: { glow: true, particles: true, animation: 'rotate', specialFx: 'prismatic-magic' }
       }
     },
     boardStyles: {

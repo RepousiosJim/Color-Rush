@@ -117,36 +117,29 @@ export const getPerformanceQuality = (
 export const getOptimizedAnimationConfig = (baseConfig: any, quality: PerformanceQuality) => {
   const configs = {
     minimal: {
-      ...baseConfig,
+      scale: baseConfig.scale || 1,
+      opacity: baseConfig.opacity || 1,
       duration: 0,
-      transition: { duration: 0 },
-      animate: false,
-      enableEffects: false
+      transition: { duration: 0 }
     },
     low: {
-      ...baseConfig,
+      scale: baseConfig.scale || 1,
+      opacity: baseConfig.opacity || 1,
       duration: (baseConfig.duration || 0.3) * 0.3,
-      transition: { ...baseConfig.transition, ease: 'linear' },
-      animate: false,
-      enableEffects: false
+      transition: { ...baseConfig.transition, ease: 'linear', duration: (baseConfig.transition?.duration || 0.3) * 0.3 }
     },
     medium: {
       ...baseConfig,
       duration: (baseConfig.duration || 0.3) * 0.5,
-      transition: { ...baseConfig.transition, ease: 'easeOut' },
-      animate: true,
-      enableEffects: false
+      transition: { ...baseConfig.transition, ease: 'easeOut', duration: (baseConfig.transition?.duration || 0.3) * 0.5 }
     },
     high: {
       ...baseConfig,
       duration: (baseConfig.duration || 0.3) * 0.8,
-      animate: true,
-      enableEffects: true
+      transition: { ...baseConfig.transition, duration: (baseConfig.transition?.duration || 0.3) * 0.8 }
     },
     ultra: {
-      ...baseConfig,
-      animate: true,
-      enableEffects: true
+      ...baseConfig
     }
   }
   

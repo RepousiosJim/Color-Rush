@@ -533,7 +533,7 @@ export class IntelligentBoardAnalysis {
   }
 
   private fillEmptySpaces(board: (Gem | null)[][]): void {
-    const gemTypes: GemType[] = ['fire', 'water', 'earth', 'air', 'lightning', 'nature', 'magic']
+    const gemTypes: GemType[] = ['fire', 'water', 'earth', 'nature', 'lightning']
     
     for (let col = 0; col < this.BOARD_SIZE; col++) {
       for (let row = 0; row < this.BOARD_SIZE; row++) {
