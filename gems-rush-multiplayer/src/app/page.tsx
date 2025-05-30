@@ -16,13 +16,23 @@ import UserDashboard from '@/components/ui/UserDashboard'
 import EnergyDisplay from '@/components/ui/EnergyDisplay'
 import DailyEventBanner from '@/components/ui/DailyEventBanner'
 import GameInterface from '@/components/game/GameInterface'
+import TimeRushMode from '@/components/game/TimeRushMode'
 import StageSelectScreen from '@/components/ui/StageSelectScreen'
 import SettingsModal from '@/components/ui/SettingsModal'
 import StatisticsModal from '@/components/ui/StatisticsModal'
 import { GameGuideModal, CreditsModal } from '@/components/ui/Modal'
 
-type AppState = 'menu' | 'game' | 'loading' | 'stageSelect'
+type AppState = 'menu' | 'game' | 'timeRush' | 'loading' | 'stageSelect'
 type ModalState = 'settings' | 'guide' | 'credits' | 'statistics' | 'dashboard' | null
+
+interface TimeRushStats {
+  finalScore: number
+  totalMatches: number
+  powerUpsActivated: number
+  maxCombo: number
+  rushBonus: number
+  timeUsed: number
+}
 
 interface UserStatsType {
   level: number
@@ -34,6 +44,8 @@ interface UserStatsType {
   totalScore: number
   averageScore: number
   bestScore: number
+  bestTimeRushScore: number // New: Track best Time Rush score
+  timeRushGamesPlayed: number // New: Track Time Rush games played
   dailyChallengeCompleted: boolean
   achievements: Array<{
     id: string
@@ -88,6 +100,8 @@ export default function HomePage() {
     totalScore: 0,
     averageScore: 0,
     bestScore: 0,
+    bestTimeRushScore: 0,
+    timeRushGamesPlayed: 0,
     dailyChallengeCompleted: false,
     achievements: [],
     favoriteMode: 'Classic',
@@ -476,7 +490,7 @@ export default function HomePage() {
         gameEngineRef.current.removeAllListeners()
       }
 
-      const engine = new GameEngine()
+        const engine = new GameEngine()
       await engine.initialize()
       
       setupGameEngineListeners(engine)
@@ -562,8 +576,93 @@ export default function HomePage() {
   const handleModeSelect = (mode: string) => {
     if (mode === 'stage') {
       setAppState('stageSelect')
+    } else if (mode === 'timeAttack') {
+      // Initialize Time Rush mode
+      initializeTimeRushMode()
     } else {
       initializeGame(mode, false) // false = new game session
+    }
+  }
+
+  const initializeTimeRushMode = async () => {
+    try {
+      if (!canStartNewGame()) {
+        console.warn('⚡ Not enough energy to start Time Rush!')
+        return
+      }
+
+      setAppState('loading')
+      
+      // Start new game session for Time Rush
+      const gameSession = startNewGameSession('timeAttack')
+      
+      if (gameEngineRef.current) {
+        gameEngineRef.current.removeAllListeners()
+      }
+
+      const engine = new GameEngine()
+      await engine.initialize()
+      
+      setupGameEngineListeners(engine)
+      
+      // Consume energy for Time Rush session
+      if (gameSession && !gameSession.energyConsumed) {
+        const energyConsumed = consumeEnergyForSession(gameSession)
+        if (!energyConsumed) {
+          console.error('⚡ Failed to consume energy for Time Rush session')
+          setAppState('menu')
+          return
+        }
+      }
+      
+      setGameEngine(engine)
+      gameEngineRef.current = engine
+      setAppState('timeRush')
+      
+      console.log('🚀 Time Rush mode initialized!')
+    } catch (error) {
+      console.error('Failed to initialize Time Rush mode:', error)
+      setAppState('menu')
+    }
+  }
+
+  const handleTimeRushEnd = (finalScore: number, stats: TimeRushStats) => {
+    console.log('⚡ Time Rush completed!', { finalScore, stats })
+    
+    // End game session with completion
+    endGameSession(true)
+    
+    // Update user stats with Time Rush specific data
+    setUserStats(prev => {
+      const levelUpData = calculateLevelUp(prev.xp, stats.rushBonus + Math.floor(finalScore / 5))
+      
+      return {
+        ...prev,
+        coins: prev.coins + Math.floor(finalScore / 10) + stats.rushBonus,
+        xp: prev.xp + stats.rushBonus + Math.floor(finalScore / 5),
+        level: levelUpData.newLevel,
+        totalScore: prev.totalScore + finalScore,
+        bestScore: Math.max(prev.bestScore, finalScore),
+        bestTimeRushScore: Math.max(prev.bestTimeRushScore, finalScore),
+        timeRushGamesPlayed: prev.timeRushGamesPlayed + 1,
+        averageScore: Math.floor((prev.totalScore + finalScore) / (prev.gamesPlayed + 1))
+      }
+    })
+    
+    // Show results for a moment before returning to menu
+    setTimeout(() => {
+      setAppState('menu')
+    }, 3000)
+  }
+
+  const calculateLevelUp = (currentXP: number, xpGained: number) => {
+    const newXP = currentXP + xpGained
+    const currentLevel = Math.floor(newXP / 100) + 1 // 100 XP per level
+    
+    return {
+      newLevel: currentLevel,
+      newXP: newXP,
+      leveledUp: Math.floor(currentXP / 100) + 1 < currentLevel
     }
   }
 
@@ -1021,6 +1120,23 @@ export default function HomePage() {
         {/* Game modals */}
         <SettingsModal isOpen={modalState === 'settings'} onClose={closeModal} />
         <StatisticsModal isOpen={modalState === 'statistics'} onClose={closeModal} />
+      </>
+    )
+  }
+
+  // Time Rush mode interface
+  if (appState === 'timeRush' && gameEngine) {
+    return (
+      <>
+        <TimeRushMode
+          gameEngine={gameEngine}
+          onGameEnd={handleTimeRushEnd}
+          onPause={() => console.log('Pause not supported in Time Rush')}
+          onShowMenu={handleShowMenu}
+        />
+        
+        {/* Time Rush modals */}
+        <SettingsModal isOpen={modalState === 'settings'} onClose={closeModal} />
       </>
     )
   }

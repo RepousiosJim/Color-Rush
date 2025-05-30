@@ -245,72 +245,78 @@ export default function EnhancedMainMenu({
 
       {/* Header with user profile */}
       <motion.div
-        className="relative z-10 p-4 flex justify-between items-start"
+        className="relative z-10 p-8 flex justify-between items-start"
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
         {/* User Profile Section */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-6">
           <button
             onClick={() => onShowDashboard?.()}
-            className="relative flex items-center gap-3 bg-white/10 backdrop-blur-md rounded-2xl px-4 py-3 border border-white/20 hover:bg-white/20 transition-all duration-200 group"
+            className="relative flex items-center gap-5 bg-white/15 backdrop-blur-md rounded-2xl px-6 py-5 border border-white/25 hover:bg-white/25 transition-all duration-200 group shadow-lg"
           >
-            <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-200">
+            <div className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-200 shadow-md">
               👑
             </div>
-            <div className="text-left">
-              <div className="text-white font-bold">Level {userLevel}</div>
-              <div className="text-white/70 text-sm">Gem Master</div>
+            <div className="text-left space-y-1">
+              <div className="text-white font-bold text-xl">Level {userLevel}</div>
+              <div className="text-white/70 text-base">Gem Master</div>
             </div>
-            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-white/60">
-              <div className="text-xs">View Profile</div>
+            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-white/60 ml-2">
+              <div className="text-sm">View Profile</div>
             </div>
           </button>
 
           {/* User stats quick view */}
-          <div className="flex gap-2">
-            <div className="bg-white/10 backdrop-blur-md rounded-xl px-3 py-2 border border-white/20 flex items-center gap-2 hover:bg-white/15 transition-colors duration-200">
-              <span className="text-yellow-400">💰</span>
-              <span className="text-white font-medium">{userCoins}</span>
+          <div className="flex gap-4">
+            <div className="bg-white/15 backdrop-blur-md rounded-xl px-5 py-4 border border-white/25 flex items-center gap-3 hover:bg-white/20 transition-colors duration-200 shadow-md min-w-[120px] justify-center">
+              <span className="text-yellow-400 text-xl">💰</span>
+              <span className="text-white font-semibold text-xl">{userCoins}</span>
             </div>
-            <div className="bg-white/10 backdrop-blur-md rounded-xl px-3 py-2 border border-white/20 flex items-center gap-2 hover:bg-white/15 transition-colors duration-200">
-              <span className="text-purple-400">💎</span>
-              <span className="text-white font-medium">{userGems}</span>
+            <div className="bg-white/15 backdrop-blur-md rounded-xl px-5 py-4 border border-white/25 flex items-center gap-3 hover:bg-white/20 transition-colors duration-200 shadow-md min-w-[120px] justify-center">
+              <span className="text-purple-400 text-xl">💎</span>
+              <span className="text-white font-semibold text-xl">{userGems}</span>
             </div>
           </div>
         </div>
 
         {/* Quick actions */}
-        <div className="flex gap-2">
+        <div className="flex gap-4">
           <button
             onClick={onShowSettings}
-            className="w-12 h-12 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 flex items-center justify-center hover:bg-white/20 transition-all duration-200"
+            className="w-16 h-16 bg-white/15 backdrop-blur-md rounded-xl border border-white/25 flex items-center justify-center hover:bg-white/25 transition-all duration-200 shadow-md"
             aria-label="Settings"
           >
-            <Settings className="w-6 h-6 text-white" />
+            <Settings className="w-7 h-7 text-white" />
           </button>
           <button
             onClick={onShowGuide}
-            className="w-12 h-12 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 flex items-center justify-center hover:bg-white/20 transition-all duration-200"
+            className="w-16 h-16 bg-white/15 backdrop-blur-md rounded-xl border border-white/25 flex items-center justify-center hover:bg-white/25 transition-all duration-200 shadow-md"
             aria-label="Help"
           >
-            <Info className="w-6 h-6 text-white" />
+            <Info className="w-7 h-7 text-white" />
           </button>
         </div>
       </motion.div>
 
       {/* Main content */}
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-[calc(100vh-100px)] px-4">
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-[calc(100vh-140px)] px-8">
         {/* Enhanced Game logo */}
         <motion.div
-          className="text-center mb-12 lg:mb-16"
+          className="text-center mb-24 lg:mb-28 w-full flex flex-col items-center justify-center"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.5 }}
         >
           <motion.h1 
-            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bold bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 bg-clip-text text-transparent mb-6"
+            className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl xl:text-[10rem] font-bold bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 bg-clip-text text-transparent leading-none tracking-tight text-center w-full"
+            style={{ 
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              textAlign: 'center'
+            }}
             animate={{ 
               backgroundPosition: ['0% 50%', '100% 50%', '0% 50%']
             }}
@@ -318,102 +324,127 @@ export default function EnhancedMainMenu({
           >
             GEMS RUSH
           </motion.h1>
+          
           <motion.div
-            className="flex items-center justify-center gap-3 mb-4"
+            className="flex items-center justify-center gap-8 mt-10 w-full"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8 }}
           >
-            <div className="w-16 h-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
-            <span className="text-2xl">⚡</span>
-            <div className="w-16 h-1 bg-gradient-to-r from-pink-500 to-yellow-500 rounded-full"></div>
+            <div className="w-28 h-2.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
+            <div className="flex items-center justify-center">
+              <span className="text-5xl leading-none">⚡</span>
+            </div>
+            <div className="w-28 h-2.5 bg-gradient-to-r from-pink-500 to-yellow-500 rounded-full"></div>
           </motion.div>
-          <p className="text-white/90 text-lg md:text-xl lg:text-2xl font-medium">
-            Divine Match-3 Adventure
-          </p>
-          <p className="text-white/60 text-sm md:text-base mt-2 max-w-md mx-auto">
-            Master elemental gems, unlock divine powers, and conquer mystical realms
-          </p>
+          
+          <div className="mt-12 w-full flex flex-col items-center justify-center text-center">
+            <p className="text-white/90 text-2xl md:text-3xl lg:text-4xl font-medium tracking-wide leading-tight text-center">
+              Divine Match-3 Adventure
+            </p>
+            <p className="text-white/60 text-lg md:text-xl mt-8 max-w-2xl mx-auto leading-relaxed text-center px-4">
+              Master elemental gems, unlock divine powers, and conquer mystical realms
+            </p>
+          </div>
         </motion.div>
 
         {/* Enhanced Game mode selector */}
         <motion.div
-          className="w-full max-w-2xl"
+          className="w-full max-w-5xl flex flex-col items-center justify-center"
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8 }}
         >
           {/* Mode navigation */}
-          <div className="flex items-center justify-center mb-8">
+          <div className="flex items-center justify-center gap-16 w-full mb-16">
             <motion.button
               onClick={() => navigateMode('left')}
-              className="w-14 h-14 lg:w-16 lg:h-16 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white flex items-center justify-center hover:from-purple-700 hover:to-blue-700 transition-all duration-200 mr-6 shadow-lg"
+              className="w-20 h-20 lg:w-24 lg:h-24 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white flex items-center justify-center hover:from-purple-700 hover:to-blue-700 transition-all duration-200 shadow-xl"
               whileHover={{ scale: 1.1, y: -2 }}
               whileTap={{ scale: 0.95 }}
               aria-label="Previous mode"
             >
-              <span className="text-xl lg:text-2xl">◀</span>
+              <span className="text-3xl lg:text-4xl leading-none flex items-center justify-center">◀</span>
             </motion.button>
 
             {/* Enhanced Selected mode card */}
             <motion.div
               key={selectedModeIndex}
-              className="flex-1 max-w-md lg:max-w-lg"
+              className="flex-1 max-w-3xl"
               initial={{ opacity: 0, scale: 0.9, rotateY: 90 }}
               animate={{ opacity: 1, scale: 1, rotateY: 0 }}
               transition={{ duration: 0.4, ease: "easeOut" }}
             >
-              <div className={`relative bg-white/10 backdrop-blur-md rounded-3xl p-6 lg:p-8 border border-white/20 shadow-2xl ${selectedMode.locked ? 'opacity-60' : ''} hover:bg-white/15 transition-all duration-300`}>
+              <div className={`relative bg-white/15 backdrop-blur-md rounded-3xl p-12 lg:p-16 border border-white/25 shadow-2xl ${selectedMode.locked ? 'opacity-60' : ''} hover:bg-white/20 transition-all duration-300`}>
                 {selectedMode.locked && (
                   <motion.div 
                     className="absolute inset-0 bg-black/30 backdrop-blur-sm rounded-3xl flex items-center justify-center"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                   >
-                    <div className="text-center">
+                    <div className="text-center flex flex-col items-center justify-center">
                       <motion.div 
-                        className="text-5xl mb-3"
+                        className="text-8xl leading-none mb-8 flex items-center justify-center"
                         animate={{ rotate: [0, 10, -10, 0] }}
                         transition={{ duration: 2, repeat: Infinity }}
                       >
                         🔒
                       </motion.div>
-                      <div className="text-white font-medium text-lg">Reach Level {userLevel + 5}</div>
-                      <div className="text-white/60 text-sm mt-1">Continue playing to unlock!</div>
+                      <div className="flex flex-col items-center justify-center text-center">
+                        <div className="text-white font-semibold text-2xl mb-4 text-center">Reach Level {userLevel + 5}</div>
+                        <div className="text-white/60 text-lg text-center">Continue playing to unlock!</div>
+                      </div>
                     </div>
                   </motion.div>
                 )}
 
-                <div className="text-center">
+                <div className="text-center flex flex-col items-center justify-center w-full">
                   <motion.div 
-                    className="flex justify-center mb-4 text-white"
+                    className="flex justify-center text-white w-full mb-10"
                     whileHover={{ scale: 1.2, rotate: 5 }}
                     transition={{ duration: 0.2 }}
                   >
-                    {selectedMode.icon}
+                    <div className="w-24 h-24 flex items-center justify-center bg-white/10 rounded-2xl">
+                      <div className="scale-150 flex items-center justify-center">
+                        {selectedMode.icon}
+                      </div>
+                    </div>
                   </motion.div>
-                  <h3 className="text-2xl lg:text-3xl font-bold text-white mb-3">{selectedMode.title}</h3>
-                  <p className="text-white/80 text-base lg:text-lg mb-4">{selectedMode.subtitle}</p>
+                  
+                  <div className="text-center w-full flex flex-col items-center justify-center mb-10">
+                    <h3 className="text-4xl lg:text-5xl font-bold text-white leading-tight tracking-tight text-center mb-6">
+                      {selectedMode.title}
+                    </h3>
+                    <p className="text-white/80 text-xl lg:text-2xl font-medium tracking-wide text-center">
+                      {selectedMode.subtitle}
+                    </p>
+                  </div>
                   
                   {selectedMode.badge && (
                     <motion.div 
-                      className={`inline-block px-4 py-2 rounded-full text-white text-sm font-bold ${selectedMode.badgeColor} mb-4 shadow-lg`}
+                      className="flex justify-center w-full mb-10"
                       whileHover={{ scale: 1.05 }}
                       animate={{ 
                         boxShadow: ['0 0 0 0 rgba(147, 51, 234, 0.3)', '0 0 0 10px rgba(147, 51, 234, 0)', '0 0 0 0 rgba(147, 51, 234, 0.3)']
                       }}
                       transition={{ duration: 2, repeat: Infinity }}
                     >
-                      {selectedMode.badge}
+                      <div className={`inline-block px-8 py-4 rounded-full text-white text-lg font-bold ${selectedMode.badgeColor} shadow-lg`}>
+                        {selectedMode.badge}
+                      </div>
                     </motion.div>
                   )}
 
-                  <p className="text-white/70 text-sm lg:text-base mb-6 leading-relaxed">{selectedMode.description}</p>
+                  <div className="max-w-2xl w-full flex justify-center mb-10">
+                    <p className="text-white/70 text-lg lg:text-xl leading-relaxed text-center">
+                      {selectedMode.description}
+                    </p>
+                  </div>
 
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center text-sm lg:text-base">
+                  <div className="w-full max-w-xl flex flex-col items-center justify-center gap-6">
+                    <div className="flex justify-between items-center text-lg lg:text-xl bg-white/8 rounded-2xl px-8 py-6 border border-white/10 w-full">
                       <span className="text-white/70 font-medium">Difficulty:</span>
-                      <span className={`font-bold px-3 py-1 rounded-full text-sm ${
+                      <span className={`font-bold px-6 py-3 rounded-full text-base ${
                         selectedMode.difficulty === 'Easy' ? 'text-green-400 bg-green-400/20' :
                         selectedMode.difficulty === 'Medium' ? 'text-yellow-400 bg-yellow-400/20' :
                         selectedMode.difficulty === 'Hard' ? 'text-orange-400 bg-orange-400/20' : 'text-red-400 bg-red-400/20'
@@ -423,9 +454,11 @@ export default function EnhancedMainMenu({
                     </div>
 
                     {selectedMode.reward && (
-                      <div className="flex justify-between items-center text-sm lg:text-base">
+                      <div className="flex justify-between items-center text-lg lg:text-xl bg-white/8 rounded-2xl px-8 py-6 border border-white/10 w-full">
                         <span className="text-white/70 font-medium">Reward:</span>
-                        <span className="text-yellow-400 font-bold bg-yellow-400/20 px-3 py-1 rounded-full">+{selectedMode.reward} 💰</span>
+                        <span className="text-yellow-400 font-bold bg-yellow-400/20 px-6 py-3 rounded-full flex items-center gap-3">
+                          +{selectedMode.reward} <span className="text-xl leading-none">💰</span>
+                        </span>
                       </div>
                     )}
                   </div>
@@ -435,61 +468,70 @@ export default function EnhancedMainMenu({
 
             <motion.button
               onClick={() => navigateMode('right')}
-              className="w-14 h-14 lg:w-16 lg:h-16 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white flex items-center justify-center hover:from-blue-700 hover:to-purple-700 transition-all duration-200 ml-6 shadow-lg"
+              className="w-20 h-20 lg:w-24 lg:h-24 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white flex items-center justify-center hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-xl"
               whileHover={{ scale: 1.1, y: -2 }}
               whileTap={{ scale: 0.95 }}
               aria-label="Next mode"
             >
-              <span className="text-xl lg:text-2xl">▶</span>
+              <span className="text-3xl lg:text-4xl leading-none flex items-center justify-center">▶</span>
             </motion.button>
           </div>
 
           {/* Play button */}
-          <motion.button
-            onClick={() => handleModeSelect(selectedMode.id)}
-            disabled={animatingSelection || selectedMode.locked}
-            className={`w-full py-4 rounded-2xl font-bold text-xl transition-all duration-200 transform ${
-              selectedMode.locked 
-                ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                : 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 hover:scale-105 active:scale-95'
-            }`}
-            whileHover={!selectedMode.locked ? { scale: 1.02 } : {}}
-            whileTap={!selectedMode.locked ? { scale: 0.98 } : {}}
-          >
-            {animatingSelection ? (
-              <div className="flex items-center justify-center gap-2">
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                Loading...
-              </div>
-            ) : selectedMode.locked ? (
-              '🔒 Locked'
-            ) : (
-              `Play ${selectedMode.title}! 🎮`
-            )}
-          </motion.button>
+          <div className="flex justify-center w-full">
+            <motion.button
+              onClick={() => handleModeSelect(selectedMode.id)}
+              disabled={animatingSelection || selectedMode.locked}
+              className={`w-full max-w-2xl py-8 rounded-2xl font-bold text-2xl lg:text-3xl transition-all duration-200 transform shadow-xl flex items-center justify-center ${
+                selectedMode.locked 
+                  ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 hover:scale-105 active:scale-95'
+              }`}
+              whileHover={!selectedMode.locked ? { scale: 1.02 } : {}}
+              whileTap={!selectedMode.locked ? { scale: 0.98 } : {}}
+            >
+              {animatingSelection ? (
+                <div className="flex items-center justify-center gap-5">
+                  <div className="w-8 h-8 border-3 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <span>Loading...</span>
+                </div>
+              ) : selectedMode.locked ? (
+                <div className="flex items-center justify-center gap-4">
+                  <span className="text-3xl leading-none">🔒</span>
+                  <span>Locked</span>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center gap-4">
+                  <span>Play {selectedMode.title}!</span>
+                  <span className="text-3xl leading-none">🎮</span>
+                </div>
+              )}
+            </motion.button>
+          </div>
         </motion.div>
 
         {/* Daily challenge notification */}
         {!dailyChallengeCompleted && (
           <motion.div
-            className="mt-6 bg-gradient-to-r from-purple-600/20 to-pink-600/20 backdrop-blur-md rounded-2xl p-4 border border-purple-500/30 max-w-lg w-full"
+            className="mt-16 bg-gradient-to-r from-purple-600/20 to-pink-600/20 backdrop-blur-md rounded-2xl p-8 border border-purple-500/30 max-w-3xl w-full shadow-lg"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.2 }}
           >
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-purple-600 rounded-xl flex items-center justify-center">
-                <Calendar className="w-6 h-6 text-white" />
+            <div className="flex items-center gap-8 w-full">
+              <div className="w-18 h-18 bg-purple-600 rounded-xl flex items-center justify-center shadow-md">
+                <Calendar className="w-9 h-9 text-white" />
               </div>
-              <div className="flex-1">
-                <h4 className="text-white font-medium">Daily Challenge Available!</h4>
-                <p className="text-white/70 text-sm">Complete today's challenge for bonus rewards</p>
+              <div className="flex-1 flex flex-col justify-center">
+                <h4 className="text-white font-semibold text-xl text-left">Daily Challenge Available!</h4>
+                <p className="text-white/70 text-lg text-left">Complete today's challenge for bonus rewards</p>
               </div>
               <button
                 onClick={() => handleModeSelect('dailyChallenge')}
-                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm"
+                className="px-8 py-5 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors text-lg font-medium shadow-md flex items-center gap-3"
               >
-                Play
+                <span>Play</span>
+                <span className="text-xl leading-none">🎯</span>
               </button>
             </div>
           </motion.div>
@@ -498,39 +540,41 @@ export default function EnhancedMainMenu({
         {/* Streak indicator */}
         {streak > 0 && (
           <motion.div
-            className="mt-4 flex items-center gap-2 bg-orange-500/20 backdrop-blur-md rounded-xl px-4 py-2 border border-orange-500/30"
+            className="mt-8 flex items-center justify-center gap-5 bg-orange-500/20 backdrop-blur-md rounded-xl px-8 py-5 border border-orange-500/30 shadow-lg max-w-md mx-auto"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 1.4 }}
           >
-            <Zap className="w-5 h-5 text-orange-400" />
-            <span className="text-white font-medium">{streak} Day Streak!</span>
+            <Zap className="w-8 h-8 text-orange-400" />
+            <span className="text-white font-semibold text-xl flex items-center gap-3">
+              {streak} Day Streak! <span className="text-2xl leading-none">🔥</span>
+            </span>
           </motion.div>
         )}
       </div>
 
       {/* Bottom navigation */}
       <motion.div
-        className="relative z-10 p-4"
+        className="relative z-10 p-8"
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1 }}
       >
-        <div className="flex justify-center gap-4">
+        <div className="flex justify-center gap-8">
           <button
             onClick={onShowStats}
-            className="flex items-center gap-2 bg-white/10 backdrop-blur-md rounded-xl px-4 py-3 border border-white/20 hover:bg-white/20 transition-all duration-200"
+            className="flex items-center gap-4 bg-white/15 backdrop-blur-md rounded-xl px-8 py-5 border border-white/25 hover:bg-white/25 transition-all duration-200 shadow-lg"
           >
-            <Trophy className="w-5 h-5 text-yellow-400" />
-            <span className="text-white">Leaderboard</span>
+            <Trophy className="w-7 h-7 text-yellow-400" />
+            <span className="text-white font-medium text-xl">Leaderboard</span>
           </button>
           
           <button
             onClick={onShowCredits}
-            className="flex items-center gap-2 bg-white/10 backdrop-blur-md rounded-xl px-4 py-3 border border-white/20 hover:bg-white/20 transition-all duration-200"
+            className="flex items-center gap-4 bg-white/15 backdrop-blur-md rounded-xl px-8 py-5 border border-white/25 hover:bg-white/25 transition-all duration-200 shadow-lg"
           >
-            <Star className="w-5 h-5 text-purple-400" />
-            <span className="text-white">About</span>
+            <Star className="w-7 h-7 text-purple-400" />
+            <span className="text-white font-medium text-xl">About</span>
           </button>
         </div>
       </motion.div>
