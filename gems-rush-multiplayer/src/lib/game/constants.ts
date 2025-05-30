@@ -33,6 +33,28 @@ export const GAME_CONFIG = {
     FIVE_MATCH: 300,
     SIX_PLUS_MATCH: 500
   },
+
+  // Enhanced Time Rush Scoring
+  TIME_RUSH_SCORES: {
+    THREE_MATCH: 100,    // 2x normal
+    FOUR_MATCH: 300,     // 2x normal + Lightning power-up
+    FIVE_MATCH: 600,     // 2x normal + Rainbow power-up
+    SIX_MATCH: 1000,     // 2x normal + Bomb power-up
+    SEVEN_PLUS_MATCH: 1500, // Meteor power-up + bonus per extra gem
+    EXTRA_GEM_BONUS: 250,   // Bonus per gem beyond 6
+    
+    // Time-based multipliers
+    ADRENALINE_MULTIPLIER: 2.0,  // Last 15 seconds
+    WARNING_MULTIPLIER: 1.5,     // Last 30 seconds
+    COMBO_BASE_MULTIPLIER: 0.5,  // Added per combo level
+    MAX_COMBO_MULTIPLIER: 5.0,
+    
+    // Power-up activation bonuses
+    POWER_UP_CLICK_BONUS: 100,   // Bonus for clicking to activate
+    LIGHTNING_CLEAR_BONUS: 50,   // Per gem cleared by lightning
+    BOMB_EXPLOSION_BONUS: 75,    // Per gem cleared by bomb
+    RAINBOW_COLOR_BONUS: 100,    // Per gem of target color cleared
+  },
   
   // Multiplier bonuses
   COMBO_MULTIPLIERS: [1, 1.2, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0],
@@ -46,9 +68,12 @@ export const GAME_CONFIG = {
       TARGET_SCORE: 1000
     },
     TIME_ATTACK: {
-      TIME_LIMIT: 60000, // 1 minute
+      TIME_LIMIT: 60000, // 1 minute (60 seconds)
       MOVE_LIMIT: undefined,
-      TARGET_SCORE: 2000
+      TARGET_SCORE: 5000, // Higher target for Time Rush
+      ADRENALINE_THRESHOLD: 15, // Seconds
+      WARNING_THRESHOLD: 30,    // Seconds
+      RUSH_BONUS_PERCENTAGE: 10, // 10% final score bonus
     },
     MOVES_LIMITED: {
       TIME_LIMIT: undefined,
@@ -60,6 +85,34 @@ export const GAME_CONFIG = {
       MOVE_LIMIT: 30,
       TARGET_SCORE: 3000
     }
+  },
+
+  // Time Rush specific configuration
+  TIME_RUSH_CONFIG: {
+    // Visual effect thresholds
+    ADRENALINE_TIME: 15,        // Seconds when adrenaline mode starts
+    WARNING_TIME: 10,           // Seconds when warning effects start
+    CRITICAL_TIME: 5,           // Seconds when critical effects start
+    
+    // Power-up mechanics
+    MIN_MATCH_FOR_POWERUP: 4,   // Minimum match size to create power-up
+    POWERUP_CHARGE_TIME: 0,     // Instant activation in Time Rush
+    POWERUP_VISUAL_DURATION: 2000, // How long power-up indicators show
+    
+    // Animation speeds (multipliers)
+    ANIMATION_SPEED_NORMAL: 1.0,
+    ANIMATION_SPEED_ADRENALINE: 1.3,
+    ANIMATION_SPEED_CRITICAL: 1.6,
+    
+    // Background effects
+    PARTICLE_COUNT_NORMAL: 8,
+    PARTICLE_COUNT_ADRENALINE: 15,
+    PARTICLE_COUNT_CRITICAL: 25,
+    
+    // Sound effect triggers
+    COMBO_SOUND_THRESHOLD: 2,   // Combo level to trigger special sound
+    POWERUP_SOUND_DELAY: 200,   // ms delay for power-up activation sound
+    ADRENALINE_MUSIC_FADE: 1000, // ms to fade to adrenaline music
   },
   
   // Multiplayer
@@ -85,6 +138,129 @@ export const GAME_CONFIG = {
   // Validation
   REQUIRED_GEM_PROPERTIES: ['type', 'id', 'row', 'col'] as const,
   REQUIRED_STATE_PROPERTIES: ['board', 'score', 'level', 'gameStatus'] as const
+} as const
+
+// Time Rush Power-up Effects Configuration
+export const TIME_RUSH_POWERUPS = {
+  lightning: {
+    name: 'Lightning Strike',
+    description: 'Clears entire row and column',
+    emoji: '⚡',
+    matchSize: 4,
+    clearPattern: 'cross', // Clears row + column
+    scoreMultiplier: 2.0,
+    visualEffect: 'electric',
+    soundEffect: 'lightning_crack',
+    activationDelay: 0, // Instant in Time Rush
+  },
+  rainbow: {
+    name: 'Rainbow Burst',
+    description: 'Clears all gems of the same color',
+    emoji: '🌈',
+    matchSize: 5,
+    clearPattern: 'color', // Clears all of target color
+    scoreMultiplier: 2.5,
+    visualEffect: 'rainbow_wave',
+    soundEffect: 'rainbow_burst',
+    activationDelay: 0,
+  },
+  bomb: {
+    name: 'Explosive Blast',
+    description: 'Destroys 3x3 area around target',
+    emoji: '💥',
+    matchSize: 6,
+    clearPattern: 'area', // 3x3 explosion
+    scoreMultiplier: 3.0,
+    visualEffect: 'explosion',
+    soundEffect: 'bomb_blast',
+    activationDelay: 0,
+  },
+  meteor: {
+    name: 'Meteor Strike',
+    description: 'Massive area destruction',
+    emoji: '☄️',
+    matchSize: 7,
+    clearPattern: 'massive', // 5x5 explosion
+    scoreMultiplier: 4.0,
+    visualEffect: 'meteor_impact',
+    soundEffect: 'meteor_crash',
+    activationDelay: 0,
+  }
+} as const
+
+// Time Rush Visual Effects
+export const TIME_RUSH_EFFECTS = {
+  backgrounds: {
+    normal: 'from-orange-900 via-red-900 to-purple-900',
+    adrenaline: 'from-red-900 via-orange-800 to-yellow-700',
+    warning: 'from-red-800 via-orange-700 to-red-600',
+    critical: 'from-red-600 via-red-700 to-red-800'
+  },
+  
+  particles: {
+    normal: { count: 8, color: 'bg-orange-400', speed: 'normal' },
+    adrenaline: { count: 15, color: 'bg-yellow-400', speed: 'fast' },
+    warning: { count: 20, color: 'bg-red-400', speed: 'faster' },
+    critical: { count: 25, color: 'bg-white', speed: 'fastest' }
+  },
+  
+  pulseEffects: {
+    adrenaline: { duration: 0.8, intensity: 0.3 },
+    warning: { duration: 0.6, intensity: 0.4 },
+    critical: { duration: 0.4, intensity: 0.6 }
+  },
+  
+  screenShake: {
+    powerup: { intensity: 2, duration: 200 },
+    adrenaline: { intensity: 1, duration: 100 },
+    combo: { intensity: 3, duration: 300 }
+  }
+} as const
+
+// Gem type definitions for Time Rush enhanced visuals
+export const TIME_RUSH_GEM_EFFECTS = {
+  fire: {
+    normalEmoji: '🔥',
+    adrenalineEmoji: '🌋',
+    trailColor: 'rgb(239, 68, 68)',
+    glowColor: 'rgba(239, 68, 68, 0.5)'
+  },
+  water: {
+    normalEmoji: '💧',
+    adrenalineEmoji: '🌊',
+    trailColor: 'rgb(59, 130, 246)',
+    glowColor: 'rgba(59, 130, 246, 0.5)'
+  },
+  earth: {
+    normalEmoji: '🌍',
+    adrenalineEmoji: '⛰️',
+    trailColor: 'rgb(245, 158, 11)',
+    glowColor: 'rgba(245, 158, 11, 0.5)'
+  },
+  nature: {
+    normalEmoji: '🌿',
+    adrenalineEmoji: '🌳',
+    trailColor: 'rgb(34, 197, 94)',
+    glowColor: 'rgba(34, 197, 94, 0.5)'
+  },
+  lightning: {
+    normalEmoji: '⚡',
+    adrenalineEmoji: '🌩️',
+    trailColor: 'rgb(147, 51, 234)',
+    glowColor: 'rgba(147, 51, 234, 0.5)'
+  },
+  magic: {
+    normalEmoji: '🔮',
+    adrenalineEmoji: '✨',
+    trailColor: 'rgb(236, 72, 153)',
+    glowColor: 'rgba(236, 72, 153, 0.5)'
+  },
+  crystal: {
+    normalEmoji: '💎',
+    adrenalineEmoji: '💠',
+    trailColor: 'rgb(6, 182, 212)',
+    glowColor: 'rgba(6, 182, 212, 0.5)'
+  }
 } as const
 
 // Enhanced 5-Gem Elemental System - Professional Industry Standards

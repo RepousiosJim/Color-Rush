@@ -149,7 +149,7 @@ export default function HomePage() {
         const savedStats = localStorage.getItem('gems-rush-user-stats')
         if (savedStats) {
           const parsedStats = JSON.parse(savedStats)
-          
+        
           // Update energy based on time passed
           const energyStatus = energyManager.getEnergyStatus(
             parsedStats.energy || 100,
@@ -294,7 +294,7 @@ export default function HomePage() {
             totalScore: prev.totalScore + gameState.score,
             averageScore: Math.floor((prev.totalScore + gameState.score) / prev.gamesPlayed),
             bestScore: Math.max(prev.bestScore, gameState.score)
-          }
+      }
           
           // Check for tutorial step completion
           if (gameState.score > 5000 && prev.tutorialProgress && !prev.tutorialProgress.completedSteps.includes('first_match')) {
